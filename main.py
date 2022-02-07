@@ -20,10 +20,6 @@ from LSTM_Model import *
 
 
 train = False
-cwd = os.getcwd()
-outputDir = "output"
-op = os.path.join(cwd, outputDir)
-
 
 
 songs = []
@@ -178,7 +174,7 @@ sampled_indices = tf.random.categorical(pred[0], num_samples=1)
 sampled_indices = tf.squeeze(sampled_indices, axis=-1).numpy()
 
 print("Input: \n", repr("".join(idx2char[x[0]])))
-print()
+#print()
 print("Next Char Predictions: \n", repr("".join(idx2char[sampled_indices])))
 
 ### Defining the loss function ###
@@ -334,6 +330,7 @@ else:
 
         # If its a valid song (correct syntax), lets play it!
         if waveform:
+            print("---------------------------------------------------------------")
             print("Generated song", i)
             ipythondisplay.display(waveform)
             n = "gan_song_{}".format(i)

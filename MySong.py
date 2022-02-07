@@ -1,12 +1,27 @@
 import os
 from IPython import display as ipythondisplay
 import regex as re
+import time
 
+#current directory
 cwd = os.getcwd()
-outputDir = "output"
-op = os.path.join(cwd, outputDir)
+#collection of all outputs directory
+opd = os.path.join(cwd, "outputs")
+#output directory for this generation
+op = os.path.join(opd, "output@"+time.asctime().replace(' ', ''))
 
-def save_song_to_abc(song, filename="tmp"):
+#create directories
+try:
+    os.mkdir(opd)
+except FileExistsError:
+    print("The outputs directory already exists...")
+
+try:
+    os.mkdir(op)
+except FileExistsError:
+    print("The directory {} already exists...".format(op))
+
+def save_song_to_abc(song, filename="sampleFromDataset"):
     save_name = os.path.join(op, "{}.abc".format(filename))
     with open(save_name, "w") as f:
         f.write(song)
