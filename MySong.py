@@ -8,7 +8,8 @@ cwd = os.getcwd()
 #collection of all outputs directory
 opd = os.path.join(cwd, "outputs")
 #output directory for this generation
-op = os.path.join(opd, "output@"+time.asctime().replace(' ', ''))
+
+op = os.path.join(opd, "output@"+time.asctime().replace(' ', '').replace(':', ''))
 
 #create directories
 try:

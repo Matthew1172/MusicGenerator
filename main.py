@@ -325,14 +325,9 @@ else:
     generated_songs = extract_song_snippet(generated_text)
 
     for i, song in enumerate(generated_songs):
-        # Synthesize the waveform from a song
-        waveform = play_song(song)
-
-        # If its a valid song (correct syntax), lets play it!
-        if waveform:
-            print("---------------------------------------------------------------")
-            print("Generated song", i)
-            ipythondisplay.display(waveform)
-            n = "gan_song_{}".format(i)
-            basename = os.path.join(op, save_song_to_abc(song, filename=n))
-            abc2wav(basename+'.abc')
+        #could be incorrect ABC notational syntax, save the ABC file anyway...
+        print("---------------------------------------------------------------")
+        print("Generated song", i)
+        n = "gan_song_{}".format(i)
+        basename = os.path.join(op, save_song_to_abc(song, filename=n))
+        abc2wav(basename + '.abc')
