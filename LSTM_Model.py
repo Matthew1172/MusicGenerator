@@ -1,4 +1,11 @@
 import tensorflow as tf
+import torch as t
+
+#keras
+#lstm = L.LSTM(units=H, return_sequences=True, return_state=True)
+
+#pytorch
+#lstm = nn.LSTM(input_size=D, hidden_size=H, num_layers=1, batch_first=True).cuda()
 
 def LSTM(rnn_units):
     return tf.keras.layers.LSTM(
@@ -7,6 +14,14 @@ def LSTM(rnn_units):
         recurrent_initializer='glorot_uniform',
         recurrent_activation='sigmoid',
         stateful=True,
+    )
+
+def pytorch_LSTM(rnn_units, embedding_dim):
+    return t.nn.LSTM(
+        input_size=embedding_dim,
+        hidden_size=rnn_units,
+        num_layers=1,
+        batch_first=True
     )
 
 ### Defining the RNN Model ###
@@ -24,5 +39,12 @@ def build_model(vocab_size, embedding_dim, rnn_units, batch_size):
         #   into the vocabulary size.
         tf.keras.layers.Dense(units=vocab_size)
     ])
+
+    model_torch = t.nn.Sequential(
+        t.nn.Embedding(num_embeddings=vocab_size, embedding_dim=embedding_dim, padding_idx=0),
+        pytorch_LSTM(rnn_units, embedding_dim),
+        t.nn.Linear(vocab_size, vocab_size)
+    )
+
     return model
 
