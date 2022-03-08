@@ -19,8 +19,7 @@ from LSTM_Model import *
 # assert len(tf.config.list_physical_devices('GPU')) > 0
 
 
-train = False
-
+train = True
 
 songs = []
 
@@ -32,9 +31,6 @@ with open(os.path.join(cwd, 'dataset', 'irish.abc'), 'r') as f:
 example_song = songs[0]
 print("\nExample song: ")
 print(example_song)
-
-
-
 
 # need abc2midi and timidity
 play_song(example_song)
@@ -158,24 +154,25 @@ for i, (input_idx, target_idx) in enumerate(zip(np.squeeze(x_batch), np.squeeze(
     print("  input: {} ({:s})".format(input_idx, repr(idx2char[input_idx])))
     print("  expected output: {} ({:s})".format(target_idx, repr(idx2char[target_idx])))
 
-
 # Build a simple model with default hyperparameters. You will get the
 #   chance to change these later.
 model = build_model(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=4)
-
-model.summary()
+#4 100 83
+#model = MusicGenerator(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=4, seq_length=100)
+print(model)
+# model.summary()
 
 x, y = get_batch(vectorized_songs, seq_length=100, batch_size=4)
 pred = model(x)
 print("Input shape:      ", x.shape, " # (batch_size, sequence_length)")
 print("Prediction shape: ", pred.shape, "# (batch_size, sequence_length, vocab_size)")
 
-sampled_indices = tf.random.categorical(pred[0], num_samples=1)
-sampled_indices = tf.squeeze(sampled_indices, axis=-1).numpy()
+# sampled_indices = tf.random.categorical(pred[0], num_samples=1)
+# sampled_indices = tf.squeeze(sampled_indices, axis=-1).numpy()
 
 print("Input: \n", repr("".join(idx2char[x[0]])))
-#print()
-print("Next Char Predictions: \n", repr("".join(idx2char[sampled_indices])))
+# print()
+# print("Next Char Predictions: \n", repr("".join(idx2char[sampled_indices])))
 
 ### Defining the loss function ###
 
@@ -184,7 +181,10 @@ print("Next Char Predictions: \n", repr("".join(idx2char[sampled_indices])))
 
 
 def compute_loss(labels, logits):
-    loss = tf.keras.losses.sparse_categorical_crossentropy(labels, logits, from_logits=True)
+    #loss = tf.keras.losses.sparse_categorical_crossentropy(labels, logits, from_logits=True)
+    x = torch.Tensor(logits).permute((0, 2, 1))  # shape of preds must be (N, C, H, W) instead of (N, H, W, C)
+    y = torch.Tensor(labels).long()  # shape of labels must be (N, H, W) and type must be long integer
+    loss = torch.nn.CrossEntropyLoss(reduction="none")(x, y)
     return loss
 
 
@@ -193,9 +193,14 @@ def compute_loss(labels, logits):
 example_batch_loss = compute_loss(y, pred)
 
 print("Prediction shape: ", pred.shape, " # (batch_size, sequence_length, vocab_size)")
-print("scalar_loss:      ", example_batch_loss.numpy().mean())
+'''
+example_batch_loss.numpy().mean() = 4.417909
+'''
+#print("scalar_loss:      ", example_batch_loss.numpy().mean())
 
 ### Hyperparameter setting and optimization ###
+
+epochs = 1
 
 # Optimization parameters:
 num_training_iterations = 2000  # Increase this to train longer
@@ -209,21 +214,23 @@ embedding_dim = 256
 rnn_units = 1024  # Experiment between 1 and 2048
 
 # Checkpoint location:
-checkpoint_dir = './training_checkpoints'
+checkpoint_dir = './training_checkpoints_pytorch'
 checkpoint_prefix = os.path.join(checkpoint_dir, "my_ckpt")
-
 
 ### Define optimizer and training operation ###
 
 '''TODO: instantiate a new model for training using the `build_model`
   function and the hyperparameters created above.'''
-model = build_model(vocab_size, embedding_dim, rnn_units, batch_size)
+# model = build_model(vocab_size, embedding_dim, rnn_units, batch_size)
+model = MusicGenerator(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=4, seq_length=100)
 
 '''TODO: instantiate an optimizer with its learning rate.
   Checkout the tensorflow website for a list of supported optimizers.
   https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/
   Try using the Adam optimizer to start.'''
-optimizer = tf.keras.optimizers.Adam(learning_rate)
+# optimizer = tf.keras.optimizers.Adam(learning_rate)
+
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 
 @tf.function
@@ -247,6 +254,25 @@ def train_step(x, y):
     # Apply the gradients to the optimizer so it can update the model accordingly
     optimizer.apply_gradients(zip(grads, model.trainable_variables))
     return loss
+
+
+def torch_train(x, y):
+    [w, b] = model.parameters()
+    for epoch in range(epochs):
+        # forward pass and loss calculation
+        # implicit tape-based AD
+        y_hat = model(x)
+        loss = compute_loss(y, y_hat)
+
+        # compute gradients (grad)
+        loss.backward()
+
+        # update training variables / parameters
+        with torch.no_grad():
+            w -= w.grad * learning_rate
+            b -= b.grad * learning_rate
+            w.grad.zero_()
+            b.grad.zero_()
 
 
 ### Prediction of a generated song ###
@@ -284,6 +310,7 @@ def generate_text(model, start_string, generation_length=1000):
 
     return (start_string + ''.join(text_generated))
 
+
 if train:
     ##################
     # Begin training!#
@@ -296,7 +323,8 @@ if train:
 
         # Grab a batch and propagate it through the network
         x_batch, y_batch = get_batch(vectorized_songs, seq_length, batch_size)
-        loss = train_step(x_batch, y_batch)
+        #loss = train_step(x_batch, y_batch)
+        loss = torch_train(x_batch, y_batch)
 
         # Update the progress bar
         history.append(loss.numpy().mean())
@@ -325,7 +353,7 @@ else:
     generated_songs = extract_song_snippet(generated_text)
 
     for i, song in enumerate(generated_songs):
-        #could be incorrect ABC notational syntax, save the ABC file anyway...
+        # could be incorrect ABC notational syntax, save the ABC file anyway...
         print("---------------------------------------------------------------")
         print("Generated song", i)
         n = "gan_song_{}".format(i)
