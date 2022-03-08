@@ -6,6 +6,8 @@ import regex as re
 import subprocess
 import urllib
 import functools
+
+import torch.distributions.distribution
 from IPython import display as ipythondisplay
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -154,25 +156,28 @@ for i, (input_idx, target_idx) in enumerate(zip(np.squeeze(x_batch), np.squeeze(
     print("  input: {} ({:s})".format(input_idx, repr(idx2char[input_idx])))
     print("  expected output: {} ({:s})".format(target_idx, repr(idx2char[target_idx])))
 
+
 # Build a simple model with default hyperparameters. You will get the
 #   chance to change these later.
 #model = build_model(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=4)
-#4 100 83
 model = MusicGenerator(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=4, seq_length=100)
+
 print(model)
-# model.summary()
+#model.summary()
 
 x, y = get_batch(vectorized_songs, seq_length=100, batch_size=4)
 pred = model(x)
 print("Input shape:      ", x.shape, " # (batch_size, sequence_length)")
 print("Prediction shape: ", pred.shape, "# (batch_size, sequence_length, vocab_size)")
 
-# sampled_indices = tf.random.categorical(pred[0], num_samples=1)
-# sampled_indices = tf.squeeze(sampled_indices, axis=-1).numpy()
+#sampled_indices = tf.random.categorical(pred[0], num_samples=1)
+#sampled_indices = tf.squeeze(sampled_indices, axis=-1).numpy()
+sampled_indices = torch.distributions.categorical.Categorical(logits=pred[0]).sample()
+sampled_indices = torch.squeeze(sampled_indices, dim=-1).numpy()
 
 print("Input: \n", repr("".join(idx2char[x[0]])))
 # print()
-# print("Next Char Predictions: \n", repr("".join(idx2char[sampled_indices])))
+print("Next Char Predictions: \n", repr("".join(idx2char[sampled_indices])))
 
 ### Defining the loss function ###
 
@@ -187,7 +192,6 @@ def compute_loss(labels, logits):
     loss = torch.nn.CrossEntropyLoss(reduction="none")(x, y)
     return loss
 
-
 '''TODO: compute the loss using the true next characters from the example batch 
     and the predictions from the untrained model several cells above'''
 example_batch_loss = compute_loss(y, pred)
@@ -196,7 +200,7 @@ print("Prediction shape: ", pred.shape, " # (batch_size, sequence_length, vocab_
 '''
 example_batch_loss.numpy().mean() = 4.417909
 '''
-#print("scalar_loss:      ", example_batch_loss.numpy().mean())
+print("scalar_loss:      ", example_batch_loss.detach().numpy().mean())
 
 ### Hyperparameter setting and optimization ###
 
@@ -214,8 +218,18 @@ embedding_dim = 256
 rnn_units = 1024  # Experiment between 1 and 2048
 
 # Checkpoint location:
-checkpoint_dir = './training_checkpoints_pytorch'
-checkpoint_prefix = os.path.join(checkpoint_dir, "my_ckpt")
+checkpoint_dir = 'training_checkpoints_pytorch'
+checkpoint_prefix = 'my_ckpt'
+
+checkpoint_dir = os.path.join(cwd, checkpoint_dir)
+#try to create pytorch training checkpoints directory
+try:
+    os.mkdir(checkpoint_dir)
+except FileExistsError:
+    print("The pytorch training directory already exists...")
+
+checkpoint_prefix = os.path.join(checkpoint_dir, checkpoint_prefix)
+
 
 ### Define optimizer and training operation ###
 
@@ -229,7 +243,6 @@ model = MusicGenerator(len(vocab), embedding_dim=256, rnn_units=1024, batch_size
   https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/
   Try using the Adam optimizer to start.'''
 # optimizer = tf.keras.optimizers.Adam(learning_rate)
-
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 
@@ -257,7 +270,7 @@ def train_step(x, y):
 
 
 def torch_train(x, y):
-    [w, b] = model.parameters()
+    #[w, b] = model.parameters()
     for epoch in range(epochs):
         # forward pass and loss calculation
         # implicit tape-based AD
@@ -265,15 +278,15 @@ def torch_train(x, y):
         loss = compute_loss(y, y_hat)
 
         # compute gradients (grad)
-        loss.backward()
+        #loss.backward()
+        #copmute the gradient for the sum of elements in loss
+        loss.backward(torch.ones_like(loss))
 
-        # update training variables / parameters
         with torch.no_grad():
-            w -= w.grad * learning_rate
-            b -= b.grad * learning_rate
-            w.grad.zero_()
-            b.grad.zero_()
-
+            for p in model.parameters():
+                p -= p.grad * learning_rate
+                model.zero_grad()
+        return loss
 
 ### Prediction of a generated song ###
 
@@ -327,15 +340,17 @@ if train:
         loss = torch_train(x_batch, y_batch)
 
         # Update the progress bar
-        history.append(loss.numpy().mean())
+        history.append(loss.detach().numpy().mean())
         plotter.plot(history)
 
         # Update the model with the changed weights!
         if iter % 100 == 0:
-            model.save_weights(checkpoint_prefix)
+            #model.save_weights(checkpoint_prefix)
+            torch.save(model.state_dict(), checkpoint_prefix)
 
     # Save the trained model and the weights
-    model.save_weights(checkpoint_prefix)
+    #model.save_weights(checkpoint_prefix)
+    torch.save(model.state_dict(), checkpoint_prefix)
 else:
 
     model = build_model(vocab_size, embedding_dim, rnn_units, batch_size=1)

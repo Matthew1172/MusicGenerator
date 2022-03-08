@@ -12,7 +12,6 @@ pinput =
 ptest = 
 '''
 
-
 # keras
 # lstm = L.LSTM(units=H, return_sequences=True, return_state=True)
 
@@ -27,16 +26,6 @@ def LSTM(rnn_units):
         recurrent_activation='sigmoid',
         stateful=True,
     )
-
-
-def pytorch_LSTM(rnn_units, embedding_dim):
-    return torch.nn.LSTM(
-        input_size=embedding_dim,
-        hidden_size=rnn_units,
-        num_layers=1,
-        batch_first=True
-    )
-
 
 ### Defining the RNN Model ###
 '''
@@ -58,13 +47,6 @@ def build_model(vocab_size, embedding_dim, rnn_units, batch_size):
         #   into the vocabulary size.
         tf.keras.layers.Dense(units=vocab_size)
     ])
-    '''
-    model_torch = t.nn.Sequential(
-        t.nn.Embedding(num_embeddings=vocab_size, embedding_dim=embedding_dim, padding_idx=0),
-        pytorch_LSTM(rnn_units, embedding_dim),
-        t.nn.Linear(vocab_size, vocab_size)
-    )
-    '''
     return model
 
 class GetLSTMOutput(torch.nn.Module):
@@ -83,15 +65,6 @@ class MusicGenerator(torch.nn.Module):
             torch.nn.Linear(rnn_units, vocab_size)
         )
 
-        '''
-        self.lstm_model = torch.nn.Sequential(OrderedDict([
-            ('embedding', torch.nn.Embedding(batch_size*seq_length, embedding_dim)),
-            ('lstm', torch.nn.LSTM(embedding_dim, batch_size*embedding_dim, batch_first=True)),
-            ('dense', torch.nn.Linear(rnn_units, vocab_size))
-        ]))
-        '''
-
     def forward(self, x):
         x = self.lstm_model(torch.tensor(x))
-        print("Layer----------")
         return x
