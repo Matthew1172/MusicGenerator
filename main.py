@@ -156,9 +156,9 @@ for i, (input_idx, target_idx) in enumerate(zip(np.squeeze(x_batch), np.squeeze(
 
 # Build a simple model with default hyperparameters. You will get the
 #   chance to change these later.
-model = build_model(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=4)
+#model = build_model(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=4)
 #4 100 83
-#model = MusicGenerator(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=4, seq_length=100)
+model = MusicGenerator(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=4, seq_length=100)
 print(model)
 # model.summary()
 
