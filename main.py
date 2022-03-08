@@ -323,7 +323,6 @@ def generate_text(model, start_string, generation_length=1000):
 
     return (start_string + ''.join(text_generated))
 
-
 if train:
     ##################
     # Begin training!#
