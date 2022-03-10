@@ -1,4 +1,3 @@
-import tensorflow as tf
 import numpy as np
 import os
 import time
@@ -16,15 +15,9 @@ from MySong import *
 from Graph import PeriodicPlotter
 from LSTM_Model import *
 
-# Check that we are using a GPU, if not switch runtimes
-#   using Runtime > Change Runtime Type > GPU
-# assert len(tf.config.list_physical_devices('GPU')) > 0
-
-
 train = True
 
 songs = []
-
 with open(os.path.join(cwd, 'dataset', 'irish.abc'), 'r') as f:
     text = f.read()
     songs = extract_song_snippet(text)
@@ -159,19 +152,15 @@ for i, (input_idx, target_idx) in enumerate(zip(np.squeeze(x_batch), np.squeeze(
 
 # Build a simple model with default hyperparameters. You will get the
 #   chance to change these later.
-#model = build_model(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=4)
 model = MusicGenerator(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=4, seq_length=100)
 
 print(model)
-#model.summary()
 
 x, y = get_batch(vectorized_songs, seq_length=100, batch_size=4)
 pred = model(x)
 print("Input shape:      ", x.shape, " # (batch_size, sequence_length)")
 print("Prediction shape: ", pred.shape, "# (batch_size, sequence_length, vocab_size)")
 
-#sampled_indices = tf.random.categorical(pred[0], num_samples=1)
-#sampled_indices = tf.squeeze(sampled_indices, axis=-1).numpy()
 sampled_indices = torch.distributions.categorical.Categorical(logits=pred[0]).sample()
 sampled_indices = torch.squeeze(sampled_indices, dim=-1).numpy()
 
@@ -186,11 +175,11 @@ print("Next Char Predictions: \n", repr("".join(idx2char[sampled_indices])))
 
 
 def compute_loss(labels, logits):
-    #loss = tf.keras.losses.sparse_categorical_crossentropy(labels, logits, from_logits=True)
     x = torch.Tensor(logits).permute((0, 2, 1))  # shape of preds must be (N, C, H, W) instead of (N, H, W, C)
     y = torch.Tensor(labels).long()  # shape of labels must be (N, H, W) and type must be long integer
-    loss = torch.nn.CrossEntropyLoss(reduction="none")(x, y)
+    loss = torch.nn.CrossEntropyLoss()(x, y)
     return loss
+
 
 '''TODO: compute the loss using the true next characters from the example batch 
     and the predictions from the untrained model several cells above'''
@@ -201,6 +190,7 @@ print("Prediction shape: ", pred.shape, " # (batch_size, sequence_length, vocab_
 example_batch_loss.numpy().mean() = 4.417909
 '''
 print("scalar_loss:      ", example_batch_loss.detach().numpy().mean())
+print(example_batch_loss)
 
 ### Hyperparameter setting and optimization ###
 
@@ -222,108 +212,46 @@ checkpoint_dir = 'training_checkpoints_pytorch'
 checkpoint_prefix = 'my_ckpt'
 
 checkpoint_dir = os.path.join(cwd, checkpoint_dir)
-#try to create pytorch training checkpoints directory
-try:
-    os.mkdir(checkpoint_dir)
-except FileExistsError:
-    print("The pytorch training directory already exists...")
-
 checkpoint_prefix = os.path.join(checkpoint_dir, checkpoint_prefix)
 
 
 ### Define optimizer and training operation ###
 
-'''TODO: instantiate a new model for training using the `build_model`
-  function and the hyperparameters created above.'''
-# model = build_model(vocab_size, embedding_dim, rnn_units, batch_size)
-model = MusicGenerator(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=4, seq_length=100)
+'''TODO: instantiate a new model for training using the hyperparameters created above.'''
+#model = MusicGenerator(vocab_size=vocab_size, embedding_dim=embedding_dim, rnn_units=rnn_units, batch_size=batch_size, seq_length=seq_length)
+model = torch.nn.Sequential(
+            torch.nn.Embedding(batch_size*seq_length, embedding_dim),
+            torch.nn.LSTM(embedding_dim, rnn_units, batch_first=True),
+            GetLSTMOutput(),
+            torch.nn.Linear(rnn_units, vocab_size)
+        )
 
 '''TODO: instantiate an optimizer with its learning rate.
-  Checkout the tensorflow website for a list of supported optimizers.
-  https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/
   Try using the Adam optimizer to start.'''
-# optimizer = tf.keras.optimizers.Adam(learning_rate)
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-
-
-@tf.function
-def train_step(x, y):
-    # Use tf.GradientTape()
-    with tf.GradientTape() as tape:
-        '''TODO: feed the current input into the model and generate predictions'''
-        y_hat = model(x)
-
-        '''TODO: compute the loss!'''
-        loss = compute_loss(y, y_hat)
-
-    # Now, compute the gradients
-    '''TODO: complete the function call for gradient computation. 
-        Remember that we want the gradient of the loss with respect all 
-        of the model parameters. 
-        HINT: use `model.trainable_variables` to get a list of all model
-        parameters.'''
-    grads = tape.gradient(loss, model.trainable_variables)
-
-    # Apply the gradients to the optimizer so it can update the model accordingly
-    optimizer.apply_gradients(zip(grads, model.trainable_variables))
-    return loss
-
+#optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
 def torch_train(x, y):
-    #[w, b] = model.parameters()
     for epoch in range(epochs):
         # forward pass and loss calculation
         # implicit tape-based AD
-        y_hat = model(x)
+        y_hat = model(torch.tensor(x))
         loss = compute_loss(y, y_hat)
 
+        optimizer.zero_grad()
         # compute gradients (grad)
-        #loss.backward()
-        #copmute the gradient for the sum of elements in loss
-        loss.backward(torch.ones_like(loss))
-
-        with torch.no_grad():
-            for p in model.parameters():
-                p -= p.grad * learning_rate
-                model.zero_grad()
+        loss.backward()
+        optimizer.step()
         return loss
 
-### Prediction of a generated song ###
-
-def generate_text(model, start_string, generation_length=1000):
-    # Evaluation step (generating ABC text using the learned RNN model)
-
-    '''TODO: convert the start string to numbers (vectorize)'''
-    input_eval = [char2idx[s] for s in start_string]
-    input_eval = tf.expand_dims(input_eval, 0)
-
-    # Empty string to store our results
-    text_generated = []
-
-    # Here batch size == 1
-    model.reset_states()
-    tqdm._instances.clear()
-
-    for i in tqdm(range(generation_length)):
-        predictions = model(input_eval)
-
-        # Remove the batch dimension
-        predictions = tf.squeeze(predictions, 0)
-
-        '''TODO: use a multinomial distribution to sample'''
-        predicted_id = tf.random.categorical(predictions, num_samples=1)[-1, 0].numpy()
-
-        # Pass the prediction along with the previous hidden state
-        #   as the next inputs to the model
-        input_eval = tf.expand_dims([predicted_id], 0)
-
-        '''TODO: add the predicted character to the generated text!'''
-        # Hint: consider what format the prediction is in vs. the output
-        text_generated.append(idx2char[predicted_id])
-
-    return (start_string + ''.join(text_generated))
-
 if train:
+
+    # try to create pytorch training checkpoints directory
+    try:
+        os.mkdir(checkpoint_dir)
+    except FileExistsError:
+        print("The pytorch training directory already exists...")
+
     ##################
     # Begin training!#
     ##################
@@ -335,7 +263,6 @@ if train:
 
         # Grab a batch and propagate it through the network
         x_batch, y_batch = get_batch(vectorized_songs, seq_length, batch_size)
-        #loss = train_step(x_batch, y_batch)
         loss = torch_train(x_batch, y_batch)
 
         # Update the progress bar
@@ -344,21 +271,58 @@ if train:
 
         # Update the model with the changed weights!
         if iter % 100 == 0:
-            #model.save_weights(checkpoint_prefix)
             torch.save(model.state_dict(), checkpoint_prefix)
 
     # Save the trained model and the weights
-    #model.save_weights(checkpoint_prefix)
     torch.save(model.state_dict(), checkpoint_prefix)
 else:
 
-    model = build_model(vocab_size, embedding_dim, rnn_units, batch_size=1)
+    ### Prediction of a generated song ###
+
+    def generate_text(model, start_string, generation_length=1000):
+        # Evaluation step (generating ABC text using the learned RNN model)
+
+        '''TODO: convert the start string to numbers (vectorize)'''
+        input_eval = [char2idx[s] for s in start_string]
+        input_eval = np.expand_dims(input_eval, axis=0)
+
+        # Empty string to store our results
+        text_generated = []
+
+        # Here batch size == 1
+        for layer in model.children():
+            if hasattr(layer, 'reset_parameters'):
+                layer.reset_parameters()
+
+        tqdm._instances.clear()
+
+        for i in tqdm(range(generation_length)):
+            predictions = model(input_eval)
+
+            # Remove the batch dimension
+            # predictions = tf.squeeze(predictions, 0)
+            predictions = torch.squeeze(predictions, dim=0)
+
+            '''TODO: use a multinomial distribution to sample'''
+            # predicted_id = tf.random.categorical(predictions, num_samples=1)[-1, 0].numpy()
+            predicted_id = torch.distributions.categorical.Categorical(logits=predictions).sample()[0].numpy()
+            # predicted_id = torch.distributions.categorical.Categorical(logits=predictions)
+
+            # Pass the prediction along with the previous hidden state
+            #   as the next inputs to the model
+            input_eval = np.expand_dims(np.array([predicted_id]), axis=0)
+
+            '''TODO: add the predicted character to the generated text!'''
+            # Hint: consider what format the prediction is in vs. the output
+            text_generated.append(idx2char[predicted_id])
+
+        return (start_string + ''.join(text_generated))
 
     # Restore the model weights for the last checkpoint after training
-    model.load_weights(tf.train.latest_checkpoint(checkpoint_dir))
-    model.build(tf.TensorShape([1, None]))
-
-    model.summary()
+    model = MusicGenerator(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=4, seq_length=100)
+    model.load_state_dict(torch.load(checkpoint_prefix))
+    model.eval()
+    print(model)
 
     '''TODO: Use the model and the function defined above to generate ABC format text of length 1000!
         As you may notice, ABC files start with "X" - this may be a good start string.'''

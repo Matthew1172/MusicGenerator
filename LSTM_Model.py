@@ -31,7 +31,7 @@ def LSTM(rnn_units):
 '''
 vocab_size = 83
 embedding_dim = 256
-rnn_units = ?
+rnn_units = 1024
 batch_size = 4
 '''
 def build_model(vocab_size, embedding_dim, rnn_units, batch_size):
@@ -60,7 +60,7 @@ class MusicGenerator(torch.nn.Module):
 
         self.lstm_model = torch.nn.Sequential(
             torch.nn.Embedding(batch_size*seq_length, embedding_dim),
-            torch.nn.LSTM(embedding_dim, batch_size*embedding_dim, batch_first=True),
+            torch.nn.LSTM(embedding_dim, rnn_units, batch_first=True),
             GetLSTMOutput(),
             torch.nn.Linear(rnn_units, vocab_size)
         )
