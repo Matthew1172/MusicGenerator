@@ -66,10 +66,7 @@ print('  ...\n}')
 
 ### Vectorize the songs string ###
 
-'''TODO: Write a function to convert the all songs string to a vectorized
-    (i.e., numeric) representation. Use the appropriate mapping
-    above to convert from vocab characters to the corresponding indices.
-
+'''
   NOTE: the output of the `vectorize_string` function 
   should be a np.array with `N` elements, where `N` is
   the number of characters in the input string
@@ -122,9 +119,7 @@ def get_batch(vectorized_songs, seq_length, batch_size):
     # randomly choose the starting indices for the examples in the training batch
     idx = np.random.choice(n - seq_length, batch_size)
 
-    '''TODO: construct a list of input sequences for the training batch'''
     input_batch = [vectorized_songs[i:i + seq_length] for i in idx]
-    '''TODO: construct a list of output sequences for the training batch'''
     output_batch = [vectorized_songs[i + 1: i + 1 + seq_length] for i in idx]
 
     # x_batch, y_batch provide the true inputs and targets for network training
@@ -170,19 +165,12 @@ print("Next Char Predictions: \n", repr("".join(idx2char[sampled_indices])))
 
 ### Defining the loss function ###
 
-'''TODO: define the loss function to compute and return the loss between
-    the true labels and predictions (logits). Set the argument from_logits=True.'''
-
-
 def compute_loss(labels, logits):
     x = torch.Tensor(logits).permute((0, 2, 1))  # shape of preds must be (N, C, H, W) instead of (N, H, W, C)
     y = torch.Tensor(labels).long()  # shape of labels must be (N, H, W) and type must be long integer
     loss = torch.nn.CrossEntropyLoss()(x, y)
     return loss
 
-
-'''TODO: compute the loss using the true next characters from the example batch 
-    and the predictions from the untrained model several cells above'''
 example_batch_loss = compute_loss(y, pred)
 
 print("Prediction shape: ", pred.shape, " # (batch_size, sequence_length, vocab_size)")
@@ -217,7 +205,6 @@ checkpoint_prefix = os.path.join(checkpoint_dir, checkpoint_prefix)
 
 ### Define optimizer and training operation ###
 
-'''TODO: instantiate a new model for training using the hyperparameters created above.'''
 #model = MusicGenerator(vocab_size=vocab_size, embedding_dim=embedding_dim, rnn_units=rnn_units, batch_size=batch_size, seq_length=seq_length)
 model = torch.nn.Sequential(
             torch.nn.Embedding(batch_size*seq_length, embedding_dim),
@@ -226,8 +213,6 @@ model = torch.nn.Sequential(
             torch.nn.Linear(rnn_units, vocab_size)
         )
 
-'''TODO: instantiate an optimizer with its learning rate.
-  Try using the Adam optimizer to start.'''
 #optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
@@ -282,7 +267,6 @@ else:
     def generate_text(model, start_string, generation_length=1000):
         # Evaluation step (generating ABC text using the learned RNN model)
 
-        '''TODO: convert the start string to numbers (vectorize)'''
         input_eval = [char2idx[s] for s in start_string]
         input_eval = np.expand_dims(input_eval, axis=0)
 
@@ -303,7 +287,6 @@ else:
             # predictions = tf.squeeze(predictions, 0)
             predictions = torch.squeeze(predictions, dim=0)
 
-            '''TODO: use a multinomial distribution to sample'''
             # predicted_id = tf.random.categorical(predictions, num_samples=1)[-1, 0].numpy()
             predicted_id = torch.distributions.categorical.Categorical(logits=predictions).sample()[0].numpy()
             # predicted_id = torch.distributions.categorical.Categorical(logits=predictions)
@@ -312,7 +295,7 @@ else:
             #   as the next inputs to the model
             input_eval = np.expand_dims(np.array([predicted_id]), axis=0)
 
-            '''TODO: add the predicted character to the generated text!'''
+            '''add the predicted character to the generated text!'''
             # Hint: consider what format the prediction is in vs. the output
             text_generated.append(idx2char[predicted_id])
 
@@ -324,7 +307,7 @@ else:
     model.eval()
     print(model)
 
-    '''TODO: Use the model and the function defined above to generate ABC format text of length 1000!
+    '''Use the model and the function defined above to generate ABC format text of length 1000!
         As you may notice, ABC files start with "X" - this may be a good start string.'''
     generated_text = generate_text(model, start_string="X", generation_length=1000)
 
