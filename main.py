@@ -15,6 +15,12 @@ from MySong import *
 from Graph import PeriodicPlotter
 from LSTM_Model import *
 
+if(torch.cuda.is_available()):
+    print("GPU is available, Switching now.")
+    torch.device('cuda')
+else:
+    print("GPU is not available.")
+
 train = True
 
 songs = []
