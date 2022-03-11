@@ -21,16 +21,17 @@ if(torch.cuda.is_available()):
 else:
     print("GPU is not available.")
 
-train = False
+train = True
+inference = True
 ### Hyperparameter setting and optimization ###
 
 epochs = 1
 
 # Optimization parameters:
-num_training_iterations = 2000  # Increase this to train longer
-batch_size = 8  # Experiment between 1 and 64
+num_training_iterations = 10000  # Increase this to train longer
+batch_size = 32  # Experiment between 1 and 64
 seq_length = 100  # Experiment between 50 and 500
-learning_rate = 5e-3  # Experiment between 1e-5 and 1e-1
+learning_rate = 5e-2  # Experiment between 1e-5 and 1e-1
 
 # Model parameters:
 embedding_dim = 256
@@ -261,7 +262,7 @@ if train:
 
         # Update the progress bar
         history.append(loss.detach().numpy().mean())
-        plotter.plot(history)
+        #plotter.plot(history)
 
         # Update the model with the changed weights!
         if iter % 100 == 0:
@@ -269,7 +270,8 @@ if train:
 
     # Save the trained model and the weights
     torch.save(model.state_dict(), checkpoint_prefix)
-else:
+
+if(inference):
 
     ### Prediction of a generated song ###
 
