@@ -177,12 +177,19 @@ for i, (input_idx, target_idx) in enumerate(zip(np.squeeze(x_batch), np.squeeze(
 
 # Build a simple model with default hyperparameters. You will get the
 #   chance to change these later.
-model = MusicGenerator(len(vocab), embedding_dim=embedding_dim, rnn_units=rnn_units, batch_size=batch_size, seq_length=seq_length)
+#model = MusicGenerator(len(vocab), embedding_dim=embedding_dim, rnn_units=rnn_units, batch_size=batch_size, seq_length=seq_length)
+
+model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
 
 print(model)
 
 x, y = get_batch(vectorized_songs, seq_length=100, batch_size=4)
-pred = model(x)
+
+hn = torch.zeros(1, 1, rnn_units)  # [num_layers*num_directions,batch,hidden_size]
+cn = torch.zeros(1, 1, rnn_units)  # [num_layers*num_directions,batch,hidden_size]
+pred, (hn, cn) = model(torch.tensor(x), hn, cn)
+#pred = model(x)
+
 print("Input shape:      ", x.shape, " # (batch_size, sequence_length)")
 print("Prediction shape: ", pred.shape, "# (batch_size, sequence_length, vocab_size)")
 
@@ -215,29 +222,33 @@ print(example_batch_loss)
 
 ### Define optimizer and training operation ###
 
+model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
 #model = MusicGenerator(vocab_size=vocab_size, embedding_dim=embedding_dim, rnn_units=rnn_units, batch_size=batch_size, seq_length=seq_length)
+'''
 model = torch.nn.Sequential(
             torch.nn.Embedding(batch_size*seq_length, embedding_dim),
             torch.nn.LSTM(embedding_dim, rnn_units, batch_first=True),
             GetLSTMOutput(),
             torch.nn.Linear(rnn_units, vocab_size)
         )
+'''
 
 #optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
-def torch_train(x, y):
-    for epoch in range(epochs):
-        # forward pass and loss calculation
-        # implicit tape-based AD
-        y_hat = model(torch.tensor(x))
-        loss = compute_loss(y, y_hat)
+def torch_train(x, y, hn, cn):
 
-        optimizer.zero_grad()
-        # compute gradients (grad)
-        loss.backward()
-        optimizer.step()
-        return loss
+    optimizer.zero_grad()
+    # forward pass and loss calculation
+    # implicit tape-based AD
+    y_hat, (hn, cn) = model(torch.tensor(x), hn, cn)
+
+    loss = compute_loss(y, y_hat)
+
+    # compute gradients (grad)
+    loss.backward()
+    optimizer.step()
+    return loss, (hn, cn)
 
 if train:
 
@@ -251,22 +262,26 @@ if train:
     # Begin training!#
     ##################
     history = []
-    plotter = PeriodicPlotter(sec=2, xlabel='Iterations', ylabel='Loss')
+    #plotter = PeriodicPlotter(sec=2, xlabel='Iterations', ylabel='Loss')
     if hasattr(tqdm, '_instances'): tqdm._instances.clear()  # clear if it exists
 
-    for iter in tqdm(range(num_training_iterations)):
+    for epoch in range(epochs):
+        hn = torch.zeros(1, 1, rnn_units)  # [num_layers*num_directions,batch,hidden_size]
+        cn = torch.zeros(1, 1, rnn_units)  # [num_layers*num_directions,batch,hidden_size]
 
-        # Grab a batch and propagate it through the network
-        x_batch, y_batch = get_batch(vectorized_songs, seq_length, batch_size)
-        loss = torch_train(x_batch, y_batch)
+        for iter in tqdm(range(num_training_iterations)):
 
-        # Update the progress bar
-        history.append(loss.detach().numpy().mean())
-        #plotter.plot(history)
+            # Grab a batch and propagate it through the network
+            x_batch, y_batch = get_batch(vectorized_songs, seq_length, batch_size)
+            loss, (hn, cn) = torch_train(x_batch, y_batch, hn, cn)
 
-        # Update the model with the changed weights!
-        if iter % 100 == 0:
-            torch.save(model.state_dict(), checkpoint_prefix)
+            # Update the progress bar
+            history.append(loss.detach().numpy().mean())
+            #plotter.plot(history)
+
+            # Update the model with the changed weights!
+            if iter % 100 == 0:
+                torch.save(model.state_dict(), checkpoint_prefix)
 
     # Save the trained model and the weights
     torch.save(model.state_dict(), checkpoint_prefix)
@@ -315,13 +330,15 @@ if(inference):
         return (start_string + ''.join(text_generated))
 
     # Restore the model weights for the last checkpoint after training
-    #model = MusicGenerator(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=4, seq_length=100)
+    model = MusicGenerator(len(vocab), embedding_dim=embedding_dim, rnn_units=rnn_units, batch_size=batch_size, seq_length=seq_length)
+    '''
     model = torch.nn.Sequential(
         torch.nn.Embedding(batch_size * seq_length, embedding_dim),
         torch.nn.LSTM(embedding_dim, rnn_units, batch_first=True),
         GetLSTMOutput(),
         torch.nn.Linear(rnn_units, vocab_size)
     )
+    '''
     model.load_state_dict(torch.load(checkpoint_prefix))
     model.eval()
     print(model)
