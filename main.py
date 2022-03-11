@@ -41,7 +41,7 @@ rnn_units = 1024  # Experiment between 1 and 2048
 
 # Checkpoint location:
 checkpoint_dir = 'training_checkpoints_pytorch'
-checkpoint_prefix = 'my_ckpt'
+checkpoint_prefix = 'my_ckpt.pth'
 
 checkpoint_dir = os.path.join(cwd, checkpoint_dir)
 checkpoint_prefix = os.path.join(checkpoint_dir, checkpoint_prefix)
@@ -285,6 +285,7 @@ if train:
 
     # Save the trained model and the weights
     torch.save(model.state_dict(), checkpoint_prefix)
+
 
 if(inference):
 
