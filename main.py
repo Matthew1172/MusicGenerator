@@ -320,7 +320,7 @@ if(inference):
             predictions = torch.squeeze(predictions, dim=0)
 
             # predicted_id = tf.random.categorical(predictions, num_samples=1)[-1, 0].numpy()
-            predicted_id = torch.distributions.categorical.Categorical(logits=predictions).sample()[0].numpy()
+            predicted_id = torch.distributions.categorical.Categorical(logits=predictions).sample()[0].cpu().numpy()
             # predicted_id = torch.distributions.categorical.Categorical(logits=predictions)
 
             # Pass the prediction along with the previous hidden state
