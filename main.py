@@ -210,10 +210,6 @@ def compute_loss(labels, logits):
     x.to(device)
     y = torch.tensor(labels, device=device).long()  # shape of labels must be (N, H, W) and type must be long integer
     F = torch.nn.CrossEntropyLoss()
-    print("---------------------------------")
-    print("x: ", x.device)
-    print("y: ", y.device)
-    print("---------------------------------")
     loss = F(x, y)
     loss.to(device)
     return loss
@@ -224,7 +220,7 @@ print("Prediction shape: ", pred.shape, " # (batch_size, sequence_length, vocab_
 '''
 example_batch_loss.numpy().mean() = 4.417909
 '''
-print("scalar_loss:      ", example_batch_loss.detach().numpy().mean())
+print("scalar_loss:      ", example_batch_loss.cpu().detach().numpy().mean())
 print(example_batch_loss)
 
 
@@ -280,7 +276,7 @@ if train:
             loss, (hn, cn) = torch_train(x_batch, y_batch, hn, cn)
 
             # Update the progress bar
-            history.append(loss.detach().numpy().mean())
+            history.append(loss.cpu().detach().numpy().mean())
             #plotter.plot(history)
 
             # Update the model with the changed weights!
