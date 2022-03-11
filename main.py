@@ -210,7 +210,7 @@ def compute_loss(labels, logits):
     #x.to(device)
     y = torch.tensor(labels).long()  # shape of labels must be (N, H, W) and type must be long integer
     #y.to(device)
-    F = torch.nn.CrossEntropyLoss().to(device=device)
+    F = torch.nn.CrossEntropyLoss()
     loss = F(x, y)
     loss.to(device)
     return loss
