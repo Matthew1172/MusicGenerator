@@ -21,7 +21,7 @@ if(torch.cuda.is_available()):
 else:
     print("GPU is not available.")
 
-train = True
+train = False
 inference = True
 ### Hyperparameter setting and optimization ###
 
@@ -29,7 +29,7 @@ epochs = 1
 
 # Optimization parameters:
 num_training_iterations = 10000  # Increase this to train longer
-batch_size = 32  # Experiment between 1 and 64
+batch_size = 4  # Experiment between 1 and 64
 seq_length = 100  # Experiment between 50 and 500
 learning_rate = 5e-2  # Experiment between 1e-5 and 1e-1
 
@@ -305,11 +305,13 @@ if(inference):
             if hasattr(layer, 'reset_parameters'):
                 layer.reset_parameters()
         '''
+        hn = torch.zeros(1, 1, rnn_units)  # [num_layers*num_directions,batch,hidden_size]
+        cn = torch.zeros(1, 1, rnn_units)  # [num_layers*num_directions,batch,hidden_size]
 
         tqdm._instances.clear()
 
         for i in tqdm(range(generation_length)):
-            predictions = model(torch.tensor(input_eval))
+            predictions, (hn, cn) = model(torch.tensor(input_eval), hn, cn)
 
             # Remove the batch dimension
             # predictions = tf.squeeze(predictions, 0)
@@ -330,15 +332,7 @@ if(inference):
         return (start_string + ''.join(text_generated))
 
     # Restore the model weights for the last checkpoint after training
-    model = MusicGenerator(len(vocab), embedding_dim=embedding_dim, rnn_units=rnn_units, batch_size=batch_size, seq_length=seq_length)
-    '''
-    model = torch.nn.Sequential(
-        torch.nn.Embedding(batch_size * seq_length, embedding_dim),
-        torch.nn.LSTM(embedding_dim, rnn_units, batch_first=True),
-        GetLSTMOutput(),
-        torch.nn.Linear(rnn_units, vocab_size)
-    )
-    '''
+    model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
     model.load_state_dict(torch.load(checkpoint_prefix))
     model.eval()
     print(model)
