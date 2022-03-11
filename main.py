@@ -16,10 +16,11 @@ from Graph import PeriodicPlotter
 from LSTM_Model import *
 
 if(torch.cuda.is_available()):
-    print("GPU is available, Switching now.")
-    torch.device('cuda')
+    print("GPU: ",torch.cuda.get_device_name(0)," is available, Switching now.")
 else:
-    print("GPU is not available.")
+    print("GPU is not available, using CPU.")
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 train = False
 inference = True
@@ -180,13 +181,13 @@ for i, (input_idx, target_idx) in enumerate(zip(np.squeeze(x_batch), np.squeeze(
 #model = MusicGenerator(len(vocab), embedding_dim=embedding_dim, rnn_units=rnn_units, batch_size=batch_size, seq_length=seq_length)
 
 model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
-
+model.to(device)
 print(model)
 
 x, y = get_batch(vectorized_songs, seq_length=100, batch_size=4)
 
-hn = torch.zeros(1, 1, rnn_units)  # [num_layers*num_directions,batch,hidden_size]
-cn = torch.zeros(1, 1, rnn_units)  # [num_layers*num_directions,batch,hidden_size]
+hn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
+cn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
 pred, (hn, cn) = model(torch.tensor(x), hn, cn)
 #pred = model(x)
 
@@ -203,9 +204,10 @@ print("Next Char Predictions: \n", repr("".join(idx2char[sampled_indices])))
 ### Defining the loss function ###
 
 def compute_loss(labels, logits):
-    x = torch.Tensor(logits).permute((0, 2, 1))  # shape of preds must be (N, C, H, W) instead of (N, H, W, C)
-    y = torch.Tensor(labels).long()  # shape of labels must be (N, H, W) and type must be long integer
+    x = torch.Tensor(logits).permute((0, 2, 1)).to(device)  # shape of preds must be (N, C, H, W) instead of (N, H, W, C)
+    y = torch.Tensor(labels).long().to(device)  # shape of labels must be (N, H, W) and type must be long integer
     loss = torch.nn.CrossEntropyLoss()(x, y)
+    loss.to(device)
     return loss
 
 example_batch_loss = compute_loss(y, pred)
@@ -223,17 +225,20 @@ print(example_batch_loss)
 ### Define optimizer and training operation ###
 
 model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
+model.to(device)
 
 #optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
 def torch_train(x, y, hn, cn):
-
+    x = torch.tensor(x).to(device)
     optimizer.zero_grad()
     # forward pass and loss calculation
     # implicit tape-based AD
-    y_hat, (hn, cn) = model(torch.tensor(x), hn, cn)
-
+    y_hat, (hn, cn) = model(x, hn, cn)
+    y_hat.to(device)
+    hn.to(device)
+    cn.to(device)
     loss = compute_loss(y, y_hat)
 
     # compute gradients (grad)
@@ -257,8 +262,8 @@ if train:
     if hasattr(tqdm, '_instances'): tqdm._instances.clear()  # clear if it exists
 
     for epoch in range(epochs):
-        hn = torch.zeros(1, 1, rnn_units)  # [num_layers*num_directions,batch,hidden_size]
-        cn = torch.zeros(1, 1, rnn_units)  # [num_layers*num_directions,batch,hidden_size]
+        hn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
+        cn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
 
         for iter in tqdm(range(num_training_iterations)):
 
@@ -296,13 +301,15 @@ if(inference):
             if hasattr(layer, 'reset_parameters'):
                 layer.reset_parameters()
         '''
-        hn = torch.zeros(1, 1, rnn_units)  # [num_layers*num_directions,batch,hidden_size]
-        cn = torch.zeros(1, 1, rnn_units)  # [num_layers*num_directions,batch,hidden_size]
+        hn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
+        cn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
 
         tqdm._instances.clear()
 
         for i in tqdm(range(generation_length)):
-            predictions, (hn, cn) = model(torch.tensor(input_eval), hn, cn)
+            input_eval = torch.tensor(input_eval).to(device)
+            predictions, (hn, cn) = model(input_eval, hn, cn)
+            predictions.to(device)
 
             # Remove the batch dimension
             # predictions = tf.squeeze(predictions, 0)
@@ -324,6 +331,7 @@ if(inference):
 
     # Restore the model weights for the last checkpoint after training
     model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
+    model.to(device)
     model.load_state_dict(torch.load(checkpoint_prefix))
     model.eval()
     print(model)
