@@ -22,6 +22,27 @@ else:
     print("GPU is not available.")
 
 train = False
+### Hyperparameter setting and optimization ###
+
+epochs = 1
+
+# Optimization parameters:
+num_training_iterations = 2000  # Increase this to train longer
+batch_size = 8  # Experiment between 1 and 64
+seq_length = 100  # Experiment between 50 and 500
+learning_rate = 5e-3  # Experiment between 1e-5 and 1e-1
+
+# Model parameters:
+embedding_dim = 256
+rnn_units = 1024  # Experiment between 1 and 2048
+
+# Checkpoint location:
+checkpoint_dir = 'training_checkpoints_pytorch'
+checkpoint_prefix = 'my_ckpt'
+
+checkpoint_dir = os.path.join(cwd, checkpoint_dir)
+checkpoint_prefix = os.path.join(checkpoint_dir, checkpoint_prefix)
+
 
 songs = []
 with open(os.path.join(cwd, 'dataset', 'irish.abc'), 'r') as f:
@@ -42,6 +63,8 @@ songs_joined = "\n\n".join(songs)
 # Find all unique characters in the joined string
 vocab = sorted(set(songs_joined))
 print("There are", len(vocab), "unique characters in the dataset")
+
+vocab_size = len(vocab)
 
 ### Define numerical representation of text ###
 
@@ -153,7 +176,7 @@ for i, (input_idx, target_idx) in enumerate(zip(np.squeeze(x_batch), np.squeeze(
 
 # Build a simple model with default hyperparameters. You will get the
 #   chance to change these later.
-model = MusicGenerator(len(vocab), embedding_dim=256, rnn_units=1024, batch_size=4, seq_length=100)
+model = MusicGenerator(len(vocab), embedding_dim=embedding_dim, rnn_units=rnn_units, batch_size=batch_size, seq_length=seq_length)
 
 print(model)
 
@@ -186,27 +209,7 @@ example_batch_loss.numpy().mean() = 4.417909
 print("scalar_loss:      ", example_batch_loss.detach().numpy().mean())
 print(example_batch_loss)
 
-### Hyperparameter setting and optimization ###
 
-epochs = 1
-
-# Optimization parameters:
-num_training_iterations = 2000  # Increase this to train longer
-batch_size = 8  # Experiment between 1 and 64
-seq_length = 100  # Experiment between 50 and 500
-learning_rate = 5e-3  # Experiment between 1e-5 and 1e-1
-
-# Model parameters:
-vocab_size = len(vocab)
-embedding_dim = 256
-rnn_units = 1024  # Experiment between 1 and 2048
-
-# Checkpoint location:
-checkpoint_dir = 'training_checkpoints_pytorch'
-checkpoint_prefix = 'my_ckpt'
-
-checkpoint_dir = os.path.join(cwd, checkpoint_dir)
-checkpoint_prefix = os.path.join(checkpoint_dir, checkpoint_prefix)
 
 
 ### Define optimizer and training operation ###
