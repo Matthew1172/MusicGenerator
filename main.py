@@ -22,7 +22,7 @@ else:
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-train = False
+train = True
 inference = True
 ### Hyperparameter setting and optimization ###
 
