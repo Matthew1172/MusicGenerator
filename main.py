@@ -196,6 +196,7 @@ print("Input shape:      ", x.shape, " # (batch_size, sequence_length)")
 print("Prediction shape: ", pred.shape, "# (batch_size, sequence_length, vocab_size)")
 
 sampled_indices = torch.distributions.categorical.Categorical(logits=pred[0]).sample()
+sampled_indices.cpu()
 sampled_indices = torch.squeeze(sampled_indices, dim=-1).numpy()
 
 print("Input: \n", repr("".join(idx2char[x[0]])))
