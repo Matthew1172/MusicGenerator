@@ -207,9 +207,9 @@ print("Next Char Predictions: \n", repr("".join(idx2char[sampled_indices])))
 
 def compute_loss(labels, logits):
     x = logits.permute((0, 2, 1))  # shape of preds must be (N, C, H, W) instead of (N, H, W, C)
-    x.to(device)
+    #x.to(device)
     y = torch.tensor(labels).long()  # shape of labels must be (N, H, W) and type must be long integer
-    y.to(device)
+    #y.to(device)
     F = torch.nn.CrossEntropyLoss().to(device=device)
     loss = F(x, y)
     loss.to(device)
