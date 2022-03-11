@@ -223,15 +223,6 @@ print(example_batch_loss)
 ### Define optimizer and training operation ###
 
 model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
-#model = MusicGenerator(vocab_size=vocab_size, embedding_dim=embedding_dim, rnn_units=rnn_units, batch_size=batch_size, seq_length=seq_length)
-'''
-model = torch.nn.Sequential(
-            torch.nn.Embedding(batch_size*seq_length, embedding_dim),
-            torch.nn.LSTM(embedding_dim, rnn_units, batch_first=True),
-            GetLSTMOutput(),
-            torch.nn.Linear(rnn_units, vocab_size)
-        )
-'''
 
 #optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
