@@ -188,7 +188,8 @@ x, y = get_batch(vectorized_songs, seq_length=100, batch_size=4)
 
 hn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
 cn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-pred, (hn, cn) = model(torch.tensor(x), hn, cn)
+x = torch.tensor(x).to(device)
+pred, (hn, cn) = model(x, hn, cn)
 #pred = model(x)
 
 print("Input shape:      ", x.shape, " # (batch_size, sequence_length)")
