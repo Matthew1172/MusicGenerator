@@ -30,14 +30,14 @@ inference = True
 epochs = 1
 
 # Optimization parameters:
-num_training_iterations = 10000  # Increase this to train longer
-batch_size = 4  # Experiment between 1 and 64
-seq_length = 100  # Experiment between 50 and 500
+num_training_iterations = 15000  # Increase this to train longer
+batch_size = 64  # Experiment between 1 and 64
+seq_length = 500  # Experiment between 50 and 500
 learning_rate = 25e-3  # Experiment between 1e-5 and 1e-1
 
 # Model parameters:
 embedding_dim = 256
-rnn_units = 1024  # Experiment between 1 and 2048
+rnn_units = 2048  # Experiment between 1 and 2048
 
 # Checkpoint location:
 checkpoint_dir = 'training_checkpoints_pytorch'
