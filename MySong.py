@@ -1,5 +1,4 @@
 import os
-from IPython import display as ipythondisplay
 import regex as re
 import time
 
@@ -38,14 +37,9 @@ def abc2wav(abc_file):
     cmd = "timidity {}.mid -Ow".format(suf, suf)
     return os.system(cmd)
 
-def play_wav(wav_file):
-    return ipythondisplay.Audio(wav_file)
-
 def play_song(song):
     basename = os.path.join(op, save_song_to_abc(song))
     ret = abc2wav(basename + '.abc')
-    if ret == 0:  # did not suceed
-        return play_wav(basename + '.wav')
     return None
 
 def extract_song_snippet(text):

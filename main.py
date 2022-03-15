@@ -1,18 +1,9 @@
 import numpy as np
-import os
-import time
-import regex as re
-import subprocess
-import urllib
-import functools
 
 import torch.distributions.distribution
-from IPython import display as ipythondisplay
 from tqdm import tqdm
-import matplotlib.pyplot as plt
 
 from MySong import *
-from Graph import PeriodicPlotter
 from LSTM_Model import *
 
 if(torch.cuda.is_available()):
