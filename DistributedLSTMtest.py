@@ -58,6 +58,7 @@ def demo_basic(rank, world_size):
     loss_fn(outputs, labels).backward()
     optimizer.step()
 
+
     cleanup()
 
 def run_demo(demo_fn, world_size):
