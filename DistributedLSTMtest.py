@@ -34,7 +34,13 @@ epochs = 1
 checkpoint_dir = 'training_checkpoints_pytorch'
 checkpoint_prefix = 'my_ckpt.pth'
 checkpoint_dir = os.path.join(cwd, checkpoint_dir)
+try:
+    os.mkdir(checkpoint_dir)
+except FileExistsError:
+    print("The pytorch training checkpoint directory already exists...")
+
 checkpoint_prefix = os.path.join(checkpoint_dir, checkpoint_prefix)
+
 
 songs = []
 with open(os.path.join(cwd, 'dataset', 'irish.abc'), 'r') as f:
@@ -160,6 +166,7 @@ def demo_checkpoint(rank, world_size):
 
     CHECKPOINT_PATH = checkpoint_prefix
 
+    '''
     if rank == 0:
         # All processes should see same parameters as they all start from same
         # random parameters and gradients are synchronized in backward passes.
@@ -174,7 +181,7 @@ def demo_checkpoint(rank, world_size):
     map_location = {'cuda:%d' % 0: 'cuda:%d' % rank}
     ddp_model.load_state_dict(
         torch.load(CHECKPOINT_PATH, map_location=map_location))
-
+    '''
 
     history = []
     if hasattr(tqdm, '_instances'): tqdm._instances.clear()
