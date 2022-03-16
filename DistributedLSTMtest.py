@@ -225,8 +225,8 @@ def demo_model_parallel(rank, world_size):
     history = []
     if hasattr(tqdm, '_instances'): tqdm._instances.clear()
     for epoch in range(epochs):
-        hn = torch.zeros(1, 1, rnn_units).to(dev0)  # [num_layers*num_directions,batch,hidden_size]
-        cn = torch.zeros(1, 1, rnn_units).to(dev0)  # [num_layers*num_directions,batch,hidden_size]
+        hn = torch.zeros(1, 1, rnn_units).to(dev1)  # [num_layers*num_directions,batch,hidden_size]
+        cn = torch.zeros(1, 1, rnn_units).to(dev1)  # [num_layers*num_directions,batch,hidden_size]
 
         for iter in tqdm(range(num_training_iterations)):
 
@@ -239,10 +239,10 @@ def demo_model_parallel(rank, world_size):
             #outputs will be on dev0
             y_hat, (hn, cn) = ddp_mp_model(torch.tensor(x), hn, cn)
             a = y_hat.permute((0, 2, 1))  # shape of preds must be (N, C, H, W) instead of (N, H, W, C)
-            a.to(dev0)
-            b = torch.tensor(y, device=dev0).long()  # shape of labels must be (N, H, W) and type must be long integer
+            a.to(dev1)
+            b = torch.tensor(y, device=dev1).long()  # shape of labels must be (N, H, W) and type must be long integer
             loss = loss_fn(a, b)
-            loss.to(dev0)
+            loss.to(dev1)
 
             # compute gradients (grad)
             loss.backward()
