@@ -31,11 +31,11 @@ def save_song_to_abc(song, filename="sampleFromDataset"):
 def abc2wav(abc_file):
     suf = abc_file.rstrip('.abc')
     print(abc_file)
-    cmd = "abc2midi {} -o {}".format(abc_file, suf + ".mid")
+    cmd = "abc2midi '{}' -o '{}'".format(abc_file, suf + ".mid")
     os.system(cmd)
     #can't write to file.. tmp.mid is not a midi file. We will just save the wav file as the name of the mid file
     #cmd = "timidity {}.mid -Ow {}.wav".format(suf, suf)
-    cmd = "timidity {}.mid -Ow".format(suf, suf)
+    cmd = "timidity '{}'.mid -Ow".format(suf, suf)
     return os.system(cmd)
 
 def play_wav(wav_file):
