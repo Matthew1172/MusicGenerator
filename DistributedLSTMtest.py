@@ -143,28 +143,6 @@ def setup(rank, world_size):
 def cleanup():
     dist.destroy_process_group()
 
-def demo_model_parallel(rank, world_size):
-    print(f"Running DDP with model parallel example on rank {rank}.")
-    setup(rank, world_size)
-
-    # setup mp_model and devices for this process
-    dev0 = (rank * 2) % world_size
-    dev1 = (rank * 2 + 1) % world_size
-    mp_model = ToyMpModel(dev0, dev1)
-    ddp_mp_model = DDP(mp_model)
-
-    loss_fn = nn.MSELoss()
-    optimizer = optim.SGD(ddp_mp_model.parameters(), lr=0.001)
-
-    optimizer.zero_grad()
-    # outputs will be on dev1
-    outputs = ddp_mp_model(torch.randn(20, 10))
-    labels = torch.randn(20, 5).to(dev1)
-    loss_fn(outputs, labels).backward()
-    optimizer.step()
-
-    cleanup()
-
 
 
 def demo_checkpoint(rank, world_size):
@@ -188,7 +166,7 @@ def demo_checkpoint(rank, world_size):
         # Therefore, saving it in one process is sufficient.
         torch.save(ddp_model.state_dict(), CHECKPOINT_PATH)
 
-    '''
+
     # Use a barrier() to make sure that process 1 loads the model after process
     # 0 saves it.
     dist.barrier()
@@ -196,7 +174,7 @@ def demo_checkpoint(rank, world_size):
     map_location = {'cuda:%d' % 0: 'cuda:%d' % rank}
     ddp_model.load_state_dict(
         torch.load(CHECKPOINT_PATH, map_location=map_location))
-    '''
+
 
     history = []
     if hasattr(tqdm, '_instances'): tqdm._instances.clear()
@@ -246,6 +224,27 @@ def demo_checkpoint(rank, world_size):
     cleanup()
 
 
+def demo_model_parallel(rank, world_size):
+    print(f"Running DDP with model parallel example on rank {rank}.")
+    setup(rank, world_size)
+
+    # setup mp_model and devices for this process
+    dev0 = (rank * 2) % world_size
+    dev1 = (rank * 2 + 1) % world_size
+    mp_model = ToyMpModel(dev0, dev1)
+    ddp_mp_model = DDP(mp_model)
+
+    loss_fn = nn.MSELoss()
+    optimizer = optim.SGD(ddp_mp_model.parameters(), lr=0.001)
+
+    optimizer.zero_grad()
+    # outputs will be on dev1
+    outputs = ddp_mp_model(torch.randn(20, 10))
+    labels = torch.randn(20, 5).to(dev1)
+    loss_fn(outputs, labels).backward()
+    optimizer.step()
+
+    cleanup()
 
 
 if __name__ == "__main__":
