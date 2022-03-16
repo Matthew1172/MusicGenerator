@@ -3,16 +3,117 @@ import numpy as np
 import torch.distributions.distribution
 from tqdm import tqdm
 
+#multi processing imports
+import os
+import sys
+import tempfile
+import torch
+import torch.distributed as dist
+import torch.nn as nn
+import torch.optim as optim
+import torch.multiprocessing as mp
+from torch.nn.parallel import DistributedDataParallel as DDP
+
 from MySong import *
 from LSTM_Model import *
+
+
+#multi processing code
+n_gpus = torch.cuda.device_count()
+assert n_gpus >= 2, f"Requires at least 2 GPUs to run, but got {n_gpus}"
+world_size = n_gpus
+#run_demo(demo_basic, world_size)
+#run_demo(demo_checkpoint, world_size)
+#run_demo(demo_model_parallel, world_size)
+
+class ToyModel(nn.Module):
+    def __init__(self):
+        super(ToyModel, self).__init__()
+        self.net1 = nn.Linear(10, 10)
+        self.relu = nn.ReLU()
+        self.net2 = nn.Linear(10, 5)
+
+    def forward(self, x):
+        return self.net2(self.relu(self.net1(x)))
+
+def demo_basic(rank, world_size):
+    print(f"Running basic DDP example on rank {rank}.")
+    setup(rank, world_size)
+
+    # create model and move it to GPU with id rank
+    model = ToyModel().to(rank)
+    ddp_model = DDP(model, device_ids=[rank])
+
+    loss_fn = nn.MSELoss()
+    optimizer = optim.SGD(ddp_model.parameters(), lr=0.001)
+
+    optimizer.zero_grad()
+    outputs = ddp_model(torch.randn(20, 10))
+    labels = torch.randn(20, 5).to(rank)
+    loss_fn(outputs, labels).backward()
+    optimizer.step()
+
+    cleanup()
+
+
+def run_demo(demo_fn, world_size):
+    mp.spawn(demo_fn,
+             args=(world_size,),
+             nprocs=world_size,
+             join=True)
+
+def setup(rank, world_size):
+    os.environ['MASTER_ADDR'] = 'localhost'
+    os.environ['MASTER_PORT'] = '12355'
+
+    # initialize the process group
+    dist.init_process_group("gloo", rank=rank, world_size=world_size)
+
+def cleanup():
+    dist.destroy_process_group()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 if(torch.cuda.is_available()):
     print("GPU: ",torch.cuda.get_device_name(0)," is available, Switching now.")
 else:
     print("GPU is not available, using CPU.")
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print("Device is now: ", device)
+dev0 = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print("Device is now: ", dev0)
 
 train = True
 inference = True
@@ -173,14 +274,14 @@ for i, (input_idx, target_idx) in enumerate(zip(np.squeeze(x_batch), np.squeeze(
 #model = MusicGenerator(len(vocab), embedding_dim=embedding_dim, rnn_units=rnn_units, batch_size=batch_size, seq_length=seq_length)
 
 model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
-model.to(device)
+model.to(dev0)
 print(model)
 
 x, y = get_batch(vectorized_songs, seq_length=100, batch_size=4)
 
-hn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-cn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-x = torch.tensor(x).to(device)
+hn = torch.zeros(1, 1, rnn_units).to(dev0)  # [num_layers*num_directions,batch,hidden_size]
+cn = torch.zeros(1, 1, rnn_units).to(dev0)  # [num_layers*num_directions,batch,hidden_size]
+x = torch.tensor(x).to(dev0)
 pred, (hn, cn) = model(x, hn, cn)
 #pred = model(x)
 
@@ -198,11 +299,11 @@ print("Next Char Predictions: \n", repr("".join(idx2char[sampled_indices])))
 
 def compute_loss(labels, logits):
     x = logits.permute((0, 2, 1))  # shape of preds must be (N, C, H, W) instead of (N, H, W, C)
-    x.to(device)
-    y = torch.tensor(labels, device=device).long()  # shape of labels must be (N, H, W) and type must be long integer
+    x.to(dev0)
+    y = torch.tensor(labels, device=dev0).long()  # shape of labels must be (N, H, W) and type must be long integer
     F = torch.nn.CrossEntropyLoss()
     loss = F(x, y)
-    loss.to(device)
+    loss.to(dev0)
     return loss
 
 example_batch_loss = compute_loss(y, pred)
@@ -220,20 +321,20 @@ print(example_batch_loss)
 ### Define optimizer and training operation ###
 
 model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
-model.to(device)
+model.to(dev0)
 
 #optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
 def torch_train(x, y, hn, cn):
-    x = torch.tensor(x).to(device)
+    x = torch.tensor(x).to(dev0)
     optimizer.zero_grad()
     # forward pass and loss calculation
     # implicit tape-based AD
     y_hat, (hn, cn) = model(x, hn, cn)
-    y_hat.to(device)
-    hn.to(device)
-    cn.to(device)
+    y_hat.to(dev0)
+    hn.to(dev0)
+    cn.to(dev0)
     loss = compute_loss(y, y_hat)
 
     # compute gradients (grad)
@@ -257,8 +358,8 @@ if train:
     if hasattr(tqdm, '_instances'): tqdm._instances.clear()  # clear if it exists
 
     for epoch in range(epochs):
-        hn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-        cn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
+        hn = torch.zeros(1, 1, rnn_units).to(dev0)  # [num_layers*num_directions,batch,hidden_size]
+        cn = torch.zeros(1, 1, rnn_units).to(dev0)  # [num_layers*num_directions,batch,hidden_size]
 
         for iter in tqdm(range(num_training_iterations)):
 
@@ -297,15 +398,15 @@ if(inference):
             if hasattr(layer, 'reset_parameters'):
                 layer.reset_parameters()
         '''
-        hn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-        cn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
+        hn = torch.zeros(1, 1, rnn_units).to(dev0)  # [num_layers*num_directions,batch,hidden_size]
+        cn = torch.zeros(1, 1, rnn_units).to(dev0)  # [num_layers*num_directions,batch,hidden_size]
 
         tqdm._instances.clear()
 
         for i in tqdm(range(generation_length)):
-            input_eval = torch.tensor(input_eval).to(device)
+            input_eval = torch.tensor(input_eval).to(dev0)
             predictions, (hn, cn) = model(input_eval, hn, cn)
-            predictions.to(device)
+            predictions.to(dev0)
 
             # Remove the batch dimension
             # predictions = tf.squeeze(predictions, 0)
@@ -327,7 +428,7 @@ if(inference):
 
     # Restore the model weights for the last checkpoint after training
     model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
-    model.to(device)
+    model.to(dev0)
     model.load_state_dict(torch.load(checkpoint_prefix))
     model.eval()
     print(model)
