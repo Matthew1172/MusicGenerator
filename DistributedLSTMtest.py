@@ -31,15 +31,15 @@ epochs = 1
 
 
 # Checkpoint location:
-checkpoint_dir = 'training_checkpoints_pytorch'
-checkpoint_prefix = 'my_ckpt.pth'
-checkpoint_dir = os.path.join(cwd, checkpoint_dir)
+CHECKPOINT_DIR = 'training_checkpoints_pytorch'
+CHECKPOINT_PATH = 'my_ckpt.pth'
+CHECKPOINT_DIR = os.path.join(cwd, CHECKPOINT_DIR)
 try:
-    os.mkdir(checkpoint_dir)
+    os.mkdir(CHECKPOINT_DIR)
 except FileExistsError:
     print("The pytorch training checkpoint directory already exists...")
 
-checkpoint_prefix = os.path.join(checkpoint_dir, checkpoint_prefix)
+CHECKPOINT_PATH = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PATH)
 
 
 songs = []
@@ -115,24 +115,6 @@ def get_batch(vectorized_songs, seq_length, batch_size):
 
 
 
-
-
-class ToyMpModel(nn.Module):
-    def __init__(self, dev0, dev1):
-        super(ToyMpModel, self).__init__()
-        self.dev0 = dev0
-        self.dev1 = dev1
-        self.net1 = torch.nn.Linear(10, 10).to(dev0)
-        self.relu = torch.nn.ReLU()
-        self.net2 = torch.nn.Linear(10, 5).to(dev1)
-
-    def forward(self, x):
-        x = x.to(self.dev0)
-        x = self.relu(self.net1(x))
-        x = x.to(self.dev1)
-        return self.net2(x)
-
-
 def run_demo(demo_fn, world_size):
     mp.spawn(demo_fn,
              args=(world_size,),
@@ -149,8 +131,6 @@ def setup(rank, world_size):
 def cleanup():
     dist.destroy_process_group()
 
-
-
 def demo_checkpoint(rank, world_size):
     print(f"Running DDP checkpoint example on rank {rank}.")
     setup(rank, world_size)
@@ -163,8 +143,6 @@ def demo_checkpoint(rank, world_size):
     model.to(rank)
     ddp_model = DDP(model, device_ids=[rank])
     optimizer = optim.SGD(ddp_model.parameters(), lr=learning_rate, momentum=0.9)
-
-    CHECKPOINT_PATH = checkpoint_prefix
 
     '''
     if rank == 0:
@@ -238,18 +216,49 @@ def demo_model_parallel(rank, world_size):
     # setup mp_model and devices for this process
     dev0 = (rank * 2) % world_size
     dev1 = (rank * 2 + 1) % world_size
-    mp_model = ToyMpModel(dev0, dev1)
+
+
+    mp_model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length, dev0, dev1)
     ddp_mp_model = DDP(mp_model)
+    loss_fn = torch.nn.CrossEntropyLoss()
+    optimizer = optim.SGD(ddp_mp_model.parameters(), lr=learning_rate, momentum=0.9)
+    history = []
+    if hasattr(tqdm, '_instances'): tqdm._instances.clear()
+    for epoch in range(epochs):
+        hn = torch.zeros(1, 1, rnn_units).to(dev1)  # [num_layers*num_directions,batch,hidden_size]
+        cn = torch.zeros(1, 1, rnn_units).to(dev1)  # [num_layers*num_directions,batch,hidden_size]
 
-    loss_fn = nn.MSELoss()
-    optimizer = optim.SGD(ddp_mp_model.parameters(), lr=0.001)
+        for iter in tqdm(range(num_training_iterations)):
 
-    optimizer.zero_grad()
-    # outputs will be on dev1
-    outputs = ddp_mp_model(torch.randn(20, 10))
-    labels = torch.randn(20, 5).to(dev1)
-    loss_fn(outputs, labels).backward()
-    optimizer.step()
+            # Grab a batch and propagate it through the network
+            x, y = get_batch(vectorized_songs, seq_length, batch_size)
+
+            # loss, (hn, cn) = torch_train(x_batch, y_batch, hn, cn)
+            #x = torch.tensor(x).to(rank)
+            optimizer.zero_grad()
+            #outputs will be on dev1
+            y_hat, (hn, cn) = ddp_mp_model(torch.tensor(x), hn, cn)
+            a = y_hat.permute((0, 2, 1))  # shape of preds must be (N, C, H, W) instead of (N, H, W, C)
+            a.to(dev1)
+            b = torch.tensor(y, device=dev1).long()  # shape of labels must be (N, H, W) and type must be long integer
+            loss = loss_fn(a, b)
+            loss.to(dev1)
+
+            # compute gradients (grad)
+            loss.backward()
+            optimizer.step()
+
+            # Update the progress bar
+            history.append(loss.cpu().detach().numpy().mean())
+            # plotter.plot(history)
+
+            # Update the model with the changed weights!
+            if iter % 100 == 0 and rank == 0:
+                torch.save(ddp_mp_model.state_dict(), CHECKPOINT_PATH)
+
+    if rank == 0:
+        # Save the trained model and the weights
+        torch.save(ddp_mp_model.state_dict(), CHECKPOINT_PATH)
 
     cleanup()
 
