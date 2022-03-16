@@ -181,6 +181,8 @@ def demo_checkpoint(rank, world_size):
     optimizer = optim.SGD(ddp_model.parameters(), lr=learning_rate, momentum=0.9)
 
     CHECKPOINT_PATH = checkpoint_prefix
+
+    '''
     if rank == 0:
         # All processes should see same parameters as they all start from same
         # random parameters and gradients are synchronized in backward passes.
@@ -194,6 +196,7 @@ def demo_checkpoint(rank, world_size):
     map_location = {'cuda:%d' % 0: 'cuda:%d' % rank}
     ddp_model.load_state_dict(
         torch.load(CHECKPOINT_PATH, map_location=map_location))
+    '''
 
     history = []
     if hasattr(tqdm, '_instances'): tqdm._instances.clear()
@@ -233,11 +236,12 @@ def demo_checkpoint(rank, world_size):
             #plotter.plot(history)
 
             # Update the model with the changed weights!
-            if iter % 100 == 0:
+            if iter % 100 == 0 and rank == 0:
                 torch.save(ddp_model.state_dict(), CHECKPOINT_PATH)
 
-    # Save the trained model and the weights
-    torch.save(ddp_model.state_dict(), CHECKPOINT_PATH)
+    if rank == 0:
+        # Save the trained model and the weights
+        torch.save(ddp_model.state_dict(), CHECKPOINT_PATH)
 
     cleanup()
 
