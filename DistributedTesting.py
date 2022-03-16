@@ -14,17 +14,7 @@ import torch.optim as optim
 import torch.multiprocessing as mp
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from MySong import *
 from LSTM_Model import *
-
-
-#multi processing code
-n_gpus = torch.cuda.device_count()
-assert n_gpus >= 2, f"Requires at least 2 GPUs to run, but got {n_gpus}"
-world_size = n_gpus
-#run_demo(demo_basic, world_size)
-#run_demo(demo_checkpoint, world_size)
-#run_demo(demo_model_parallel, world_size)
 
 class ToyModel(nn.Module):
     def __init__(self):
