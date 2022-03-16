@@ -1,18 +1,7 @@
 import numpy as np
-import os
-import time
-import regex as re
-import subprocess
-import urllib
-import functools
-
 import torch.distributions.distribution
-from IPython import display as ipythondisplay
 from tqdm import tqdm
-import matplotlib.pyplot as plt
-
 from MySong import *
-from Graph import PeriodicPlotter
 from LSTM_Model import *
 
 if(torch.cuda.is_available()):
@@ -23,14 +12,14 @@ else:
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
-train = True
+train = False
 inference = True
 ### Hyperparameter setting and optimization ###
 
 epochs = 1
 
 # Optimization parameters:
-num_training_iterations = 15000  # Increase this to train longer
+num_training_iterations = 15000
 batch_size = 64  # Experiment between 1 and 64
 seq_length = 500  # Experiment between 50 and 500
 learning_rate = 25e-3  # Experiment between 1e-5 and 1e-1
@@ -337,7 +326,7 @@ if(inference):
     # Restore the model weights for the last checkpoint after training
     model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
     model.to(device)
-    model.load_state_dict(torch.load(checkpoint_prefix))
+    model.load_state_dict(torch.load(checkpoint_prefix, map_location=device))
     model.eval()
     print(model)
 
@@ -352,10 +341,13 @@ if(inference):
         print("---------------------------------------------------------------")
         print("Generated song", i)
         song_lines = song.split("\n")
+        notAllowed = "!\"#'(),./:<=>[]^_|"
         if any(j[0:2] == "T:" for j in song_lines):
             for j in song_lines:
                 if j[0:2] == "T:":
                     n = j[-(len(j) - 2): len(j)]
+                    for specialChar in notAllowed:
+                        n = n.replace(specialChar, '')
         else:
             n = "gan_song_{}".format(i)
         basename = os.path.join(op, save_song_to_abc(song, filename=n))
