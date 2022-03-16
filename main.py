@@ -351,6 +351,12 @@ if(inference):
         # could be incorrect ABC notational syntax, save the ABC file anyway...
         print("---------------------------------------------------------------")
         print("Generated song", i)
-        n = "gan_song_{}".format(i)
+        song_lines = song.split("\n")
+        if any(j[0:2] == "T:" for j in song_lines):
+            for j in song_lines:
+                if j[0:2] == "T:":
+                    n = j[-(len(j) - 2): len(j)]
+        else:
+            n = "gan_song_{}".format(i)
         basename = os.path.join(op, save_song_to_abc(song, filename=n))
         abc2wav(basename + '.abc')
