@@ -32,7 +32,7 @@ embedding_dim = 256
 #hidden units per layer
 hidden_units = 400
 #number of layers
-nlayers = 512
+nlayers = 256
 num_heads = 8
 #num_encoder_layers = 3
 #num_decoder_layers = 3
