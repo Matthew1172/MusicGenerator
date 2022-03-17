@@ -2,7 +2,7 @@ import numpy as np
 import torch.distributions.distribution
 from tqdm import tqdm
 from MySong import *
-from LSTM_Model import *
+from Transformer_Model import *
 
 if(torch.cuda.is_available()):
     print("GPU: ",torch.cuda.get_device_name(0)," is available, Switching now.")
@@ -12,8 +12,9 @@ else:
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
-train = False
-inference = True
+train = True
+inference = False
+gen_length = 1000
 ### Hyperparameter setting and optimization ###
 
 epochs = 1
@@ -26,7 +27,11 @@ learning_rate = 25e-3  # Experiment between 1e-5 and 1e-1
 
 # Model parameters:
 embedding_dim = 256
-rnn_units = 2048  # Experiment between 1 and 2048
+#rnn_units = 2048  # Experiment between 1 and 2048
+num_heads = 2
+num_encoder_layers = 3
+num_decoder_layers = 3
+dropout_p = 1e-1
 
 # Checkpoint location:
 checkpoint_dir = 'training_checkpoints_pytorch'
@@ -170,25 +175,38 @@ for i, (input_idx, target_idx) in enumerate(zip(np.squeeze(x_batch), np.squeeze(
 #   chance to change these later.
 #model = MusicGenerator(len(vocab), embedding_dim=embedding_dim, rnn_units=rnn_units, batch_size=batch_size, seq_length=seq_length)
 
-model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
-model.to(device)
+#model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
+#model.to(device)
+model = MyTransformer(
+    vocab_size=vocab_size,
+    embedding_dim=embedding_dim,
+    num_heads=num_heads,
+    batch_size=batch_size,
+    seq_length=seq_length,
+    num_encoder_layers=num_encoder_layers,
+    num_decoder_layers=num_decoder_layers,
+    dropout_p=dropout_p
+).to(device)
 print(model)
 
-x, y = get_batch(vectorized_songs, seq_length=100, batch_size=4)
-
-hn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-cn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-x = torch.tensor(x).to(device)
-pred, (hn, cn) = model(x, hn, cn)
+src, tgt = get_batch(vectorized_songs, seq_length=seq_length, batch_size=batch_size)
+src = torch.tensor(src).to(device)
+tgt = torch.tensor(tgt).to(device)
+#y_input = tgt[:,:-1]
+#y_expected = tgt[:,1:]
+sequence_length = tgt.size(1)
+tgt_mask = model.get_tgt_mask(sequence_length).to(device)
+pred = model(src, tgt, tgt_mask)
+pred = pred.permute(1, 0, 2)
 #pred = model(x)
 
-print("Input shape:      ", x.shape, " # (batch_size, sequence_length)")
+print("Input shape:      ", src.shape, " # (batch_size, sequence_length)")
 print("Prediction shape: ", pred.shape, "# (batch_size, sequence_length, vocab_size)")
 
 sampled_indices = torch.distributions.categorical.Categorical(logits=pred[0]).sample()
 sampled_indices = torch.squeeze(sampled_indices, dim=-1).cpu().numpy()
 
-print("Input: \n", repr("".join(idx2char[x.cpu()[0]])))
+print("Input: \n", repr("".join(idx2char[src.cpu()[0]])))
 # print()
 print("Next Char Predictions: \n", repr("".join(idx2char[sampled_indices])))
 
@@ -203,7 +221,7 @@ def compute_loss(labels, logits):
     loss.to(device)
     return loss
 
-example_batch_loss = compute_loss(y, pred)
+example_batch_loss = compute_loss(tgt, pred)
 
 print("Prediction shape: ", pred.shape, " # (batch_size, sequence_length, vocab_size)")
 '''
@@ -217,27 +235,24 @@ print(example_batch_loss)
 
 ### Define optimizer and training operation ###
 
-model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
-model.to(device)
+#model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
+#model.to(device)
+model = MyTransformer(
+    vocab_size=vocab_size,
+    embedding_dim=embedding_dim,
+    num_heads=num_heads,
+    batch_size=batch_size,
+    seq_length=seq_length,
+    num_encoder_layers=num_encoder_layers,
+    num_decoder_layers=num_decoder_layers,
+    dropout_p=dropout_p
+).to(device)
 
 #optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
 def torch_train(x, y, hn, cn):
-    x = torch.tensor(x).to(device)
-    optimizer.zero_grad()
-    # forward pass and loss calculation
-    # implicit tape-based AD
-    y_hat, (hn, cn) = model(x, hn, cn)
-    y_hat.to(device)
-    hn.to(device)
-    cn.to(device)
-    loss = compute_loss(y, y_hat)
-
-    # compute gradients (grad)
-    loss.backward()
-    optimizer.step()
-    return loss, (hn, cn)
+    pass
 
 if train:
 
@@ -255,54 +270,50 @@ if train:
     if hasattr(tqdm, '_instances'): tqdm._instances.clear()  # clear if it exists
 
     for epoch in range(epochs):
-        hn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-        cn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-
         for iter in tqdm(range(num_training_iterations)):
-
+            optimizer.zero_grad()
             # Grab a batch and propagate it through the network
-            x_batch, y_batch = get_batch(vectorized_songs, seq_length, batch_size)
-            loss, (hn, cn) = torch_train(x_batch, y_batch, hn, cn)
-
+            src, tgt = get_batch(vectorized_songs, seq_length=seq_length, batch_size=batch_size)
+            src = torch.tensor(src).to(device)
+            tgt = torch.tensor(tgt).to(device)
+            sequence_length = tgt.size(1)
+            tgt_mask = model.get_tgt_mask(sequence_length).to(device)
+            pred = model(src, tgt, tgt_mask)
+            pred = pred.permute(1, 0, 2)
+            # forward pass and loss calculation
+            loss = compute_loss(tgt, pred)
+            # compute gradients (grad)
+            loss.backward()
+            optimizer.step()
             # Update the progress bar
             history.append(loss.cpu().detach().numpy().mean())
-            #plotter.plot(history)
-
             # Update the model with the changed weights!
             if iter % 100 == 0:
                 torch.save(model.state_dict(), checkpoint_prefix)
-
     # Save the trained model and the weights
     torch.save(model.state_dict(), checkpoint_prefix)
-
 
 if(inference):
 
     ### Prediction of a generated song ###
-
     def generate_text(model, start_string, generation_length=1000):
         # Evaluation step (generating ABC text using the learned RNN model)
 
         input_eval = [char2idx[s] for s in start_string]
         input_eval = np.expand_dims(input_eval, axis=0)
+        input_eval = torch.tensor(input_eval, dtype=torch.long, device=device)
 
         # Empty string to store our results
         text_generated = []
 
-        # Here batch size == 1
-        '''
-        for layer in model.children():
-            if hasattr(layer, 'reset_parameters'):
-                layer.reset_parameters()
-        '''
-        hn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-        cn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-
         tqdm._instances.clear()
 
-        for i in tqdm(range(generation_length)):
-            input_eval = torch.tensor(input_eval).to(device)
-            predictions, (hn, cn) = model(input_eval, hn, cn)
+        for _ in tqdm(range(generation_length)):
+
+            # Get source mask
+            tgt_mask = model.get_tgt_mask(input_eval.size(1)).to(device)
+
+            predictions = model(input_eval, input_eval, tgt_mask)
             predictions.to(device)
 
             # Remove the batch dimension
@@ -323,16 +334,27 @@ if(inference):
 
         return (start_string + ''.join(text_generated))
 
+
+
     # Restore the model weights for the last checkpoint after training
-    model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
-    model.to(device)
+
+    model = MyTransformer(
+        vocab_size=vocab_size,
+        embedding_dim=embedding_dim,
+        num_heads=num_heads,
+        batch_size=batch_size,
+        seq_length=seq_length,
+        num_encoder_layers=num_encoder_layers,
+        num_decoder_layers=num_decoder_layers,
+        dropout_p=dropout_p
+    ).to(device)
+
     model.load_state_dict(torch.load(checkpoint_prefix, map_location=device))
     model.eval()
     print(model)
-
     '''Use the model and the function defined above to generate ABC format text of length 1000!
-        As you may notice, ABC files start with "X" - this may be a good start string.'''
-    generated_text = generate_text(model, start_string="X", generation_length=1000)
+    As you may notice, ABC files start with "X" - this may be a good start string.'''
+    generated_text = generate_text(model, start_string="X", generation_length=gen_length)
 
     generated_songs = extract_song_snippet(generated_text)
 
