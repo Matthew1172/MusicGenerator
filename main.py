@@ -14,19 +14,17 @@ else:
 device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
-train = False
-inference = True
-gen_length = 1000
+#gen_length = 1000
 #logging interval
 log_interval = 200
 ### Hyperparameter setting and optimization ###
 
-epochs = 1
+epochs = 40
 
 # Optimization parameters:
 num_training_iterations = 4000
 batch_size = 20  # Experiment between 1 and 64
-seq_length = 203  # Experiment between 50 and 500
+seq_length = 100  # Experiment between 50 and 500
 learning_rate = 5e-2  # Experiment between 1e-5 and 1e-1
 
 # Model parameters:
@@ -36,9 +34,9 @@ hidden_units = 200
 #number of layers
 nlayers = 2
 num_heads = 2
-num_encoder_layers = 3
-num_decoder_layers = 3
-dropout = 1e-1
+#num_encoder_layers = 3
+#num_decoder_layers = 3
+dropout = 2e-1
 #gradient clipping
 clip = 25e-2
 
@@ -188,17 +186,6 @@ vectorized_songs = torch.tensor(vectorized_songs, device=device)
 train_data = batchify(vectorized_songs, batch_size)
 val_data = batchify(vectorized_songs, batch_size)
 test_data = batchify(vectorized_songs, batch_size)
-
-#data = [vectorize_string(s) for s in songs]
-#train_data = [[s[0:] for s in [data[random.randint(0, len(data)-200)] for _ in range(0, len(data)-200)]] for i in range(0, batch_size)]
-#val_data = [[s[0:] for s in [data[random.randint(len(data)-200, len(data)-100)] for _ in range(len(data)-200, len(data)-100)]] for i in range(0, batch_size)]
-#test_data = [[s[0:] for s in [data[random.randint(len(data)-100, len(data)-0)] for _ in range(len(data)-100, len(data)-0)]] for i in range(0, batch_size)]
-
-#train_data, _ = get_batch(vectorized_songs, seq_length=500, batch_size=20)
-#put the batch first
-#train_data = train_data.transpose()
-
-
 
 
 for i, (input_idx, target_idx) in enumerate(zip(np.squeeze(x_batch), np.squeeze(y_batch))):
