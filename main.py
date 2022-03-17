@@ -19,7 +19,7 @@ print("Device is now: ", device)
 log_interval = 200
 ### Hyperparameter setting and optimization ###
 
-epochs = 400
+epochs = 100
 
 # Optimization parameters:
 #num_training_iterations = 4000
