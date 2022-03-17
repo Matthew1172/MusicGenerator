@@ -33,7 +33,7 @@ embedding_dim = 256
 hidden_units = 400
 #number of layers
 nlayers = 5
-num_heads = 5
+num_heads = 8
 #num_encoder_layers = 3
 #num_decoder_layers = 3
 dropout = 2e-1
