@@ -19,21 +19,21 @@ print("Device is now: ", device)
 log_interval = 200
 ### Hyperparameter setting and optimization ###
 
-epochs = 40
+epochs = 400
 
 # Optimization parameters:
-num_training_iterations = 4000
-batch_size = 20  # Experiment between 1 and 64
+#num_training_iterations = 4000
+batch_size = 100  # Experiment between 1 and 64
 seq_length = 100  # Experiment between 50 and 500
 learning_rate = 5e-2  # Experiment between 1e-5 and 1e-1
 
 # Model parameters:
 embedding_dim = 256
 #hidden units per layer
-hidden_units = 200
+hidden_units = 400
 #number of layers
-nlayers = 2
-num_heads = 2
+nlayers = 5
+num_heads = 5
 #num_encoder_layers = 3
 #num_decoder_layers = 3
 dropout = 2e-1
