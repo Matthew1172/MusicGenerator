@@ -4,13 +4,12 @@ from tqdm import tqdm
 from MySong import *
 from Transformer_Model import *
 
-devNum = 1
 if(torch.cuda.is_available()):
-    print("GPU: ",torch.cuda.get_device_name(devNum), " is available, Switching now.")
+    print("GPU: ",torch.cuda.get_device_name(1), " is available, Switching now.")
 else:
     print("GPU is not available, using CPU.")
 
-device = torch.device("cuda:",devNum if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 train = True
@@ -21,14 +20,13 @@ gen_length = 1000
 epochs = 1
 
 # Optimization parameters:
-num_training_iterations = 15000
-batch_size = 64  # Experiment between 1 and 64
-seq_length = 500  # Experiment between 50 and 500
-learning_rate = 25e-3  # Experiment between 1e-5 and 1e-1
+num_training_iterations = 2000
+batch_size = 4  # Experiment between 1 and 64
+seq_length = 100  # Experiment between 50 and 500
+learning_rate = 1e-1  # Experiment between 1e-5 and 1e-1
 
 # Model parameters:
 embedding_dim = 256
-#rnn_units = 2048  # Experiment between 1 and 2048
 num_heads = 2
 num_encoder_layers = 3
 num_decoder_layers = 3
