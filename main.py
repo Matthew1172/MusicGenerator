@@ -12,8 +12,8 @@ else:
 device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
-train = False
-inference = True
+train = True
+inference = False
 gen_length = 1000
 ### Hyperparameter setting and optimization ###
 
