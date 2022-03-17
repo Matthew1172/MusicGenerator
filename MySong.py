@@ -1,5 +1,5 @@
 import os
-from IPython import display as ipythondisplay
+#from IPython import display as ipythondisplay
 import regex as re
 import time
 
@@ -39,7 +39,8 @@ def abc2wav(abc_file):
     return os.system(cmd)
 
 def play_wav(wav_file):
-    return ipythondisplay.Audio(wav_file)
+    #return ipythondisplay.Audio(wav_file)
+    pass
 
 def play_song(song):
     basename = os.path.join(op, save_song_to_abc(song))
