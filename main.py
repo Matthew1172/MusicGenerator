@@ -12,18 +12,18 @@ else:
 device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
-train = True
-inference = False
+train = False
+inference = True
 gen_length = 1000
 ### Hyperparameter setting and optimization ###
 
 epochs = 1
 
 # Optimization parameters:
-num_training_iterations = 2000
-batch_size = 4  # Experiment between 1 and 64
-seq_length = 100  # Experiment between 50 and 500
-learning_rate = 1e-1  # Experiment between 1e-5 and 1e-1
+num_training_iterations = 4000
+batch_size = 8  # Experiment between 1 and 64
+seq_length = 200  # Experiment between 50 and 500
+learning_rate = 5e-2  # Experiment between 1e-5 and 1e-1
 
 # Model parameters:
 embedding_dim = 256
@@ -300,7 +300,6 @@ if(inference):
 
         input_eval = [char2idx[s] for s in start_string]
         input_eval = np.expand_dims(input_eval, axis=0)
-        input_eval = torch.tensor(input_eval, dtype=torch.long, device=device)
 
         # Empty string to store our results
         text_generated = []
@@ -308,6 +307,7 @@ if(inference):
         tqdm._instances.clear()
 
         for _ in tqdm(range(generation_length)):
+            input_eval = torch.tensor(input_eval, dtype=torch.long, device=device)
 
             # Get source mask
             tgt_mask = model.get_tgt_mask(input_eval.size(1)).to(device)
