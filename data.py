@@ -8,8 +8,11 @@ class Dictionary(object):
         self.word2idx = {}
         self.idx2word = []
 
-    def createWordToIndex(self):
-        self.word2idx = {u: i for i, u in enumerate(self.idx2word)}
+    def add_word(self, word):
+        if word not in self.word2idx:
+            self.idx2word.append(word)
+            self.word2idx[word] = len(self.idx2word) - 1
+        return self.word2idx[word]
 
     def __len__(self):
         return len(self.idx2word)
@@ -37,10 +40,8 @@ class Corpus(object):
             text = f.read()
             songs = self.extract_song_snippet(text)
         songs_joined = "\n\n".join(songs)
-        # Find all unique characters in the joined string
-        self.dictionary.idx2word = sorted(set(songs_joined))
-        # Add words to the dictionary
-        self.dictionary.createWordToIndex()
+        for c in songs_joined:
+            self.dictionary.add_word(c)
 
         # Tokenize file content
         idss = []
