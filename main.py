@@ -17,7 +17,7 @@ emsize = 256
 #number of hidden units per layer
 hidden_units = 200
 #number of layers
-nlayers = 2
+nlayers = 256
 #initial learning rate
 learning_rate = 20
 #gradient clipping
