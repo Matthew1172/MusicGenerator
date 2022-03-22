@@ -1,0 +1,563 @@
+X:19
+T:Mary Willie's
+Z: id:dc-slide-19
+M:6/8
+L:1/8
+K:D Major
+A|d2e f2e|dcd B3|g2A cBA|e2A cBA|!
+d2e f2e|dcd B3|g2A cBA|d3 d2:|!
+A|d2e f2a|baf a2f|e2A cBA|e2A cBA|!
+d2e f2a|baf a2f|e2A cBA|d3 d2:|!
+
+X:20
+T:Merrily Kiss the Quaker
+Z: id:dc-slide-20
+M:6/8
+L:1/8
+K:G Major
+D|GAB D2B|cBA BGE|GAB DEG|A3 AGE|!
+GAB D2B|cBA BGE|GAB DEF|G3 G2:|!
+A|BGG AGG|BGG AGG|GAB DEG|A3 AGA|!
+BGG AGG|BGG AGG|GAB DEF|G3 G2:|!
+d|g3 a3|bge d^cd|g3 gab|a3 agf|!
+g3 f3|e3 dBA|GAB DEF|G3 G2:|!
+
+X:21
+T:O'Keefe's
+Z: id:dc-slide-21
+M:6/8
+L:1/8
+K:D Major
+z|a2f g2e|f2d B2A|a2f g2e|f2d def|!
+a2f g2e|f2d B2A|GAB dBA|G2E E2:|!
+D|GAB d3|dBe dBA|GAB dBA|B2e e3|!
+GAB d3|dBe dBA|GAB dBA|G2E E2:|!
+
+X:22
+T:O'Keefe's
+Z: id:dc-slide-23
+M:6/8
+L:1/8
+K:A Dorian
+A2e e2d|BAB d2B|A2e e2d|B2G GAB|!
+A2e e2d|BAB d3|BAB d2e|B2A A3:|!
+e2a a2b|a2g e2d|e2a a2b|a2g e2f|!
+g3 gfe|dBA G3|BAB d2e|B2A A3:|!
+
+X:23
+T:Over the Water to Charlie
+Z: id:dc-slide-24
+M:6/8
+L:1/8
+K:G Major
+GBd eBd|efg dBd|GBd eBd|e2f g3|!
+GBd eBd|efg dBd|bag agf|e2f g3:|!
+bag agf|efg dBd|bag agf|e2a a3|!
+bag agf|efg dBd|G3 dBd|e2f g3:|!
+
+X:24
+T:Patsy Geary's
+Z: id:dc-slide-25
+M:6/8
+L:1/8
+K:D Major
+D2E|F2A AFA|B=cB A2G|F2A d2e|f3 fef|!
+g3 f3|e3 d2B|ABA AFD|E3 D2E|!
+F2A AFA|B=cB A2G|F2A d2e|f3 fef|!
+g3 f3|e3 d2B|ABA f2e|d3|]!
+d2e|f2e f2e|f2e fga|ABA BAF|A3 ABd|!
+e2d e2d|e2d efa|baf afe|d3:|!
+
+X:25
+T:Priest
+Z: id:dc-slide-26
+M:6/8
+L:1/8
+K:G Major
+g|edB d2B|d2B d2g|edB d2B|c2A A2g|!
+edB d2B|BAB g3|BAB gfg|B2G G2:|!
+f|gag fgf|g2e e2d|eaa aga|b2e e2f|!
+gag fgf|g2e e2d|BAB gfg|B2G G2:|!
+
+X:26
+T:Road to Lisdoonvarna
+Z: id:dc-slide-27
+M:6/8
+L:1/8
+K:E Dorian
+E2B B2A|B2c d3|F2A ABA|D2E FED|!
+E2B B2A|B2c d3|cdc B2A|B2E E3:|!
+e2f gfe|d2B Bcd|c2A ABc|d2B B3|!
+e2f gfe|d2B Bcd|cdc B2A|B2E E3:|
+
+X:27
+T:Rosie Finn's
+Z: id:dc-slide-28
+M:6/8
+L:1/8
+K:G Major
+G2B d2g|b2g d2B|cBc agf|gfe dBA|!
+G2B d2g|b2g d2B|cBc agf|g3 g3:|!
+g2b c'2b|a2e efg|f2a abg|f2d def|!
+g2b c'2b|a2e efg|faf def|g3 g3:|!
+
+X:28
+T:Smash the Windows
+Z: id:dc-slide-29
+M:6/8
+L:1/8
+K:D Major
+A,|DED F2A|d2f ecA|G2B F2A|E2F GFE|!
+DED F2A|d2f ecA|Bgf edc|d3 d2:|!
+b|a2f d2e|f2g agf|g2e c2d|e2f gfe|!
+[1 a2f d2e|f2g agf|ged cde|d3 d2:|!
+[2 fed gfe|agf bag|fed cde|d3 d2|]!
+
+X:29
+T:Star above the Garter
+Z: id:dc-slide-30
+M:6/8
+L:1/8
+K:G Major
+d2B BAG|A3 ABA|G2E c2B|BAG ABc|!
+d2B BAG|A3 ABA|G2E c2E|DED D3:|!
+d2e f2a|g2e d2B|G2B c2B|BAG ABc|!
+d2e f2a|g2e d2B|G2B c2E|DED D3:|!
+
+X:30
+T:This Is My Love, Do You Like Her
+Z: id:dc-slide-31
+M:6/8
+L:1/8
+K:A Dorian
+c2B|A3 AGE|c2B c2d|e3 edB|g3-g2e|!
+def gfe|dBA G2A|B2e dBG|A3:|!
+A3|e2a age|d2g gfg|e2a age|g2b a2g|!
+eaf g2e|dBA G2A|B2e dBG|A3:|!
+
+X:31
+T:Tidy Anne
+Z: id:dc-slide-32
+M:6/8
+L:1/8
+K:D Major
+GFE|D2d BAF|D2d B2A|F2E EFE|F2E EFE|!
+D2d BAF|D2d B2c|def edc|d2A:|!
+d2e|f2f fed|e2e edc|d2d dcB|A3 d2e|!
+f2f fed|e2e edc|def edc|d2A:|!
+
+X:32
+T:Weaver's
+Z: id:dc-slide-33
+M:6/8
+L:1/8
+K:D Major
+g|fed B2d|A2d F2B|A2F D2F|E3 E2g|!
+fed B2d|A2d F2B|A2F EFE|D3 D2:|!
+e|fdf a3|baf a3|fdf a2f|g3 f2e|!
+[1 fdf a3|baf a3|fdf a2f|d3 d2:|!
+[2 faf efe|ded BdB|ABA GFE|D3 D2|]!
+
+X:33
+T:Where's the Cat
+Z: id:dc-slide-34
+M:6/8
+L:1/8
+K:A Major
+EFE A2E|F2E A3|EFE A2c|B2A F2E|!
+EFE A2E|F2E A3|cec d2c|B2A F2E:|!
+cBc e2c|BAF d3|cBc e2c|B2A F2E|!
+cBc e2c|BAF d3|faf e2c|B2A F2E:|!
+
+X:34
+T:Where's the Cat
+Z: id:dc-slide-35
+M:6/8
+L:1/8
+K:G Major
+DED G2D|E2D G3|DED G2B|A2G E2D|!
+DED G2D|E2D G3|BdB c2B|A2G E2D:|!
+BAB d2B|AGE c3|BAB d2B|A2G E2D|!
+BAB d2B|AGE c3|ege d2B|A2G E2D:|!
+
+X:35
+T:Whole Chicken in the Soup
+Z: id:dc-slide-38
+M:6/8
+L:1/8
+K:G Major
+G2E D2E|G2A B3|cBA B2G|A2G EDE|!
+G2E D2E|G2A B2d|d2B ABA|G3 G3:|!
+efg d2B|c2e d3|d2B A2G|E2A ABA|!
+[1 efg d2B|c2e d3|d2B ABA|G3 G3:|!
+[2 G2E D2E|G2A B2d|d2B ABA|G3 G3|]!
+
+X:36
+T:Yellow Wattle
+Z: id:dc-slide-36
+M:6/8
+L:1/8
+K:D Mixolydian
+dcA AGE|ABA AB^c|dcA AB^c|dcA GED|!
+dcA AGE|ABA AGE|DED cde|dcA GED:|!
+ded c3|d^cd =c3|d^cd =cde|dcA GED|!
+ded c3|d^cd d2=c|ABA A^cd|dcA GED:|!
+
+X:1
+T:Another Jig Will Do
+Z: id:dc-slipjig-1
+M:9/8
+L:1/8
+K:D Major
+ABA A2G F2G|ABA AGF G3|ABA A2G F2G|A2d d2c d3:|!
+A2g f2d e2=c|A2B =c2B c2B|A2g f2d e2=c|A2d d2c d3|!
+A2g f2d e2=c|A2B =c2B c2^c|d=cA A2G F2G|A2d d2c d3|]!
+
+X:2
+T:Barney Brallaghan
+Z: id:dc-slipjig-21
+M:9/8
+L:1/8
+K:D Major
+F2A ABA ABA|F2A ABA d2f|F2A ABA ABA|B2e e2d cBA:|!
+f2a f2a fed|f2a f2a gfe|f2a f2a fed|efe e2d cBA:|!
+f3 a3 d3|e2f ged cBA|f3 e3 d3|B3 A2G FED:|!
+
+X:3
+T:Boys of Ballisodare
+Z: id:dc-slipjig-2
+M:9/8
+L:1/8
+K:G Major
+D2G G2A B2d|efe def g3|D2G G2B d2B|ABA B2G E2G|!
+D2G G2A B2d|efe def g2a|b2a g2e d2B|ABA B2G E2G:|!
+B2d d2B d3|B2d def g3|B2d d2B d2B|ABA B2G E2G|!
+B2d d2B d3|B2d def g2a|b2a g2e d2B|ABA B2G E2G:|!
+
+X:4
+T:Butterfly
+Z: id:dc-slipjig-3
+M:9/8
+L:1/8
+K:E Minor
+B2E G2E F3|B2E G2E FGA|B2E G2E F3|B2d d2B AFA:|!
+B2c e2f g3|B2c g2e dBA|B2c e2f g2a|b2a g2e dBA:|!
+B3 B2A G2A|B3 BAB dBA|B3 B2A G2A|B2d g2e dBA:|!
+
+X:5
+T:Choice Wife
+Z: id:dc-slipjig-4
+M:9/8
+L:1/8
+K:D Mixolydian
+FGA AFA c2A|BAG FAG FED|FGA AFA d3|dfe dcA GED:|!
+d^cd ege =c2A|d^cd faf gfe|afa ged c2A|BAG FAG FED:|!
+FGA AFd AFd|AFd AFA GED|FGA AFA c2A|BAG FAG FED:|!
+DED DED c3|c2B c2A GED|DED DED d3|dfe dcA GED:|!
+d^cd ege =c2A|d^cd faf gfe|afa ged c2A|BAG FAG FED:|!
+
+X:6
+T:Come Upstairs with Me
+Z: id:dc-slipjig-5
+M:9/8
+L:1/8
+K:G Major
+G2c BAG Bcd|ecA ABG FED|G2c BAG Bcd|efg faf g3:|!
+fed d2g fed|ecA ABG FED|fed d2g fed|efg faf g3|!
+fed d2g fed|ecA ABG FED|G2c BAG Bcd|efg faf g3|]!
+
+X:7
+T:Dever the Dancer
+Z: id:dc-slipjig-6
+M:9/8
+L:1/8
+K:E Dorian
+BEE BEE G2A|BEE BAG FGA|BEE BEE G2A|Bcd ABG FED:|!
+ded dAF G2A|ded def gfe|ded dAF G2A|Bcd ABG FED|!
+ded dAF G2A|ded def gfe|afa gec d2A|Bcd AGF FED|]!
+
+X:8
+T:Drops of Brandy
+Z: id:dc-slipjig-7
+M:9/8
+L:1/8
+K:G Major
+ded BGB BGB|ded BGB cBA|ded BGB BGB|cBc A2B cBA:|!
+GBd gdB gdB|GBd gdB cBA|GBd gdB gdB|cBc A2B cBA|!
+GBd gdB gdB|GBd gdB cBA|GBd gba gdB|cBc A2B cBA|]!
+
+X:9
+T:Dusty Miller
+Z: id:dc-slipjig-8
+M:9/8
+L:1/8
+K:A Major
+c2e e2B cBA|F2B B2c dcB|c2e e2B cBA|E2A A2B cBA:|!
+c2e f2g aga|b2B B2c dcB|c2e f2g a2b|a2f e2d cBA:|!
+
+X:10
+T:Elizabeth Kelly's Delight
+Z: id:dc-slipjig-9
+M:9/8
+L:1/8
+K:A Dorian
+A3 ABA AGE|ABA G2E DEG|A3 ABA AGE|G3 G2E DEG:|!
+c2A BAG A3|c2A BAG DEG|c2A BAG A3|G3 G2E DEG:|!
+
+X:11
+T:Foxhunter's
+Z: id:dc-slipjig-10
+M:9/8
+L:1/8
+K:D Major
+FGF F2D G2E|FGF F2D E2D|FGF F2D G2B|AFD D2F E2D:|!
+BcB BAG FGA|B2E E2F G2B|ABc dcB ABc|d2D D2F E2D:|!
+fgf f2d g2e|fgf f2d e2d|fgf f2d g2b|afd d2f e2d:|!
+gfe dcB AGA|B2E E2F G2B|ABc dcB ABc|d2D D2F E2D:|!
+
+X:12
+T:Give Us a Drink of Water
+Z: id:dc-slipjig-12
+M:9/8
+L:1/8
+K:G Major
+D|GBd gdc BAG|BdB cAA A2D|GBd gdc BAG|BcA AGF G2:|!
+d|g3 efg fed|g3 efg afd|g3 bag fed|efg afd g2d|!
+g3 efg fed|g3 efg a2g|bag agf ged|efg afd g2|]!
+
+X:13
+T:Hardyman the Fiddler
+Z: id:dc-slipjig-13
+M:9/8
+L:1/8
+K:D Mixolydian
+A2G FDE F2G|A3 AGA cAG|A2G FDE F2G|Add ded cAG:|!
+Add d2e f3|Add ded cAG|Add d2e f2g|agf ged cAG|!
+Add d2e f3|Add ded cAG|dcA d2e f2g|agf ged cAG|]!
+
+X:14
+T:Hedigan's Fancy
+Z: id:dc-slipjig-14
+M:9/8
+L:1/8
+K:D Major
+d2A BGE AFD|fed AFD GFE|d2A BGE AFD|BAB E2F GFE:|!
+DdA FDF GEA|DdA FDF GFE|DdA FDF GEA|BAB E2F GFE:|!
+dcd fed ecA|def agf gfe|dcd fed ecA|dAG FED GFE:|!
+def agf agf|def agf gfe|def agf agf|bgf e2f gfe:|!
+dfe dAF GFE|dfe dAF BGE|dfe dAF GFE|BAB E2F GFE:|!
+DFA fed FGE|DFA dAF E2A|DFA fed FED|BAB E2F GFE:|!
+
+X:15
+T:Humours of Whiskey
+Z: id:dc-slipjig-15
+M:9/8
+L:1/8
+K:B Minor
+gfe fBB fBB|gfe fBB fga|gfe fBB fBB|agf efd cBA:|!
+d2e fdf ecA|d2e fed gfe|d2e fdf efg|agf efd cBA:|!
+
+X:16
+T:Kid on the Mountain
+Z: id:dc-slipjig-16
+M:9/8
+L:1/8
+K:E Minor
+EDE FEF G2F|EFE cBA BGE|EFE FEF G2A|BAG FAG FED:|!
+BGB AFA G2D|GAB dge dBA|BGB AFA G2A|BAG FAG FED:|!
+gfe efe e2f|gfg efg afd|gfe efe e2a|bag fag fed:|!
+eBB e2f g2f|eBB efg afd|eBB e2f g2a|bag fag fed:|!
+edB dBA G2D|GAB dge dBA|edB dBA G2A|BAG FAG FED:|!
+
+X:17
+T:Promenade
+Z: id:dc-slipjig-22
+M:9/8
+L:1/8
+K:A Dorian
+e2A A2G E2D|E2A A2B c2d|e2A A2G E2D|E2G G2F G3:|!
+e2a a2g a3|e2a a3 gfe|d2g g2f g3|a2g g2e d3:|!
+
+X:18
+T:Promenade
+Z: id:dc-slipjig-17
+M:9/8
+L:1/8
+K:D Dorian
+A2D D2C A,2G,|A,2D D2E F2G|A2D D2C A,2G,|A,2C C2B, C3:|!
+A2d d2c d3|A2d d3 cBA|G2c c2B c3|d2c c2A G3:|!
+
+X:19
+T:Redican's Mother
+Z: id:dc-slipjig-20
+M:9/8
+L:1/8
+K:D Major
+FAA FAd AFD|FAA FAd B2A|FAA FAd AFD|EDB, DFA B2A:|!
+fgf fed edB|Aff fef g2e|fgf fed edB|AFD DFA B2A:|!
+
+X:20
+T:Rocky Road to Dublin
+Z: id:dc-slipjig-19
+M:9/8
+L:1/8
+K:A Dorian
+efe d2B A3|E2A AGA Bcd|efe d2B A2c|B2G G2A Bcd:|!
+e2a a2f g3|e2a a2A Bcd|e2a a2f g2e|d2B G2A Bcd|!
+e2a a2f g3|e2a a2A Bcd|efg fga gfe|d2B G2A Bcd|]!
+ecA ecA A3|ecA ecA Bcd|ecA ecA A2c|d2B G2A Bcd|!
+ecA ecA A3|ecA ecA Bcd|efg fga gfe|d2B G2A Bcd|]!
+
+X:21
+T:Swaggering
+Z: id:dc-slipjig-11
+M:9/8
+L:1/8
+K:G Major
+BAG AGE DEG|BAG GFG ABc|BAG AGE DEG|cBA BGE D3:|!
+Bdd dge dBG|Bdd dBG A2G|Bdd dge dBG|cBA BGE D3|!
+Bdd dge dBG|Bdd dBG Aef|gfe dBG cBA|cBA BGE D3|]!
+
+X:1
+T:Bell Table
+Z: id:dc-waltz-1
+M:3/4
+L:1/8
+K:D Major
+Bc|d3 e d2|d2 c2 B2|A3 B A2|A2 G2 F2|!
+G2 GA BG|A2 AB cA|G2 GA BG|A4 Bc|!
+d3 e d2|d2 c2 B2|A3 B A2|A2 G2 F2|!
+G2 GA BG|A2 AB cA|G2 F2 E2|D4:|!
+fg|a3 b a2|a4 g2|f3 g f2|f2 e2 f2|!
+g3 a g2|g2 f2 g2|a3 b a2|a4 fg|!
+a3 b a2|a4 g2|f3 g f2|f2 e2 d2|!
+B3 d g2|fa3 c2|ed3 c2|d4:|!
+
+X:2
+T:Boolavogue
+Z: id:dc-waltz-2
+M:3/4
+L:1/8
+K:G Major
+D2|G4 D2|G4 Bd|g4 f2|eg3 e2|d4 e2|B4 AG|A3 B AG|E4 D2|!
+G4 D2|G4 Bd|g4 f2|eg3 e2|d4 e2|B4 AG|A3 B AF|G4|]!
+B2|d4 B2|d4 ef|g4 f2|eg3 e2|d4 e2|B4 AG|A3 B AG|E4 D2|!
+G4 D2|G4 Bd|g4 f2|eg3 e2|d4 e2|B4 AG|A3 B AF|G4|]!
+
+X:3
+T:Gan Ainm
+Z: id:dc-waltz-9
+M:3/4
+L:1/8
+K:G Major
+d ^cd|ed Bd GB|D2 G3F|E3 C E2|D4 G2|!
+F3E F2|d4 c2|B3_B =Bc|B3 d ^cd|!
+ed Bd GB|D2 G3F|E3 C E2|D4 G2|!
+F3 E F2|B4 A2|G3 F GA|G3:|!
+A Bc|d2 e2 f2|g2 fg af|g2 f2 e2|B3 A Bc|!
+d2 de dB|c2 B2 A2|G2 GF GA|B3 A Bc|!
+d2 d^c d2|g2 fg af|g2 f2 e2|B3 A Bc|!
+d2 de dB|c2 B2 A2|GD (3EFG Bd|g3:|!
+
+X:4
+T:Gentle Maiden
+Z: id:dc-waltz-10
+M:3/4
+L:1/8
+K:G Major
+D2|G3 A G2|F2 E2 D2|d4 d2|e3 f g2|d3 c B2|A4 G2|E6|F3 E D2|!
+G3 A G2|F2 E2 D2|d4 d2|e3 f g2|d3 c B2|A4-A G|G6-|G4:|!
+B2|d2 e2 f2|g3 g g2|g3 a a2|g3 f e2|d3 c B2|A4 G2|E6|F3 E D2|!
+G3 A G2|F2 E2 D2|d4 d2|e3 f g2|d3 c B2|A4-A G|G6-|G4:|!
+
+X:5
+T:Give Me Your Hand
+Z: id:dc-waltz-3
+M:3/4
+L:1/8
+K:G Major
+D2|E2 G2 G2|G4 D2|E2 G2 G2|G4 D2|E2 G2 G2|G2 A2 B2|B2 e2 d2|B4 AG|!
+A2 A2 ed|B2 B2 dB|A3 B AG|E4 D2|E2 G2 G2|G4 D2|E2 G2 G2|G4 D2|!
+E2 G2 G2|G2 A2 B2|D3 B AB|G4 D2|E2 G2 G2|G2 A2 B2|B2 e2 d2|B4 AG|!
+A2 A2 ed|B2 B2 dB|A2 A2 Bd|e4 dB|d2 d2 e2|g4 ed|e2 e2 g2|a4 ge|!
+g2 g2 de|g2 g2 de|g2 g2 a2|b6|b2 b2 b2|b4 ag|ag ab ab|a4 gf|!
+e2 e2 ge|d2 d2 gd|B2 B2 dB|A4 BA|G2 G2 Bd|=f4 ed|e2 e2 g2|e4 dB|!
+d2 d2 gd|B2 B2 dB|A3 c BA|G4|]!
+
+X:6
+T:Inisheer
+Z: id:dc-waltz-4
+M:3/4
+L:1/8
+K:G Major
+D2|B3 A Bd|B3 A Bd|E3 B AB|D3 E GA|!
+B3 A Bd|B3 A Bd|G3 B AF|G4:|!
+Bd|e3 f ed|B3 A Bd|gf ed Bd|e3 f gf|!
+e3 f ed|B3 A Bd|G3 B AF|G4:|!
+
+X:7
+T:Mrs. Kenny's
+Z: id:dc-waltz-7
+M:3/4
+L:1/8
+K:D Major
+A2|f2 fe dc|d4 FG|A2 G3B,|A,2 C2 E2|!
+[1 g2 f2 e2|d2 c2 B2|A2 AB AG|F2 G2:|!
+[2 g2 f2 e2|d2 c2 B2|A2 ^GA Bc|d4|]!
+cB|A2 f2 f2|A2 f2 f2|A2 f2 f2|a^g ba fd|!
+A2 e2 e2|A2 e2 e2|A2 e2 e2|a^g ba fd|!
+A2 f2 f2|A2 f2 f2|A2 f2 f2|a^g ba fd|!
+A2 e2 e2|A2 e2 e2|ab ag fe|d4|]!
+FA|d4 ed|c4 dc|B2 G3 B|A2 F2 F2|!
+d4 ed|c4 B2|A2 G2 E2|D4:|!
+
+X:8
+T:South Wind
+Z: id:dc-waltz-5
+M:3/4
+L:1/8
+K:G Major
+c2|B3 A G2|B3 c d2|A6|A4 c2|B3 A G2|E3 D E2|G6|G4:|!
+d2|g4 g2|g3 f e2|d4 d2|d4 c2|B3 A G2|B3 c d2|A6|A4 d2|!
+g4 g2|g3 f e2|d4 d2|d4 c2|B3 A G2|Ac3 F2|G6|G4|]!
+
+X:9
+T:Spinning Wheel
+Z: id:dc-waltz-11
+M:3/4
+L:1/8
+K:G Major
+D|G2 B3 D|G2 B2 D2|G2 B2 d2|d2 c2 AG|F2 A2 D2|F2 A2 D2|F2 A3 c|c2 B4|!
+d3 B2 c|d6|e2 c3 e|d2 B4|c3 B c2|A3 G FG|A2 d3 c|[1 B2 G3:|[2 B2 G4|]!
+B3 A B2|G3 F G2|D2 G3 B|d2 c3 B|A3 G A2|F3 E F2|D2 F2 A2|c2 B4|!
+d3 B2 c|d6|e2 c3 e|d2 B4|c3 B c2|A3 G FG|A2 d3 c|B2 G3:|!
+
+X:10
+T:Tommy Bhetty's
+Z: id:dc-waltz-6
+M:3/4
+L:1/8
+K:G Major
+z D2|G3 B dB|G3 B dB|d2 b3 a|ga fg ef|!
+G3 B dB|G3 B dB|D2 F2 A2|c2 B2 A2|!
+G3 B dB|G3 B dB|d2 b3 a|ga fg ef|!
+dg3 Bc|d3 c AF|G2 B3 A|G3:|!
+g fg|a2 f2 d2|A2 F2 D2|C2 b3 a|ga fg ef|!
+d3 e d2|B3 A B2|D2 F2 A2|c2 B2 A2|!
+d2 Bc dB|d b3 af|g2 b3 a|ga fg ef|!
+dg3 Bc|d3 c AF|G2 B3 A|G3:|!
+
+X:11
+T:Waterford
+Z: id:dc-waltz-8
+M:3/4
+L:1/8
+K:D Major
+FG|A2 A2 d2|B4 e2|cB AB cA|d2 f2 a2|!
+A2 A2 d2|B4 e2|cB AB cA|d4:|!
+ef|ge Ac eg|fd Ad Fd|ce ge dc|d2 f2 af|!
+ge Ac eg|fd Ad Fd|ce ge dc|d4:|!
+FG|Ad Fd Ad|cd Gd Bd|ce ge dc|df af d2|!
+Ad Fd Ad|cd Gd Bd|ce ge dc|e2 d2:|!
+FG|A2 AB cd|B2 Gf ag|fd ge dc|ed cB AF|!
+A2 AB cd|B2 Gf ag|fd ge dc|e2 d2:|!

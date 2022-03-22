@@ -5,6 +5,12 @@ import torch.distributions.distribution
 from tqdm import tqdm
 from MySong import *
 from Transformer_Model import *
+import data
+
+
+
+
+
 
 if(torch.cuda.is_available()):
     print("GPU: ",torch.cuda.get_device_name(1), " is available, Switching now.")
@@ -48,6 +54,14 @@ CHECKPOINT_DIR = os.path.join(cwd, CHECKPOINT_DIR)
 CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
 
 
+
+corpus = data.Corpus("./dataset/irish")
+
+
+
+
+
+
 songs = []
 with open(os.path.join(cwd, 'dataset', 'irish.abc'), 'r') as f:
     text = f.read()
@@ -81,16 +95,6 @@ char2idx = {u: i for i, u in enumerate(vocab)}
 #   the inverse of char2idx and allows us to convert back
 #   from unique index to the character in our vocabulary.
 idx2char = np.array(vocab)  ### Define numerical representation of text ###
-
-# Create a mapping from character to unique index.
-# For example, to get the index of the character "d",
-#   we can evaluate `char2idx["d"]`.
-char2idx = {u: i for i, u in enumerate(vocab)}
-
-# Create a mapping from indices to characters. This is
-#   the inverse of char2idx and allows us to convert back
-#   from unique index to the character in our vocabulary.
-idx2char = np.array(vocab)
 
 print('{')
 for char, _ in zip(char2idx, range(20)):
