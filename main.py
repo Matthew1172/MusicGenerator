@@ -18,13 +18,13 @@ emsize = 256
 #number of hidden units per layer
 hidden_units = 2048
 #number of layers
-nlayers = 500
+nlayers = 512
 #initial learning rate
 learning_rate = 20
 #gradient clipping
 clip = 25e-2
 #upper epoch limit
-epochs = 1240
+epochs = 300
 #batch size
 batch_size = 20
 #sequence length
