@@ -1,10 +1,11 @@
 import torch
 import data
 import os
+from tqdm import tqdm
 
 seed = 0
 temp = 1.0
-gen_length = 1000
+gen_length = 200
 log_interval = 200
 
 # Checkpoint location:
@@ -43,10 +44,9 @@ input = torch.randint(ntokens, (1, 1), dtype=torch.long).to(device)
 
 '''TODO: create music 21 score'''
 
-
 with open(GENERATION_PREFIX, 'w') as outf:
     with torch.no_grad():  # no tracking history
-        for i in range(gen_length):
+        for i in tqdm(range(gen_length)):
             output = model(input, False)
             word_weights = output[-1].squeeze().div(temp).exp().cpu()
             word_idx = torch.multinomial(word_weights, 1)[0]
