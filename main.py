@@ -15,9 +15,9 @@ print("Device is now: ", device)
 #size of word embeddings
 emsize = 256
 #number of hidden units per layer
-hidden_units = 2048
+hidden_units = 1024
 #number of layers
-nlayers = 256
+nlayers = 1024
 #initial learning rate
 learning_rate = 20
 #gradient clipping
@@ -72,7 +72,7 @@ test_data = batchify(myCorpus.test, eval_batch_size)
 ###############################################################################
 
 ntokens = len(myCorpus.dictionary)
-model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, dropout).to(device)
+model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
 
 criterion = nn.NLLLoss()
 
