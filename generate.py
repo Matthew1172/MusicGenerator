@@ -2,7 +2,7 @@ import torch
 import data
 import os
 
-seed = "G"
+seed = 0
 temp = 1.0
 gen_length = 1000
 log_interval = 200
