@@ -5,7 +5,7 @@ import os
 import time
 
 if(torch.cuda.is_available()):
-    print("GPU: ",torch.cuda.get_device_name(1), " is available, Switching now.")
+    print("GPU: ",torch.cuda.get_device_name(0), " is available, Switching now.")
 else:
     print("GPU is not available, using CPU.")
 
