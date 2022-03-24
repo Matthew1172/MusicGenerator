@@ -67,20 +67,25 @@ class Corpus(object):
                 elif isinstance(m, note.Rest):
                     da = m.fullName
                 elif isinstance(m, bar.Repeat):
+                    da += "Rep"
                     da = m.type
-                    da += " "
+                    da += "&"
                     da += m.direction
                 elif isinstance(m, bar.Barline):
+                    da += "Bar"
                     da = m.type
                 elif isinstance(m, clef.Clef):
+                    da += "Clef"
                     da = m.sign
                 elif isinstance(m, key.KeySignature):
+                    da += "Key"
                     da += m.tonic.name
-                    da += " "
+                    da += "&"
                     da += m.mode
                 elif isinstance(m, meter.TimeSignature):
+                    da += "Time"
                     da += str(m.numerator)
-                    da += " "
+                    da += "&"
                     da += str(m.denominator)
                 else:
                     continue
