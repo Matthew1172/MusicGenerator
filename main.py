@@ -20,11 +20,11 @@ hidden_units = 2048
 #number of layers
 nlayers = 512
 #initial learning rate
-learning_rate = 20
+learning_rate = 1e-1
 #gradient clipping
 clip = 25e-2
 #upper epoch limit
-epochs = 300
+epochs = 50
 #batch size
 batch_size = 20
 #sequence length
@@ -163,7 +163,8 @@ try:
             best_val_loss = val_loss
         else:
             # Anneal the learning rate if no improvement has been seen in the validation dataset.
-            lr /= 4.0
+            #lr /= 4.0
+            pass
 except KeyboardInterrupt:
     print('-' * 89)
     print('Exiting from training early')
