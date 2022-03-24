@@ -70,7 +70,7 @@ class Corpus(object):
                     da = m.fullName
                 elif isinstance(m, bar.Repeat):
                     da = m.type
-                    da += "_"
+                    da += " "
                     da += m.direction
                 elif isinstance(m, bar.Barline):
                     da = m.type
@@ -78,10 +78,11 @@ class Corpus(object):
                     da = m.sign
                 elif isinstance(m, key.KeySignature):
                     da += m.tonic.name
+                    da += " "
                     da += m.mode
                 elif isinstance(m, meter.TimeSignature):
                     da += str(m.numerator)
-                    da += "/"
+                    da += " "
                     da += str(m.denominator)
                 else:
                     continue

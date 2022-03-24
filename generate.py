@@ -41,6 +41,9 @@ ntokens = len(corpus.dictionary)
 
 input = torch.randint(ntokens, (1, 1), dtype=torch.long).to(device)
 
+'''TODO: create music 21 score'''
+
+
 with open(GENERATION_PREFIX, 'w') as outf:
     with torch.no_grad():  # no tracking history
         for i in range(gen_length):
@@ -51,6 +54,9 @@ with open(GENERATION_PREFIX, 'w') as outf:
             input = torch.cat([input, word_tensor], 0)
 
             word = corpus.dictionary.idx2word[word_idx]
+
+            '''TODO: construct a time signature, clef, and key signature object and append it to the score'''
+            '''word is either a clef, key signature, time signature, note, or barline'''
 
             #outf.write(word + ('\n' if i % 20 == 19 else ''))
             outf.write(word)
