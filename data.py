@@ -1,7 +1,5 @@
 import os
 from io import open
-
-import music21
 import torch
 import regex as re
 from tqdm import tqdm
