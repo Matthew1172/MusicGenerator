@@ -9,13 +9,14 @@ if(torch.cuda.is_available()):
 else:
     print("GPU is not available, using CPU.")
 
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device2 = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
 emsize = 256
 #number of hidden units per layer
-hidden_units = 1024
+hidden_units = 512
 #number of layers
 nlayers = 1024
 #initial learning rate
