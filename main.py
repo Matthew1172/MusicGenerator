@@ -24,7 +24,7 @@ learning_rate = 20
 #gradient clipping
 clip = 25e-2
 #upper epoch limit
-epochs = 310
+epochs = 1240
 #batch size
 batch_size = 20
 #sequence length
