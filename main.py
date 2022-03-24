@@ -35,6 +35,7 @@ log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
 num_heads = 8
 
+cwd = os.getcwd()
 dataset = "./dataset/irish"
 
 # Checkpoint location:
@@ -47,11 +48,10 @@ except FileExistsError:
 
 CHECKPOINT_PREFIX = 'my_ckpt.pth'
 
-cwd = os.getcwd()
 CHECKPOINT_DIR = os.path.join(cwd, CHECKPOINT_DIR)
 CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
 
-corpus = data.Corpus(dataset)
+myCorpus = data.Corpus(dataset)
 
 def batchify(data, bsz):
     # Work out how cleanly we can divide the dataset into bsz parts.
@@ -63,15 +63,15 @@ def batchify(data, bsz):
     return data.to(device)
 
 eval_batch_size = 10
-train_data = batchify(corpus.train, batch_size)
-val_data = batchify(corpus.valid, eval_batch_size)
-test_data = batchify(corpus.test, eval_batch_size)
+train_data = batchify(myCorpus.train, batch_size)
+val_data = batchify(myCorpus.valid, eval_batch_size)
+test_data = batchify(myCorpus.test, eval_batch_size)
 
 ###############################################################################
 # Build the model
 ###############################################################################
 
-ntokens = len(corpus.dictionary)
+ntokens = len(myCorpus.dictionary)
 model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, dropout).to(device)
 
 criterion = nn.NLLLoss()
@@ -98,7 +98,7 @@ def evaluate(data_source):
     # Turn on evaluation mode which disables dropout.
     model.eval()
     total_loss = 0.
-    ntokens = len(corpus.dictionary)
+    ntokens = len(myCorpus.dictionary)
     with torch.no_grad():
         for i in range(0, data_source.size(0) - 1, bptt):
             data, targets = get_batch(data_source, i)
@@ -112,7 +112,7 @@ def train():
     model.train()
     total_loss = 0.
     start_time = time.time()
-    ntokens = len(corpus.dictionary)
+    ntokens = len(myCorpus.dictionary)
     for batch, i in enumerate(range(0, train_data.size(0) - 1, bptt)):
         data, targets = get_batch(train_data, i)
         # Starting each batch, we detach the hidden state from how it was previously produced.

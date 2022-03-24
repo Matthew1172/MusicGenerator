@@ -242,7 +242,6 @@ Z: id:dc-hornpipe-21
 M:C|
 L:1/8
 K:D Major
-
 A,C|D2 (3DDD DFAA|defe dcBA|FAA2 BAAF|GEFD CEA,C|!
 D2 (3DDD DFAA|defe dcBA|FAA2 BAGE|F2D2 D2:|!
 de|fdd2 Add2|fdd2 bgaf|gece Acef|g2bg agfe|!
@@ -5384,7 +5383,7 @@ L:1/8
 K:A Dorian
 EAAG ABcA|EAFA GEDG|EAAG ABcd|egdB cAA2:|!
 ABcd eAAf|gedc BGGB|ABcd eaaf|gedB cAA2:|!
-M:3/4 egdB A2| M:4/4 egdB GABd|eBdB Aaaf|gedB cAA2:|!
+egdB A2| M:4/4 egdB GABd|eBdB Aaaf|gedB cAA2:|!
 
 X:139
 T:Hand Me Down the Tackle
@@ -7185,7 +7184,6 @@ Z: id:dc-reel-387
 M:C
 L:1/8
 K:D Major
-
 E3F D2FA|d2fd gdfd|edBd A2FA|B2AF GFED|!
 E3F D2FA|d2fd gdfd|edBd A2FA|BdAG FDD2:|!
 fdd2 fdgd|fdd2 fcAe|fdd2 gfec|dfag fdd2|!
