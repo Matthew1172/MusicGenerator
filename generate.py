@@ -25,7 +25,7 @@ if(torch.cuda.is_available()):
 else:
     print("GPU is not available, using CPU.")
 
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #-999 : temperature has to be greater or equal 1e-3.
