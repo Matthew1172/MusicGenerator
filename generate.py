@@ -2,6 +2,7 @@ import torch
 import data
 import os
 from tqdm import tqdm
+import regex as re
 
 seed = 0
 temp = 1.0

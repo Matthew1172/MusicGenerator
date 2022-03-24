@@ -63,30 +63,37 @@ class Corpus(object):
             for m in s:
                 da = ""
                 if isinstance(m, note.Note):
+                    da += "Note "
                     da = m.fullName
                 elif isinstance(m, note.Rest):
+                    da += "Rest "
                     da = m.fullName
                 elif isinstance(m, bar.Repeat):
-                    da += "Rep"
+                    da += "Rep "
                     da = m.type
                     da += "&"
                     da += m.direction
+                    da += "Rep "
                 elif isinstance(m, bar.Barline):
-                    da += "Bar"
+                    da += "Bar "
                     da = m.type
+                    da += "Bar "
                 elif isinstance(m, clef.Clef):
-                    da += "Clef"
+                    da += "Clef "
                     da = m.sign
+                    da += "Clef "
                 elif isinstance(m, key.KeySignature):
-                    da += "Key"
+                    da += "Key "
                     da += m.tonic.name
                     da += "&"
                     da += m.mode
+                    da += "Key "
                 elif isinstance(m, meter.TimeSignature):
-                    da += "Time"
+                    da += "Time "
                     da += str(m.numerator)
                     da += "&"
                     da += str(m.denominator)
+                    da += "Time "
                 else:
                     continue
                 pretty_song.append(da)
