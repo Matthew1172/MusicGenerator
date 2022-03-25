@@ -77,7 +77,8 @@ test_data = batchify(myCorpus.test, eval_batch_size)
 ntokens = len(myCorpus.dictionary)
 model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
 
-criterion = nn.NLLLoss()
+#criterion = nn.NLLLoss()
+criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
 ###############################################################################
