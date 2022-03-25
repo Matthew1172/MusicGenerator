@@ -60,7 +60,7 @@ input = torch.randint(ntokens, (1, 1), dtype=torch.long).to(device)
 
 '''TODO: create music 21 score'''
 
-for i in range(numberOfSongs):
+for sn in range(numberOfSongs):
     generatedSong = []
     generatedSong.append(corpus.dictionary.idx2word[seed])
     with torch.no_grad():  # no tracking history
@@ -123,7 +123,8 @@ for i in range(numberOfSongs):
                 m.append(meter.TimeSignature(tsig))
             else:
                 continue
-    out = GENERATION_PREFIX + "_"+str(i)
+
+    out = GENERATION_PREFIX + "_"+str(sn)
 
     try:
         p.write("text", out + ".txt")
