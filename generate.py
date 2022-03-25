@@ -60,6 +60,7 @@ input = torch.randint(ntokens, (1, 1), dtype=torch.long).to(device)
 '''TODO: create music 21 score'''
 
 generatedSong = []
+generatedSong.append(corpus.dictionary.idx2word[seed])
 with torch.no_grad():  # no tracking history
     for i in tqdm(range(gen_length)):
         output = model(input, False)
