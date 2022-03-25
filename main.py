@@ -171,7 +171,7 @@ try:
             best_val_loss = val_loss
         else:
             # Anneal the learning rate if no improvement has been seen in the validation dataset.
-            if lr > 1e-2:
+            if lr > 1:
                 lr /= 4.0
 except KeyboardInterrupt:
     print('-' * 89)
