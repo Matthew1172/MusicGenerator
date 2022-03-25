@@ -24,9 +24,9 @@ learning_rate = 1e-1
 #gradient clipping
 clip = 25e-2
 #upper epoch limit
-epochs = 100
+epochs = 10000
 #batch size
-batch_size = 20
+batch_size = 100
 #sequence length
 bptt = 35
 #dropout applied to layers (0 = no dropout)
