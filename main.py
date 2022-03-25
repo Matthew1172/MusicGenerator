@@ -14,7 +14,7 @@ device2 = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
-emsize = 400
+emsize = 200
 #number of hidden units per layer
 hidden_units = 500
 #number of layers
@@ -24,11 +24,11 @@ learning_rate = 1e-1
 #gradient clipping
 clip = 25e-2
 #upper epoch limit
-epochs = 40
+epochs = 400
 #batch size
-batch_size = 100
+batch_size = 20
 #sequence length
-bptt = 100
+bptt = 35
 #dropout applied to layers (0 = no dropout)
 dropout = 2e-1
 #report interval
