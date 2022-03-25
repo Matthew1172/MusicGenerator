@@ -56,49 +56,64 @@ class Corpus(object):
         #times = [p[0][0] for p in [[[(k.numerator, k.denominator) for k in j.getElementsByClass(meter.TimeSignature)] for j in s[1].getElementsByClass(stream.Measure)] for s in m21]]
         #note = [[[k.fullName for k in j.getElementsByClass(note.Note).flatten()] for j in s[1].getElementsByClass(stream.Measure)] for s in m21]
 
-        info = [[j for j in s[1].getElementsByClass(stream.Measure).flatten()] for s in m21]
+        #info = [[j for j in s[1].getElementsByClass(stream.Measure).flatten()] for s in m21]
+        #info = [[j for j in s[1]] for s in m21]
+        info = [s[1].elements for s in m21]
+
         pretty_info = []
         for s in info:
             pretty_song = []
             for m in s:
-                da = ""
-                if isinstance(m, note.Note):
-                    da += "Note "
-                    da = m.fullName
-                elif isinstance(m, note.Rest):
-                    da += "Rest "
-                    da = m.fullName
-                elif isinstance(m, bar.Repeat):
-                    da += "Rep "
-                    da = m.type
-                    da += "&"
-                    da += m.direction
-                    da += "Rep "
-                elif isinstance(m, bar.Barline):
-                    da += "Bar "
-                    da = m.type
-                    da += "Bar "
-                elif isinstance(m, clef.Clef):
-                    da += "Clef "
-                    da = m.sign
-                    da += "Clef "
-                elif isinstance(m, key.KeySignature):
-                    da += "Key "
-                    da += m.tonic.name
-                    da += "&"
-                    da += m.mode
-                    da += "Key "
-                elif isinstance(m, meter.TimeSignature):
-                    da += "Time "
-                    da += str(m.numerator)
-                    da += "&"
-                    da += str(m.denominator)
-                    da += "Time "
+                if isinstance(m, stream.Measure):
+                    pretty_song.append("|")
+                    self.dictionary.add_word("|")
+                    for n in m:
+                        da = ""
+                        if isinstance(n, note.Note):
+                            da += "Note"
+                            da += " "
+                            da += n.nameWithOctave
+                            da += " "
+                            da += str(n.quarterLength)
+                        elif isinstance(n, note.Rest):
+                            da += "Rest"
+                            da += " "
+                            da += n.name
+                            da += " "
+                            da += str(n.quarterLength)
+                        elif isinstance(n, bar.Repeat):
+                            da += "Rep"
+                            da += " "
+                            da += n.type
+                            da += " "
+                            da += n.direction
+                        elif isinstance(n, bar.Barline):
+                            da += "Bar"
+                            da += " "
+                            da += n.type
+                        elif isinstance(n, clef.Clef):
+                            da += "Clef"
+                            da += " "
+                            da += n.sign
+                        elif isinstance(n, key.KeySignature):
+                            da += "Key"
+                            da += " "
+                            da += str(n.sharps)
+                        elif isinstance(n, meter.TimeSignature):
+                            da += "Time"
+                            da += " "
+                            da += str(n.numerator)
+                            da += " "
+                            da += str(n.denominator)
+                        else:
+                            continue
+                        pretty_song.append(da)
+                        self.dictionary.add_word(da)
+                elif isinstance(m, spanner.RepeatBracket):
+                    continue
                 else:
                     continue
-                pretty_song.append(da)
-                self.dictionary.add_word(da)
-            pretty_info.append(pretty_song)
+            pretty_info.append(pretty_song[1:])
 
         # Tokenize file content
         idss = []

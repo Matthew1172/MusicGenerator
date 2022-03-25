@@ -37,7 +37,8 @@ log_interval = 200
 num_heads = 8
 
 cwd = os.getcwd()
-dataset = "./dataset/irish"
+#dataset = "./dataset/irish"
+dataset = "./dataset/australian"
 
 # Checkpoint location:
 CHECKPOINT_DIR = 'training_checkpoints_pytorch'

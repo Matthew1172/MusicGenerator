@@ -1,12 +1,14 @@
+import notebook.config_manager
 import torch
 import data
 import os
 from tqdm import tqdm
 import regex as re
+from music21 import *
 
-seed = 0
+seed = 1
 temp = 1.0
-gen_length = 200
+gen_length = 50
 log_interval = 200
 
 # Checkpoint location:
@@ -45,22 +47,64 @@ input = torch.randint(ntokens, (1, 1), dtype=torch.long).to(device)
 
 '''TODO: create music 21 score'''
 
-with open(GENERATION_PREFIX, 'w') as outf:
-    with torch.no_grad():  # no tracking history
-        for i in tqdm(range(gen_length)):
-            output = model(input, False)
-            word_weights = output[-1].squeeze().div(temp).exp().cpu()
-            word_idx = torch.multinomial(word_weights, 1)[0]
-            word_tensor = torch.Tensor([[word_idx]]).long().to(device)
-            input = torch.cat([input, word_tensor], 0)
+generatedSong = []
+with torch.no_grad():  # no tracking history
+    for i in tqdm(range(gen_length)):
+        output = model(input, False)
+        word_weights = output[-1].squeeze().div(temp).exp().cpu()
+        word_idx = torch.multinomial(word_weights, 1)[0]
+        word_tensor = torch.Tensor([[word_idx]]).long().to(device)
+        input = torch.cat([input, word_tensor], 0)
 
-            word = corpus.dictionary.idx2word[word_idx]
+        word = corpus.dictionary.idx2word[word_idx]
 
-            '''TODO: construct a time signature, clef, and key signature object and append it to the score'''
-            '''word is either a clef, key signature, time signature, note, or barline'''
+        #outf.write(word + ('\n' if i % 20 == 19 else ''))
+        #outf.write(word)
+        generatedSong.append(word)
 
-            #outf.write(word + ('\n' if i % 20 == 19 else ''))
-            outf.write(word)
+        if i % log_interval == 0:
+            print('| Generated {}/{} words'.format(i, gen_length))
 
-            if i % log_interval == 0:
-                print('| Generated {}/{} words'.format(i, gen_length))
+
+'''TODO: construct a time signature, clef, and key signature object and append it to the score'''
+'''word is either a clef, key signature, time signature, note, or barline'''
+print(generatedSong)
+
+p = stream.Part()
+m = stream.Measure()
+for i in generatedSong:
+    if i == "|":
+        p.append(m)
+        m = stream.Measure()
+    else:
+        j = i.split(" ")
+        if "Note" in j:
+            name = j[1]
+            length = float(j[2])
+            m.append(note.Note(nameWithOctave=name, quarterLength=length))
+        elif "Rest" in j:
+            length = float(j[2])
+            m.append(note.Rest(quarterLength=length))
+        elif "Rep" in j:
+            direction = j[2]
+            m.append(bar.Repeat(direction=direction))
+        elif "Bar" in j:
+            type = j[1]
+            m.append(bar.Barline(type=type))
+        elif "Clef" in j:
+            if j[1] == 'G':
+                m.append(clef.TrebleClef())
+            else:
+                continue
+        elif "Key" in j:
+            sharps = int(j[1])
+            m.append(key.KeySignature(sharps=sharps))
+        elif "Time" in j:
+            numerator = j[1]
+            denominator = j[2]
+            tsig = numerator+"/"+denominator
+            m.append(meter.TimeSignature(tsig))
+        else:
+            continue
+
+p.write("text", GENERATION_PREFIX)
