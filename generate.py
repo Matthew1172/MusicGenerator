@@ -6,7 +6,7 @@ from fractions import Fraction
 from tqdm import tqdm
 from music21 import *
 
-dataset = "./dataset/irish"
+dataset = "./dataset/set1"
 seed = 1
 temp = 1.0
 gen_length = 50
