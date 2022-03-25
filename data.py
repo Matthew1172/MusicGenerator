@@ -1,7 +1,6 @@
 import os
 from io import open
 import torch
-import regex as re
 from tqdm import tqdm
 from music21 import *
 
@@ -27,12 +26,6 @@ class Corpus(object):
         self.train = self.tokenize(os.path.join(path, 'train.abc'))
         self.valid = self.tokenize(os.path.join(path, 'valid.abc'))
         self.test = self.tokenize(os.path.join(path, 'test.abc'))
-
-    def extract_song_snippet(self, text):
-        pattern = '(^|\n\n)(.*?)\n\n'
-        search_results = re.findall(pattern, text, overlapped=True, flags=re.DOTALL)
-        songs = [song[1] for song in search_results]
-        return songs
 
     def tokenize(self, path):
         """Tokenizes a text file."""
