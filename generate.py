@@ -1,25 +1,37 @@
 import torch
 import data
 import os
+import time
 from fractions import Fraction
 from tqdm import tqdm
 from music21 import *
 
+dataset = "./dataset/irish"
 seed = 1
 temp = 1.0
 gen_length = 50
 log_interval = 200
 
 # Checkpoint location:
-CHECKPOINT_DIR = 'training_checkpoints_pytorch'
-CHECKPOINT_PREFIX = 'my_ckpt.pth'
-
 cwd = os.getcwd()
+CHECKPOINT_DIR = 'training_checkpoints_pytorch'
 CHECKPOINT_DIR = os.path.join(cwd, CHECKPOINT_DIR)
+CHECKPOINT_PREFIX = 'my_ckpt.pth'
 CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
-GENERATION_PREFIX = os.path.join(cwd, "generated.txt")
+GENERATION_PREFIX = "generated"
+GENERATION_PREFIX = os.path.join(cwd, GENERATION_PREFIX)
 
-dataset = "./dataset/irish"
+OUTPUTS_DIRECTORY = os.path.join(cwd, "outputs")
+try:
+    os.mkdir(OUTPUTS_DIRECTORY)
+except FileExistsError:
+    print("The {} directory already exists...".format(OUTPUTS_DIRECTORY))
+
+OUTPUT = os.path.join(OUTPUTS_DIRECTORY, "output@"+time.asctime().replace(' ', '').replace(':', ''))
+try:
+    os.mkdir(OUTPUT)
+except FileExistsError:
+    print("The directory {} already exists...".format(OUTPUT))
 
 # Set the random seed manually for reproducibility.
 torch.manual_seed(seed)
@@ -109,4 +121,6 @@ for i in generatedSong:
         else:
             continue
 
-p.write("text", GENERATION_PREFIX)
+p.write("text", GENERATION_PREFIX+".txt")
+p.write("musicxml", GENERATION_PREFIX+".mxl")
+p.write("midi", GENERATION_PREFIX+".mid")
