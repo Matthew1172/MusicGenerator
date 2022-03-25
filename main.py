@@ -16,25 +16,27 @@ print("Device is now: ", device)
 #size of word embeddings
 emsize = 200
 #number of hidden units per layer
-hidden_units = 2000
+hidden_units = 200
 #number of layers
-nlayers = 8
+nlayers = 2
 #initial learning rate
-learning_rate = 1e-1
+learning_rate = 5e-4
+#momentum for SGD
+momentum = 0.45
 #gradient clipping
 clip = 25e-2
 #upper epoch limit
-epochs = 10000
+epochs = 100
 #batch size
-batch_size = 100
+batch_size = 20
 #sequence length
-bptt = 35
+bptt = 5
 #dropout applied to layers (0 = no dropout)
 dropout = 2e-1
 #report interval
 log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
-num_heads = 10
+num_heads = 2
 
 cwd = os.getcwd()
 #dataset = "./dataset/irish"
