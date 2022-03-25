@@ -16,15 +16,15 @@ print("Device is now: ", device)
 #size of word embeddings
 emsize = 200
 #number of hidden units per layer
-hidden_units = 500
+hidden_units = 200
 #number of layers
-nlayers = 500
+nlayers = 2
 #initial learning rate
 learning_rate = 1e-1
 #gradient clipping
 clip = 25e-2
 #upper epoch limit
-epochs = 400
+epochs = 100
 #batch size
 batch_size = 20
 #sequence length
