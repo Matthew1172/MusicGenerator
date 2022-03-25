@@ -9,16 +9,16 @@ if(torch.cuda.is_available()):
 else:
     print("GPU is not available, using CPU.")
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-device2 = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device2 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
 emsize = 200
 #number of hidden units per layer
-hidden_units = 200
+hidden_units = 400
 #number of layers
-nlayers = 2
+nlayers = 4
 #initial learning rate
 learning_rate = 5e-4
 #momentum for SGD
@@ -30,13 +30,13 @@ epochs = 100
 #batch size
 batch_size = 20
 #sequence length
-bptt = 5
+bptt = 15
 #dropout applied to layers (0 = no dropout)
 dropout = 2e-1
 #report interval
 log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
-num_heads = 2
+num_heads = 10
 
 cwd = os.getcwd()
 #dataset = "./dataset/irish"
@@ -79,8 +79,8 @@ test_data = batchify(myCorpus.test, eval_batch_size)
 ntokens = len(myCorpus.dictionary)
 model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
 
-#criterion = nn.NLLLoss()
-criterion = nn.CrossEntropyLoss()
+criterion = nn.NLLLoss()
+#criterion = nn.CrossEntropyLoss()
 #optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 optimizer = torch.optim.Adam(model.parameters())
 
