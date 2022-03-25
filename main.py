@@ -78,7 +78,7 @@ ntokens = len(myCorpus.dictionary)
 model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
 
 criterion = nn.NLLLoss()
-criterion = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
 ###############################################################################
 # Training code
@@ -122,12 +122,12 @@ def train():
         # Starting each batch, we detach the hidden state from how it was previously produced.
         # If we didn't, the model would try backpropagating all the way to start of the dataset.
         model.zero_grad()
-        criterion.zero_grad()
+        optimizer.zero_grad()
         output = model(data)
         output = output.view(-1, ntokens)
         loss = criterion(output, targets)
         loss.backward()
-        criterion.step()
+        optimizer.step()
 
         # `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs.
         torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
