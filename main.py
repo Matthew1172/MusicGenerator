@@ -16,7 +16,7 @@ print("Device is now: ", device)
 #size of word embeddings
 emsize = 400
 #number of hidden units per layer
-hidden_units = 1000
+hidden_units = 500
 #number of layers
 nlayers = 500
 #initial learning rate
