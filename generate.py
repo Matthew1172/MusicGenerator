@@ -124,6 +124,18 @@ for i in range(numberOfSongs):
             else:
                 continue
     out = GENERATION_PREFIX + "_"+str(i)
-    p.write("text", out + ".txt")
-    p.write("musicxml", out + ".mxl")
-    p.write("midi", out + ".mid")
+
+    try:
+        p.write("text", out + ".txt")
+    except:
+        pass
+
+    try:
+        p.write("musicxml", out + ".mxl")
+    except:
+        pass
+
+    try:
+        p.write("midi", out + ".mid")
+    except (repeat.ExpanderException):
+        print("Could not output MIDI file. Badly formed repeats or repeat expressions.")
