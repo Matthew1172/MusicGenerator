@@ -14,21 +14,21 @@ device2 = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
-emsize = 200
+emsize = 400
 #number of hidden units per layer
 hidden_units = 1000
 #number of layers
 nlayers = 500
 #initial learning rate
-learning_rate = 20
+learning_rate = 1e-1
 #gradient clipping
 clip = 25e-2
 #upper epoch limit
 epochs = 40
 #batch size
-batch_size = 20
+batch_size = 100
 #sequence length
-bptt = 35
+bptt = 100
 #dropout applied to layers (0 = no dropout)
 dropout = 2e-1
 #report interval
@@ -79,7 +79,8 @@ model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, devi
 
 #criterion = nn.NLLLoss()
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=1e-1, momentum=0.9)
+#optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+optimizer = torch.optim.Adam(model.parameters())
 
 ###############################################################################
 # Training code
