@@ -1,6 +1,7 @@
 import torch
 import data
 import os
+from fractions import Fraction
 from tqdm import tqdm
 from music21 import *
 
@@ -78,7 +79,10 @@ for i in generatedSong:
         j = i.split(" ")
         if "Note" in j:
             name = j[1]
-            length = float(j[2])
+            try:
+                length = float(j[2])
+            except(ValueError):
+                length = Fraction(j[2])
             m.append(note.Note(nameWithOctave=name, quarterLength=length))
         elif "Rest" in j:
             length = float(j[2])
