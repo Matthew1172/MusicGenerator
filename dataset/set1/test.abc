@@ -1770,25 +1770,6 @@ e2f/e/ d2B | e3 e3 | e2f/e/ d2B | e2e B2d | f2g {fgfgfg}f2e | He3 ||
 B2B | e3 e2f/e/ | d2B/A/ Bf2 | e2f/e/ d2A | BE2- E2E/F/ | G2{AGF}{GABc} d2c/d/ |
 B2B/A/ F3 | {FED}E3 {FED}EF2 | FE/D/E//F//E//D// {EFD}E3- | E3 ||
 
-X:7
-T:\'O R\'athaille's Grave
-T:O'Rahilly's Grave
-T:O'Reilly's Grave
-R:slow air
-H:The title refers to the poet Aog\'an \'O Rathaille (c. 1675-1729)
-H:from the Sliabh Luachra area.
-Z:id:hn-slowair-7
-M:
-L:1/8
-Q:1/4=70
-K:Ador
-e2{fe} dB | c2{Bc}B A3 | A2 B/d/e/f/ | g2a{b}a4 | a2{ba}g {d}e2 |
-{fe}d2B d3 dB | {G}A3 {BA}GE | G4 | G2 A/G//E// D>EG | A3B {G}A4 ||
-A2 B/d/e/f/ | g2a{b}a4 | a2{ba}g {d}e2 e{fe} | d2B d3 dB A2 | {BA}G2 {AB}A4 ||
-A2 B/d/e/f/ | g2 e2 {ef}e | d2 e2f | g2a a4 | a2{ba}g e2 e{fe} |
-d2B d4 d2B | A2 {BAGE} G4 | G2 {AB}A/G//E// D>EG | A3B {cB}A4 ||
-A2 B/d/e/f/ | g2a{b}a4 | {ab}a2{ba}g e2 e{fe} | d2B d3 dB A2 | {BA}G2 {ABAG}A4 ||
-
 X:8
 T:Caitlin Tr\'iall
 T:Kitty Tyrrell
@@ -2167,7 +2148,7 @@ M:3/4
 L:1/8
 Q:1/4=100
 K:G
-D2 | G3 ABc | d4 B2 | g4 fd | e4 A2 | d4 c2 | Bc A3G | G6- | G4 :|
+D2 | G3 ABc | d4 B2F | g4 fd | e4 A2 | d4 c2 | Bc A3G | G6- | G4 :|
 d2 | g4 fg | a4 fa | g4 fd | e4 A2 | d4 c2 | Bc A3G | G6- | G4 ||
 D2 | G3 ABc | d4 B2 | g4 fd | e4 A2 | d4 c2 | Bc A3G | G6- | G4 ||
 

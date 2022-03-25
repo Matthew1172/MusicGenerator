@@ -10,36 +10,6 @@ K:G
 |:g2a f2a|gdB GBd|~g3 fed|egf e2f|~g3 gaf|gdB GBd|AFD cBA|1 AGF GBd:|2 AGF G2D||
 |:GBd ~g3|edc BcA|GBd g2g|gaf g2a|~b3 afa|~g3 fdf|ed^c def|gaf gdB:|
 
-X:2
-T:Irish Washerwoman, The
-R:jig
-H:Bar 3 also played |cAA =FAA| or |cAA EAA| or |cAA DAA|
-H:Descended from the 16th-17th century tune Dargason (a.k.a. Sedany)
-H:Related to single jig#53 "Willie's Single"
-Z:id:hn-jig-2
-M:6/8
-K:G
-BGG DGG|BGB dcB|cAA FAA|cAc edc|
-BGG DGG|BGB dcB|cBc Adc|1 BGG G2A:|2 BGG Gef||
-|:gfg ~d3|gdg bag|fef ~d3|fdf agf|
-egg dgg|cgg Bgg|cBc Adc|1 BGG Gef:|2 BGG G2A||
-P:variations
-|:~B3 GDG|BGB dcB|cBc AFA|cAc edc|
-BGG DGG|BGB dcB|cBc Adc|1 BGG Gdc:|2 BGG G2d||
-gdB GBd|~g3 bag|fdd Add|~f3 agf|
-egg dgg|cgg Bgg|cBc Adc|BGG G2g|
-gdB GBd|~g3 bag|~f3 dAd|fdf agf|
-efg bag|fge dcB|cBc ABc|def gdc||
-W:Some verses set to this tune:
-W:1. When I was at home I was merry and frisky,
-W:   My dad kept a pig and my mother sold whiskey.
-W:
-W:2. O'Reely is dead and O'Reilly don't know it
-W:   O'Reilly is dead and O'Reely don't know it
-W:   They're both lying dead in the very same bed
-W:   And neither one knows that the other one's dead.
-W:
-
 X:3
 T:Banish Misfortune
 R:jig
@@ -1504,26 +1474,6 @@ P:more variations
 |: fed edc | ~A3 cde | fed edc | ABc def |
 ~g3 age | dcA AGE | ~G3 Ade |1 fdc d2e :|2 fdc d2c ||
 
-X:202
-T:Frost is all over, The
-R:jig
-H:See also #46
-H:Other tunes by the same name: #67, #206, #263
-D:Planxty
-Z:id:hn-jig-202
-M:6/8
-K:D
-AFD DFA|ded B2A|ABA F2D|GFG EFG|
-AFD DFA|ded B2A|ABA F2E|1 FDD D3:|2 FDD D2e||
-|:fdd ede|fdd d2e|~f3 def|~g3 e2g|
-fed B2d|A2d F2G|ABA F2E|1 FDD D2e:|2 FDD D3||
-P:variations
-|:AFD DFA|Add B2A|ABA ~F3|GFG ~E3|
-AFD DFA|Add B2A|ABA F2E|1 EDD D3:|2 EDD D2e||
-|:fdd ede|~f3 d2e|fef def|gfg efg|
-fed B2A|AdF G2A|ABA F2E|1 EDD D2e:|2 EDD D3||
-W:see #206
-
 X:203
 T:Rambler, The
 R:jig
@@ -1569,41 +1519,6 @@ ABA AGA|BGE G2A|GED G2A|Bdd edB|
 ABA AGA|BGE G2A|GED G2A|Bdd edB||
 |:def g2b|agf g2e|def g2a|bee edB|
 def g2b|agf g2a|bgg agf|e2d efg:|
-
-X:206
-T:Frost is all over, The
-R:jig
-H:See also #67, #263
-H:There is another tune by the same name: #202
-D:Planxty
-Z:id:hn-jig-206
-M:6/8
-K:D
-def edB|AFD FED|DFA AFA|Bee edB|
-def edB|AFD FED|DFA AFA|1 Bdd d2A:|2 Bdd d2e||
-|:fdd ede|~f3 d2e|fef def|gfg efg|
-fed B2A|AdF G2A|ABA F2E|1 EDD D2e:|2 EDD D3||
-P:variations
-|:def edB|AFD E2D|FAA AFA|Bee e2d|
-def edB|AFD E2D|FAA AFA|Bdd d2A:|
-|:f2d ede|fdd d2e|~f3 def|gfg e2g|
-fed B2A|AdF G2A|ABA F2E|1 FDD D2e:|2 FDD D3||
-W:1. What would you do if the kettle boiled over?
-W:   What would I do? Only fill it again.
-W:   And what would you do if the cow ate the clover?
-W:   What would I do only set it again.
-W:2. The praties are dug and the frost is all over
-W:   Kitty lie over close to the wall.
-W:   How would you like to be married to a soldier?
-W:   Kitty lie over close to the wall.
-W:3. The praties all boil and the herring's a roasting
-W:   Kitty lie over close to the wall.
-W:   You to be drunk and me to be sober
-W:   Kitty lie over close to the wall.
-W:4. What would you do if you married a soldier
-W:   what would you do would you follow his gun?
-W:   And what would you do if he drowned in the ocean
-W:   what would you do would you marry again?
 
 X:207
 T:Yellow Wattle, The

@@ -915,28 +915,6 @@ dB~B2 dBGB | dA~A2 dAFA | DEFG ABcA | d2cd AGG2 :|
 ~f3e defg | adfd cAAB | c2AB cdeg | abag fdde |
 ~f3g ~a3g | ~f3e dcAB | c2cB c2AB | cAdc AGG2 ||
 
-X:109
-T:Wind That Shakes the Barley, The
-R:reel
-Z:id:hn-reel-109
-M:C|
-K:D
-~A3B AFED | ~B3A BcdB | ~A3B AFED |1 gfed BcdB :|2 gfed Bcde ||
-~f3d ~g3e | ~f3d Bcde | ~f3d g2fg | afed Bcde |
-~f3d ~g3e | ~f3d Bcdc | defg ~a3b | afed BcdB ||
-P:variations
-FAAB AFED | ~B3A Bcd2 | FAAB ABde | fded BedB |
-A2FA ADFA | B2GB BGdB | A2FA A2de | fded BAde ||
-~f3a g2ge | f2ed Bcde | fefa ~g3b | afed B2de |
-f2fd g2ge | fefd Bcde | defg afbf | afed BcdB ||
-W:|: Oh, won't you rattle me, and oh, won't you chase me,
-W:   Oh, won't you rattle me, the little bag of tailors. :|
-W:   I went up to Dublin, I met a little tailor,
-W:   I put him in my pocket, for fear the dogs would eat him.
-W:   The dogs began to bark, and I began a-wailin',
-W:   I threw him in the Liffey, for fear the dogs would eat him.
-W:
-
 X:110
 T:Toss the Feathers
 R:reel
@@ -1235,35 +1213,6 @@ d2cA GEEG | (3ABA GE (3ABA D2 | d2cA GEEG | (3ABA GE D4 :|
 P:variations
 |: d2cA GE~E2 | ABAG ~A3B | d2cA GE~E2 |1 EAGE DEFA :|2 ABAG EDD2 ||
 |: cBcd eg~g2 | a2ag eg~g2 |1 cBcd eg~g2 | abge dged :|2 fged cAGB | Ad^ce defe ||
-
-X:129
-T:Yellow Cow, The
-T:Is Trua gan Peata 'n Mhaoir agam
-T:Peata Beag is a Mh\'athair
-T:Mother and Child Reel, The
-R:reel
-H:The words are from CRE II, 259 (Micho Russell)
-H:See also #795, polka#151
-D:Arty McGlynn & Nollaig Casey: Lead the Knave
-Z:id:hn-reel-129
-M:C|
-K:D
-A2GE FD~D2 | EFGD EFGE | A2GE FD~D2 | EFGE A4 :|
-|: ~A3B cdeg | fdec dcAB | cAAB cdeg |1 fdec d2ec :|2 fdec d4 ||
-P:variations
-|: A2GE FDDF | EG~G2 EG~G2 | AFGE FEDF | EFGE A4 :|
-|: cAAB cdeg | ~f2ef dcAG | EAAB cdeg |1 fdec d2ed :|2 fdec d4 ||
-W:Is trua gan peata 'n mhaoir agam (3 times)
-W:'S na caoire beaga b\'ana.
-W:  Is \'o goirim, goirim th\'u,
-W:  Is gr\'a mo chro\'i gan cheilg th\'u,
-W:  Is \'o goirim, goirim th\'u,
-W:  Is t\'u peata beag do mh\'athar.
-W:I wish I had a bainbh\'in,
-W:a bainbh\'in, a bainbh\'in,
-W:I wish I had a bainbh\'in,
-W:that would drink the pratie water.
-W:
 
 X:130
 T:Jigging the Donkey
@@ -1615,71 +1564,6 @@ d2BG AGEF|G2Bd efge|d2BG AGEF|1 GBAF ~G3B:|2 GBAF ~G3g||
 ~g2dg egde|g2bg agef|g2dg egdb|agef ~g3a|
 bg~g2 agef|feed edBd|eg~g2 ea~a2|agef ~g3e||
 
-X:150
-T:Green Fields of America, The
-T:Molly Brannigan
-T:Pretty Molly Brannigan
-T:Purty Molly Brannigan
-R:reel
-H:A reel version of "The Stone In The Field", jig#148
-D:Frankie Gavin: Frankie Goes to Town
-D:Joe Holmes & Len Graham: Saints, Chaste Muses, Bards and Sages.
-D:Celtic Mouth Music (Colm O'Donnell)
-Z:id:hn-reel-150
-M:C|
-K:G
-c2ec B2dB|AGAB AGEF|GAGE DEGB|AGAB AGEG|
-c2ec B2dB|AGAB AGEF|GAGE DEGB|1 AGEF GBdB:|2 AGAB GEDE||
-|:GABc d2Bd|efge dBGB|c2ec B2dB|AGAB AGED|1 GABc d2Bd|efge dBGB|
-c2ec B2dB|AGAB GEDE:|2 gfgf efge|d2BG AGEF|GAGE DGBe|dBAB GBdB||
-P:variations
-|:c2cc B2dB|AGAB AGEF|~G3E DEGB|AGAB AGE2|
-c2cc B2dB|AGAB AGEF|~G3E DEGB|1 AGAB G3B:|2 AGAB G3D||
-|:GABc d2ef|gfge dBGB|c2cc B2dB|AGAB AGE2|1 GABc d2ef|gfge dBGB|
-c2cc B2dB|AGAB G3D:|2 ~g3f efge|d2BG AGEF|~G3E DEGB|AGAB G2AB||
-W:1. Man did you ever hear of purty Molly Brannigan?
-W:   She stole away my heart and I'll never be a man again.
-W:   There's not a spot on my hide will another summer tan again,
-W:   Since Molly's gone and left me all alone for to die.
-W:   Dee idle diddley dootle [etc]
-W:2. There's a hole in my heart you could easy round a turnip in,
-W:   As big as any pavin' stone from Dublin to the Divil's glen.
-W:   If she chose to take another sure she might have left mine back again,
-W:   And not to leave me here all alone for to die.
-W:   Dee howdle duddley dootle [etc]
-W:3. Man dear I remember when milkin' time was past and gone,
-W:   We went into the meadows where she swore I was the only one
-W:   That ever she could love, but, oh, she proved to be the cruel one
-W:   And left me here lamentin' all alone for to die.
-W:   Dee idle diddley dum dowtle [etc]
-W:
-W:Joe Holmes and Len Graham have different words to it:
-W:1. There's a hole in my heart you could easy put a turnip in,
-W:   As big as any pavin' stone from Dublin to the Devil's den.
-W:   Rum diddle [etc]
-W:2. The lassie of my heart (?) .....
-W:   ... since Molly proved the cruel one
-W:   Rum diddle [etc]
-W:
-W:A few more verses from Tom Lenihan:
-W:3.  Ma'am dear, do you remember as we came home the rain began.
-W:    I covered her with my coat, oh, the devil a waistcoat I had on,
-W:    My shirt was rather fine-drawn, yet, oh, the base and cruel one!
-W:    After all that she has left me here alone for to die.
-W:4.  I went and told my tale to Father McDonald, ma'am,
-W:    And then I went and asked advice of Counsellor O'Connell, ma'am.
-W:    They told me promise-breaches had ever been since the world began: Now
-W:    I've only one pair, ma'am, and they are corduroy!
-W:5.  What would you do, ma'am, or what would you advise me to do?
-W:    Must my corduroys to Molly go? In truth I'm bothered what I'll do. I
-W:    can't afford to lose both my heart and my ould britches too. Sure the
-W:    devil a hair I care when I've only to die.
-W:6.  I'm as hot and determined as a live salamander, ma'am.
-W:    Won't ye all come in my wake when I go on my long me[a]nder, ma'am? I
-W:    thought I was as famous as the famous Alexander, ma'am, When I hear ye
-W:    crying around me: "Arrah, why did you die?"
-W:
-
 X:151
 T:Ships Are Sailing
 R:reel
@@ -2024,23 +1908,6 @@ eA~A2 eAgA|eA~A2 egdg|eA~A2 edef|gedB Agfg|
 eA~A2 eAgA|e2dg edBA|B^cdg fgaf|gfgB dcBA||
 GABd gbaf|gedB AcBA|GABd gbag|egdB cBAF|
 GABd gbag|edef gfga|(3bag af gfed|egdB Agfg||
-
-X:173
-T:Did You Wash Your Father's Shirt?
-R:reel
-H:words provided by Trevor Jennings, who got them from a colleague,
-H:who learnt them from his grandmother.
-D:Paddy Moloney & Sean Potts: Tin Whistles
-Z:id:hn-reel-173
-M:C|
-K:D
-g|:fde^c dcAg|fde^c d2de|fde^c dBAB|1 =cAGE D3g:|2 =cAGE D2AD||
-|:(3EFG AB =cAG2|Add^c d3e|fde^c dBAB|1 =cAGE D2AD:|2 =cAGE D3||
-W:Have you washed your father's shirt?
-W:Have you washed it clean?
-W:Have you hung it on the line
-W:Out on the village green?
-W:
 
 X:174
 T:Mountain Top, The
