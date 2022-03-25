@@ -34,7 +34,7 @@ dropout = 2e-1
 #report interval
 log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
-num_heads = 2
+num_heads = 10
 
 cwd = os.getcwd()
 #dataset = "./dataset/irish"
