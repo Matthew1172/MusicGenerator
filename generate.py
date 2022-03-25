@@ -18,8 +18,6 @@ CHECKPOINT_DIR = 'training_checkpoints_pytorch'
 CHECKPOINT_DIR = os.path.join(cwd, CHECKPOINT_DIR)
 CHECKPOINT_PREFIX = 'my_ckpt.pth'
 CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
-GENERATION_PREFIX = "generated"
-GENERATION_PREFIX = os.path.join(cwd, GENERATION_PREFIX)
 
 OUTPUTS_DIRECTORY = os.path.join(cwd, "outputs")
 try:
@@ -32,6 +30,9 @@ try:
     os.mkdir(OUTPUT)
 except FileExistsError:
     print("The directory {} already exists...".format(OUTPUT))
+
+GENERATION_PREFIX = "generated"
+GENERATION_PREFIX = os.path.join(OUTPUT, GENERATION_PREFIX)
 
 # Set the random seed manually for reproducibility.
 torch.manual_seed(seed)
