@@ -14,7 +14,7 @@ device2 = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
-emsize = 256
+emsize = 1500
 #number of hidden units per layer
 hidden_units = 2048
 #number of layers
@@ -24,7 +24,7 @@ learning_rate = 1e-1
 #gradient clipping
 clip = 25e-2
 #upper epoch limit
-epochs = 10
+epochs = 40
 #batch size
 batch_size = 20
 #sequence length
@@ -38,7 +38,8 @@ num_heads = 8
 
 cwd = os.getcwd()
 #dataset = "./dataset/irish"
-dataset = "./dataset/australian"
+#dataset = "./dataset/australian"
+dataset = "./dataset/set1"
 
 # Checkpoint location:
 CHECKPOINT_DIR = 'training_checkpoints_pytorch'
@@ -180,9 +181,3 @@ print('=' * 89)
 print('| End of training | test loss {:5.2f} | test ppl {:8.2f}'.format(
     test_loss, math.exp(test_loss)))
 print('=' * 89)
-
-'''
-if len(args.onnx_export) > 0:
-    # Export the model in ONNX format.
-    export_onnx(args.onnx_export, batch_size=1, seq_len=args.bptt)
-'''
