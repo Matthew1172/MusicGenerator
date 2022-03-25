@@ -14,13 +14,13 @@ device2 = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
-emsize = 512
+emsize = 200
 #number of hidden units per layer
-hidden_units = 256
+hidden_units = 200
 #number of layers
-nlayers = 256
+nlayers = 2
 #initial learning rate
-learning_rate = 1e-1
+learning_rate = 20
 #gradient clipping
 clip = 25e-2
 #upper epoch limit
@@ -34,7 +34,7 @@ dropout = 2e-1
 #report interval
 log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
-num_heads = 8
+num_heads = 2
 
 cwd = os.getcwd()
 #dataset = "./dataset/irish"
@@ -77,8 +77,8 @@ test_data = batchify(myCorpus.test, eval_batch_size)
 ntokens = len(myCorpus.dictionary)
 model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
 
-#criterion = nn.NLLLoss()
-criterion = nn.CrossEntropyLoss()
+criterion = nn.NLLLoss()
+#criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
 ###############################################################################
@@ -171,8 +171,8 @@ try:
             best_val_loss = val_loss
         else:
             # Anneal the learning rate if no improvement has been seen in the validation dataset.
-            #lr /= 4.0
-            pass
+            if lr > 1e-2:
+                lr /= 4.0
 except KeyboardInterrupt:
     print('-' * 89)
     print('Exiting from training early')
