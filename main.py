@@ -79,7 +79,7 @@ model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, devi
 
 criterion = nn.NLLLoss()
 #criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+#optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
 ###############################################################################
 # Training code
