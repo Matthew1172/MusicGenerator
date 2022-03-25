@@ -58,8 +58,6 @@ ntokens = len(corpus.dictionary)
 
 input = torch.randint(ntokens, (1, 1), dtype=torch.long).to(device)
 
-'''TODO: create music 21 score'''
-
 for sn in range(numberOfSongs):
     generatedSong = []
     generatedSong.append(corpus.dictionary.idx2word[seed])
@@ -70,19 +68,8 @@ for sn in range(numberOfSongs):
             word_idx = torch.multinomial(word_weights, 1)[0]
             word_tensor = torch.Tensor([[word_idx]]).long().to(device)
             input = torch.cat([input, word_tensor], 0)
-
             word = corpus.dictionary.idx2word[word_idx]
-
-            # outf.write(word + ('\n' if i % 20 == 19 else ''))
-            # outf.write(word)
             generatedSong.append(word)
-
-            if i % log_interval == 0:
-                print('| Generated {}/{} words'.format(i, gen_length))
-
-    '''TODO: construct a time signature, clef, and key signature object and append it to the score'''
-    '''word is either a clef, key signature, time signature, note, or barline'''
-    print(generatedSong)
 
     p = stream.Part()
     m = stream.Measure()
