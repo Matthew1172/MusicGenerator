@@ -77,9 +77,9 @@ test_data = batchify(myCorpus.test, eval_batch_size)
 ntokens = len(myCorpus.dictionary)
 model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
 
-criterion = nn.NLLLoss()
-#criterion = nn.CrossEntropyLoss()
-#optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+#criterion = nn.NLLLoss()
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.SGD(model.parameters(), lr=1e-1, momentum=0.9)
 
 ###############################################################################
 # Training code
@@ -122,20 +122,20 @@ def train():
         data, targets = get_batch(train_data, i)
         # Starting each batch, we detach the hidden state from how it was previously produced.
         # If we didn't, the model would try backpropagating all the way to start of the dataset.
-        model.zero_grad()
-        #optimizer.zero_grad()
+        #model.zero_grad()
+        optimizer.zero_grad()
         output = model(data)
         output = output.view(-1, ntokens)
         loss = criterion(output, targets)
         loss.backward()
-        #optimizer.step()
+        optimizer.step()
 
         # `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs.
-
+        '''
         torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
         for p in model.parameters():
             p.data.add_(p.grad, alpha=-lr)
-
+        '''
         total_loss += loss.item()
 
         if batch % log_interval == 0 and batch > 0:
@@ -170,9 +170,10 @@ try:
                 torch.save(model, f)
             best_val_loss = val_loss
         else:
-            # Anneal the learning rate if no improvement has been seen in the validation dataset.
-            if lr > 1:
-                lr /= 4.0
+            pass
+            #Anneal the learning rate if no improvement has been seen in the validation dataset.
+            #if lr > 1e-1:
+                #lr /= 4.0
 except KeyboardInterrupt:
     print('-' * 89)
     print('Exiting from training early')
