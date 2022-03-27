@@ -27,6 +27,7 @@ class Corpus(object):
         self.valid = self.tokenize(os.path.join(path, 'valid.abc'))
         self.test = self.tokenize(os.path.join(path, 'test.abc'))
         self.bad = 0
+        self.total = 0
 
     def tokenize(self, path):
         """Tokenizes a text file."""
@@ -36,6 +37,7 @@ class Corpus(object):
         with open(path, 'r', encoding="utf8") as f:
             text = f.read()
             songs = text.split("\n\n")
+        self.total = len(songs)
 
         m21 = []
         for i in tqdm(range(len(songs))):
