@@ -44,7 +44,7 @@ class Corpus(object):
             try:
                 m21.append(converter.parse(songs[i]))
             except(converter.ConverterException, Exception):
-                print("Converter exception on song: ", songs[i])
+                #print("Converter exception on song: ", songs[i])
                 self.bad+=1
                 continue
 
