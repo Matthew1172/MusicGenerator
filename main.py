@@ -14,9 +14,9 @@ device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
-emsize = 200
+emsize = 256
 #number of hidden units per layer
-hidden_units = 400
+hidden_units = 4096
 #number of layers
 nlayers = 4
 #initial learning rate
@@ -26,17 +26,18 @@ momentum = 0.45
 #gradient clipping
 clip = 25e-2
 #upper epoch limit
-epochs = 100
+epochs = 100000
 #batch size
-batch_size = 20
+batch_size = 80
 #sequence length
-bptt = 15
+bptt = 300
 #dropout applied to layers (0 = no dropout)
 dropout = 2e-1
 #report interval
 log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
-num_heads = 10
+num_heads = 8
+
 
 cwd = os.getcwd()
 #dataset = "./dataset/irish"
