@@ -40,9 +40,7 @@ num_heads = 8
 
 
 cwd = os.getcwd()
-#dataset = "./dataset/irish"
-#dataset = "./dataset/australian"
-dataset = "./dataset/set1"
+dataset = "./dataset/set2"
 
 # Checkpoint location:
 CHECKPOINT_DIR = 'training_checkpoints_pytorch'
