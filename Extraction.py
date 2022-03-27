@@ -41,7 +41,7 @@ result = [os.path.join(dp, f) for dp, dn, filenames in os.walk(PATH) for f in fi
 songs_raw = []
 for f in result:
     with open(f, "r", encoding="utf8") as file:
-        songs_raw.append(extract_song_snippet(file.read()))
+        songs_raw.append(extract_song_snippet(bytes(file.read(), 'utf-8').decode('utf-8', 'ignore')))
 
 songs = list(set([item for sub in songs_raw for item in sub if "X:" in item]))
 
