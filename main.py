@@ -38,7 +38,6 @@ log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
 num_heads = 8
 
-
 cwd = os.getcwd()
 dataset = "./dataset/set2"
 
@@ -56,6 +55,7 @@ CHECKPOINT_DIR = os.path.join(cwd, CHECKPOINT_DIR)
 CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
 
 myCorpus = data.Corpus(dataset)
+print("Found {} bad songs.".format(myCorpus.bad))
 
 def batchify(data, bsz):
     # Work out how cleanly we can divide the dataset into bsz parts.

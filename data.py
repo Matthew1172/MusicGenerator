@@ -26,6 +26,7 @@ class Corpus(object):
         self.train = self.tokenize(os.path.join(path, 'train.abc'))
         self.valid = self.tokenize(os.path.join(path, 'valid.abc'))
         self.test = self.tokenize(os.path.join(path, 'test.abc'))
+        self.bad = 0
 
     def tokenize(self, path):
         """Tokenizes a text file."""
@@ -42,6 +43,7 @@ class Corpus(object):
                 m21.append(converter.parse(songs[i]))
             except(converter.ConverterException, Exception):
                 print("Converter exception on song: ", songs[i])
+                self.bad+=1
                 continue
 
         #clefs = [p[0][0] for p in [[[k.sign for k in j.getElementsByClass(clef.Clef)] for j in s[1].getElementsByClass(stream.Measure)] for s in m21]]
