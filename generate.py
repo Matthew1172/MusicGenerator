@@ -53,14 +53,30 @@ with open(CHECKPOINT_PREFIX, 'rb') as f:
     model = torch.load(f, map_location=device)
 model.eval()
 
-corpus = data.Corpus(dataset)
-ntokens = len(corpus.dictionary)
+LIST_PREFIX = 'idx2word.pkl'
+LIST_PREFIX = os.path.join(dataset, LIST_PREFIX)
+
+DIC_PREFIX = 'word2idx.pkl'
+DIC_PREFIX = os.path.join(dataset, DIC_PREFIX)
+
+dic = data.Dictionary()
+if os.path.exists(DIC_PREFIX) and os.path.exists(LIST_PREFIX):
+    print("Dictionary available, loading it in now.")
+    dic.load_dictionary(DIC_PREFIX)
+    dic.load_list(LIST_PREFIX)
+else:
+    print("No dictionary file available for loading. Parsing abc files now, and saving to {}.".format(DIC_PREFIX))
+    corpus = data.Corpus(dataset)
+    dic = corpus.dictionary
+
+ntokens = len(dic)
 
 input = torch.randint(ntokens, (1, 1), dtype=torch.long).to(device)
 
-for sn in range(numberOfSongs):
+for sn in range(1, numberOfSongs+1):
+    print("Generating song {}/{}".format(sn, numberOfSongs))
     generatedSong = []
-    generatedSong.append(corpus.dictionary.idx2word[seed])
+    generatedSong.append(dic.idx2word[seed])
     with torch.no_grad():  # no tracking history
         for i in tqdm(range(gen_length)):
             output = model(input, False)
@@ -68,7 +84,7 @@ for sn in range(numberOfSongs):
             word_idx = torch.multinomial(word_weights, 1)[0]
             word_tensor = torch.Tensor([[word_idx]]).long().to(device)
             input = torch.cat([input, word_tensor], 0)
-            word = corpus.dictionary.idx2word[word_idx]
+            word = dic.idx2word[word_idx]
             generatedSong.append(word)
 
     p = stream.Part()

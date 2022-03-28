@@ -3,6 +3,7 @@ from io import open
 import torch
 from tqdm import tqdm
 from music21 import *
+import pickle
 
 class Dictionary(object):
     def __init__(self):
@@ -18,6 +19,23 @@ class Dictionary(object):
     def __len__(self):
         return len(self.idx2word)
 
+    def save_dictionary(self, PATH):
+        output = open(PATH, 'wb')
+        pickle.dump(self.word2idx, output)
+        output.close()
+
+    def load_dictionary(self, PATH):
+        pkl_file = open(PATH, 'rb')
+        self.word2idx = pickle.load(pkl_file)
+        pkl_file.close()
+
+    def save_list(self, PATH):
+        with open(PATH, 'wb') as f:
+            pickle.dump(self.idx2word, f)
+
+    def load_list(self, PATH):
+        with open(PATH, 'rb') as f:
+            self.idx2word = pickle.load(f)
 
 class Corpus(object):
     def __init__(self, path):
@@ -27,6 +45,12 @@ class Corpus(object):
         self.train = self.tokenize(os.path.join(path, 'train.abc'))
         self.valid = self.tokenize(os.path.join(path, 'valid.abc'))
         self.test = self.tokenize(os.path.join(path, 'test.abc'))
+        LIST_PREFIX = 'idx2word.pkl'
+        LIST_PREFIX = os.path.join(path, LIST_PREFIX)
+        DIC_PREFIX = 'word2idx.pkl'
+        DIC_PREFIX = os.path.join(path, DIC_PREFIX)
+        self.dictionary.save_dictionary(DIC_PREFIX)
+        self.dictionary.save_list(LIST_PREFIX)
 
     def tokenize(self, path):
         """Tokenizes a text file."""

@@ -37,13 +37,17 @@ def extract_song_snippet(text):
     songs = [song[1] for song in search_results]
     return songs
 
+def is_song(str):
+    if "X:" in str:
+        return True
+
 result = [os.path.join(dp, f) for dp, dn, filenames in os.walk(PATH) for f in filenames if os.path.splitext(f)[1] == '.abc']
 songs_raw = []
 for f in result:
     with open(f, "r", encoding="utf8") as file:
         songs_raw.append(extract_song_snippet(bytes(file.read(), 'utf-8').decode('utf-8', 'ignore')))
 
-songs = list(set([item for sub in songs_raw for item in sub if "X:" in item]))
+songs = list(set([item for sub in songs_raw for item in sub if is_song(item)]))
 
 print("Found {} songs in folder".format(len(songs)))
 
