@@ -62,8 +62,10 @@ class Corpus(object):
             songs = text.split("\n\n")
         self.total = len(songs)
 
+        #was stuck on 18929
         m21 = []
-        for i in tqdm(range(len(songs))):
+        for i in range(len(songs)):
+            print("Parsing song: \n {}".format(songs[i]))
             try:
                 m21.append(converter.parse(songs[i]))
             except(converter.ConverterException, Exception):
