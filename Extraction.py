@@ -81,7 +81,7 @@ for i in range(len(songs)):
         songs_good.append(songs[i])
     except(converter.ConverterException, Exception):
         bad += 1
-        with open(BAD_PREFIX, "w") as f:
+        with open(BAD_PREFIX, "a") as f:
             f.write(songs[i] + "\n\n")
         continue
 
