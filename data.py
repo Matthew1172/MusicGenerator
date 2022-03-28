@@ -65,7 +65,7 @@ class Corpus(object):
         #was stuck on 18929
         m21 = []
         for i in range(len(songs)):
-            print("Parsing song: \n {}".format(songs[i]))
+            print("\n\nParsing song {}/{}. Bad: {} : \n\n {}".format(i, len(songs), self.bad, songs[i]))
             try:
                 m21.append(converter.parse(songs[i]))
             except(converter.ConverterException, Exception):
