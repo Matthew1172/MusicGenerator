@@ -2,6 +2,9 @@ import os
 import random
 import sys
 import regex as re
+from music21 import *
+
+CLEAN = True
 
 PATH = sys.argv[1]
 
@@ -53,16 +56,35 @@ songs = list(set([item for sub in songs_raw for item in sub if is_song(item)]))
 
 print("Found {} songs in folder".format(len(songs)))
 
-random.shuffle(songs)
+if CLEAN:
+    m21 = []
+    songs_good = []
+    bad = 0
+    BAD_PREFIX = "bad.abc"
+    BAD_PREFIX = os.path.join(OUTPUT_DATASET_DIR, BAD_PREFIX)
+    for i in range(len(songs)):
+        print("\n\nParsing song {}/{}. Bad: {} : \n\n {}".format(i, len(songs), bad, songs[i]))
+        try:
+            m21.append(converter.parse(songs[i]))
+            songs_good.append(songs[i])
+        except(converter.ConverterException, Exception):
+            bad += 1
+            with open(BAD_PREFIX, "w") as f:
+                f.write(songs[i] + "\n\n")
+            continue
+else:
+    songs_good = songs
+
+random.shuffle(songs_good)
 
 with open(TRAIN_PREFIX, "w") as f:
-    for s in songs[:int(train*len(songs))]:
+    for s in songs_good[:int(train*len(songs_good))]:
         f.write(s+"\n\n")
 
 with open(TEST_PREFIX, "w") as f:
-    for s in songs[int(train * len(songs)):int(train * len(songs))+int(test * len(songs))]:
+    for s in songs_good[int(train * len(songs_good)):int(train * len(songs_good))+int(test * len(songs_good))]:
         f.write(s+"\n\n")
 
 with open(VALID_PREFIX, "w") as f:
-    for s in songs[int(train * len(songs))+int(test * len(songs)):]:
+    for s in songs_good[int(train * len(songs_good))+int(test * len(songs_good)):]:
         f.write(s+"\n\n")
