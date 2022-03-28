@@ -40,6 +40,8 @@ def extract_song_snippet(text):
 def is_song(str):
     if "X:" in str:
         return True
+    else:
+        return False
 
 result = [os.path.join(dp, f) for dp, dn, filenames in os.walk(PATH) for f in filenames if os.path.splitext(f)[1] == '.abc']
 songs_raw = []
