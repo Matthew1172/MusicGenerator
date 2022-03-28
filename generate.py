@@ -53,21 +53,13 @@ with open(CHECKPOINT_PREFIX, 'rb') as f:
     model = torch.load(f, map_location=device)
 model.eval()
 
-LIST_PREFIX = 'idx2word.pkl'
-LIST_PREFIX = os.path.join(dataset, LIST_PREFIX)
-
-DIC_PREFIX = 'word2idx.pkl'
-DIC_PREFIX = os.path.join(dataset, DIC_PREFIX)
-
 dic = data.Dictionary()
-if os.path.exists(DIC_PREFIX) and os.path.exists(LIST_PREFIX):
-    print("Dictionary available, loading it in now.")
-    dic.load_dictionary(DIC_PREFIX)
-    dic.load_list(LIST_PREFIX)
-else:
-    print("No dictionary file available for loading. Parsing abc files now, and saving to {}.".format(DIC_PREFIX))
-    corpus = data.Corpus(dataset)
-    dic = corpus.dictionary
+try:
+    dic.load_dictionary(dataset)
+    dic.load_list(dataset)
+except:
+    print("No dictionary file available for loading. Please run the Extraction.py script before generation or training.")
+    exit(-998)
 
 ntokens = len(dic)
 

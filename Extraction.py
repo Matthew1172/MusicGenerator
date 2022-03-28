@@ -3,8 +3,10 @@ import random
 import sys
 import regex as re
 from music21 import *
+import data
+import pickle
 
-CLEAN = True
+SHUFFLE = False
 
 PATH = sys.argv[1]
 
@@ -33,6 +35,9 @@ except:
 TRAIN_PREFIX = os.path.join(OUTPUT_DATASET_DIR, "train.abc")
 TEST_PREFIX = os.path.join(OUTPUT_DATASET_DIR, "test.abc")
 VALID_PREFIX = os.path.join(OUTPUT_DATASET_DIR, "valid.abc")
+TRAIN_PREFIX_PRETTY = os.path.join(OUTPUT_DATASET_DIR, "train_PRETTY.pkl")
+TEST_PREFIX_PRETTY = os.path.join(OUTPUT_DATASET_DIR, "test_PRETTY.pkl")
+VALID_PREFIX_PRETTY = os.path.join(OUTPUT_DATASET_DIR, "valid_PRETTY.pkl")
 
 def extract_song_snippet(text):
     pattern = '(^|\n\n)(.*?)\n\n'
@@ -56,35 +61,102 @@ songs = list(set([item for sub in songs_raw for item in sub if is_song(item)]))
 
 print("Found {} songs in folder".format(len(songs)))
 
-if CLEAN:
-    m21 = []
-    songs_good = []
-    bad = 0
-    BAD_PREFIX = "bad.abc"
-    BAD_PREFIX = os.path.join(OUTPUT_DATASET_DIR, BAD_PREFIX)
-    for i in range(len(songs)):
-        print("\n\nParsing song {}/{}. Bad: {} : \n\n {}".format(i, len(songs), bad, songs[i]))
-        try:
-            m21.append(converter.parse(songs[i]))
-            songs_good.append(songs[i])
-        except(converter.ConverterException, Exception):
-            bad += 1
-            with open(BAD_PREFIX, "w") as f:
-                f.write(songs[i] + "\n\n")
+if SHUFFLE: random.shuffle(songs)
+
+dic = data.Dictionary()
+m21 = []
+songs_good = []
+bad = 0
+BAD_PREFIX = "bad.abc"
+BAD_PREFIX = os.path.join(OUTPUT_DATASET_DIR, BAD_PREFIX)
+for i in range(len(songs)):
+    print("\n\nParsing song {}/{}. Bad: {} : \n\n {}".format(i+1, len(songs), bad, songs[i]))
+    try:
+        m21.append(converter.parse(songs[i]))
+        songs_good.append(songs[i])
+    except(converter.ConverterException, Exception):
+        bad += 1
+        with open(BAD_PREFIX, "w") as f:
+            f.write(songs[i] + "\n\n")
+        continue
+
+info = [s[1].elements for s in m21]
+
+pretty_info = []
+for s in info:
+    pretty_song = []
+    for m in s:
+        if isinstance(m, stream.Measure):
+            pretty_song.append("|")
+            dic.add_word("|")
+            for n in m:
+                da = ""
+                if isinstance(n, note.Note):
+                    da += "Note"
+                    da += " "
+                    da += n.nameWithOctave
+                    da += " "
+                    da += str(n.quarterLength)
+                elif isinstance(n, note.Rest):
+                    da += "Rest"
+                    da += " "
+                    da += n.name
+                    da += " "
+                    da += str(n.quarterLength)
+                elif isinstance(n, bar.Repeat):
+                    da += "Rep"
+                    da += " "
+                    da += n.type
+                    da += " "
+                    da += n.direction
+                elif isinstance(n, bar.Barline):
+                    da += "Bar"
+                    da += " "
+                    da += n.type
+                elif isinstance(n, clef.Clef):
+                    da += "Clef"
+                    da += " "
+                    da += n.sign
+                elif isinstance(n, key.KeySignature):
+                    da += "Key"
+                    da += " "
+                    da += str(n.sharps)
+                elif isinstance(n, meter.TimeSignature):
+                    da += "Time"
+                    da += " "
+                    da += str(n.numerator)
+                    da += " "
+                    da += str(n.denominator)
+                else:
+                    continue
+                pretty_song.append(da)
+                dic.add_word(da)
+        elif isinstance(m, spanner.RepeatBracket):
             continue
-else:
-    songs_good = songs
+        else:
+            continue
+    pretty_info.append(pretty_song[1:])
 
-random.shuffle(songs_good)
+    with open(TRAIN_PREFIX_PRETTY, 'wb') as f:
+        pickle.dump(pretty_info[:int(train * len(pretty_info))], f)
 
-with open(TRAIN_PREFIX, "w") as f:
-    for s in songs_good[:int(train*len(songs_good))]:
-        f.write(s+"\n\n")
+    with open(TEST_PREFIX_PRETTY, 'wb') as f:
+        pickle.dump(pretty_info[int(train * len(pretty_info)):int(train * len(pretty_info)) + int(test * len(pretty_info))], f)
 
-with open(TEST_PREFIX, "w") as f:
-    for s in songs_good[int(train * len(songs_good)):int(train * len(songs_good))+int(test * len(songs_good))]:
-        f.write(s+"\n\n")
+    with open(VALID_PREFIX_PRETTY, 'wb') as f:
+        pickle.dump(pretty_info[int(train * len(pretty_info)) + int(test * len(pretty_info)):], f)
 
-with open(VALID_PREFIX, "w") as f:
-    for s in songs_good[int(train * len(songs_good))+int(test * len(songs_good)):]:
-        f.write(s+"\n\n")
+    with open(TRAIN_PREFIX, "w") as f:
+        for s in songs_good[:int(train * len(songs_good))]:
+            f.write(s + "\n\n")
+
+    with open(TEST_PREFIX, "w") as f:
+        for s in songs_good[int(train * len(songs_good)):int(train * len(songs_good)) + int(test * len(songs_good))]:
+            f.write(s + "\n\n")
+
+    with open(VALID_PREFIX, "w") as f:
+        for s in songs_good[int(train * len(songs_good)) + int(test * len(songs_good)):]:
+            f.write(s + "\n\n")
+
+    dic.save_dictionary(OUTPUT_DATASET_DIR)
+    dic.save_list(OUTPUT_DATASET_DIR)

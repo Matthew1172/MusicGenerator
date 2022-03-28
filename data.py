@@ -9,6 +9,8 @@ class Dictionary(object):
     def __init__(self):
         self.word2idx = {}
         self.idx2word = []
+        self.DIC_PREFIX = 'word2idx.pkl'
+        self.LIST_PREFIX = 'idx2word.pkl'
 
     def add_word(self, word):
         if word not in self.word2idx:
@@ -19,22 +21,29 @@ class Dictionary(object):
     def __len__(self):
         return len(self.idx2word)
 
+    '''Pass the PATH to the folder e.x <set2>'''
     def save_dictionary(self, PATH):
-        output = open(PATH, 'wb')
+        self.DIC_PREFIX = os.path.join(PATH, self.DIC_PREFIX)
+        output = open(self.DIC_PREFIX, 'wb')
         pickle.dump(self.word2idx, output)
         output.close()
 
     def load_dictionary(self, PATH):
-        pkl_file = open(PATH, 'rb')
+        self.DIC_PREFIX = os.path.join(PATH, self.DIC_PREFIX)
+        assert os.path.exists(self.DIC_PREFIX)
+        pkl_file = open(self.DIC_PREFIX, 'rb')
         self.word2idx = pickle.load(pkl_file)
         pkl_file.close()
 
     def save_list(self, PATH):
-        with open(PATH, 'wb') as f:
+        self.LIST_PREFIX = os.path.join(PATH, self.LIST_PREFIX)
+        with open(self.LIST_PREFIX, 'wb') as f:
             pickle.dump(self.idx2word, f)
 
     def load_list(self, PATH):
-        with open(PATH, 'rb') as f:
+        self.LIST_PREFIX = os.path.join(PATH, self.LIST_PREFIX)
+        assert os.path.exists(self.LIST_PREFIX)
+        with open(self.LIST_PREFIX, 'rb') as f:
             self.idx2word = pickle.load(f)
 
 class Corpus(object):
@@ -42,103 +51,24 @@ class Corpus(object):
         self.bad = 0
         self.total = 0
         self.dictionary = Dictionary()
+        try:
+            self.dictionary.load_dictionary(path)
+            self.dictionary.load_list(path)
+        except:
+            print("No dictionary file available for loading. Please run the Extraction.py script before generation or training.")
+            exit(-998)
         self.BAD_PREFIX = 'bad.abc'
         self.BAD_PREFIX = os.path.join(path, self.BAD_PREFIX)
-        self.train = self.tokenize(os.path.join(path, 'train.abc'))
-        self.valid = self.tokenize(os.path.join(path, 'valid.abc'))
-        self.test = self.tokenize(os.path.join(path, 'test.abc'))
-        LIST_PREFIX = 'idx2word.pkl'
-        LIST_PREFIX = os.path.join(path, LIST_PREFIX)
-        DIC_PREFIX = 'word2idx.pkl'
-        DIC_PREFIX = os.path.join(path, DIC_PREFIX)
-        self.dictionary.save_dictionary(DIC_PREFIX)
-        self.dictionary.save_list(LIST_PREFIX)
+        self.train = self.tokenize(os.path.join(path, 'train_PRETTY.pkl'))
+        self.valid = self.tokenize(os.path.join(path, 'test_PRETTY.pkl'))
+        self.test = self.tokenize(os.path.join(path, 'valid_PRETTY.pkl'))
 
     def tokenize(self, path):
         """Tokenizes a text file."""
         assert os.path.exists(path)
 
-        songs = []
-        with open(path, 'r', encoding="ISO-8859-1") as f:
-            text = f.read()
-            songs = text.split("\n\n")
-        self.total = len(songs)
-
-        #was stuck on 18929
-        m21 = []
-        for i in range(len(songs)):
-            print("\n\nParsing song {}/{}. Bad: {} : \n\n {}".format(i, len(songs), self.bad, songs[i]))
-            try:
-                m21.append(converter.parse(songs[i]))
-            except(converter.ConverterException, Exception):
-                self.bad+=1
-                with open(self.BAD_PREFIX, "w") as f:
-                    f.write(songs[i] + "\n\n")
-                continue
-
-        #clefs = [p[0][0] for p in [[[k.sign for k in j.getElementsByClass(clef.Clef)] for j in s[1].getElementsByClass(stream.Measure)] for s in m21]]
-        #keys = [p[0][0] for p in [[[(i.tonic.name, i.mode) for i in j.getElementsByClass(key.KeySignature)] for j in s[1].getElementsByClass(stream.Measure)] for s in m21]]
-        #times = [p[0][0] for p in [[[(k.numerator, k.denominator) for k in j.getElementsByClass(meter.TimeSignature)] for j in s[1].getElementsByClass(stream.Measure)] for s in m21]]
-        #note = [[[k.fullName for k in j.getElementsByClass(note.Note).flatten()] for j in s[1].getElementsByClass(stream.Measure)] for s in m21]
-
-        #info = [[j for j in s[1].getElementsByClass(stream.Measure).flatten()] for s in m21]
-        #info = [[j for j in s[1]] for s in m21]
-        info = [s[1].elements for s in m21]
-
-        pretty_info = []
-        for s in info:
-            pretty_song = []
-            for m in s:
-                if isinstance(m, stream.Measure):
-                    pretty_song.append("|")
-                    self.dictionary.add_word("|")
-                    for n in m:
-                        da = ""
-                        if isinstance(n, note.Note):
-                            da += "Note"
-                            da += " "
-                            da += n.nameWithOctave
-                            da += " "
-                            da += str(n.quarterLength)
-                        elif isinstance(n, note.Rest):
-                            da += "Rest"
-                            da += " "
-                            da += n.name
-                            da += " "
-                            da += str(n.quarterLength)
-                        elif isinstance(n, bar.Repeat):
-                            da += "Rep"
-                            da += " "
-                            da += n.type
-                            da += " "
-                            da += n.direction
-                        elif isinstance(n, bar.Barline):
-                            da += "Bar"
-                            da += " "
-                            da += n.type
-                        elif isinstance(n, clef.Clef):
-                            da += "Clef"
-                            da += " "
-                            da += n.sign
-                        elif isinstance(n, key.KeySignature):
-                            da += "Key"
-                            da += " "
-                            da += str(n.sharps)
-                        elif isinstance(n, meter.TimeSignature):
-                            da += "Time"
-                            da += " "
-                            da += str(n.numerator)
-                            da += " "
-                            da += str(n.denominator)
-                        else:
-                            continue
-                        pretty_song.append(da)
-                        self.dictionary.add_word(da)
-                elif isinstance(m, spanner.RepeatBracket):
-                    continue
-                else:
-                    continue
-            pretty_info.append(pretty_song[1:])
+        with open(path, 'rb') as f:
+            pretty_info = pickle.load(f)
 
         # Tokenize file content
         idss = []
