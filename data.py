@@ -42,6 +42,8 @@ class Corpus(object):
         self.bad = 0
         self.total = 0
         self.dictionary = Dictionary()
+        self.BAD_PREFIX = 'bad.abc'
+        self.BAD_PREFIX = os.path.join(path, self.BAD_PREFIX)
         self.train = self.tokenize(os.path.join(path, 'train.abc'))
         self.valid = self.tokenize(os.path.join(path, 'valid.abc'))
         self.test = self.tokenize(os.path.join(path, 'test.abc'))
@@ -69,8 +71,9 @@ class Corpus(object):
             try:
                 m21.append(converter.parse(songs[i]))
             except(converter.ConverterException, Exception):
-                #print("Converter exception on song: ", songs[i])
                 self.bad+=1
+                with open(self.BAD_PREFIX, "w") as f:
+                    f.write(songs[i] + "\n\n")
                 continue
 
         #clefs = [p[0][0] for p in [[[k.sign for k in j.getElementsByClass(clef.Clef)] for j in s[1].getElementsByClass(stream.Measure)] for s in m21]]
