@@ -6,10 +6,8 @@ from music21 import *
 import data
 import pickle
 
-SHUFFLE = False
-
+SHUFFLE = True
 PATH = sys.argv[1]
-
 train = .80
 test = .10
 valid = .10
@@ -51,6 +49,13 @@ def is_song(str):
     else:
         return False
 
+def has_part(song):
+    try:
+        song[1]
+    except IndexError:
+        return False
+    return True
+
 result = [os.path.join(dp, f) for dp, dn, filenames in os.walk(PATH) for f in filenames if os.path.splitext(f)[1] == '.abc']
 songs_raw = []
 for f in result:
@@ -80,7 +85,7 @@ for i in range(len(songs)):
             f.write(songs[i] + "\n\n")
         continue
 
-info = [s[1].elements for s in m21]
+info = [s[1].elements for s in m21 if has_part(s)]
 
 pretty_info = []
 for s in info:
