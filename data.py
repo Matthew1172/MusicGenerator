@@ -33,7 +33,7 @@ class Corpus(object):
         assert os.path.exists(path)
 
         songs = []
-        with open(path, 'r', encoding="utf8") as f:
+        with open(path, 'r', encoding="ISO-8859-1") as f:
             text = f.read()
             songs = text.split("\n\n")
         self.total = len(songs)
