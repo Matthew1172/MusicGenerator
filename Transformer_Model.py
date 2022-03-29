@@ -2,6 +2,7 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.nn import TransformerEncoder, TransformerEncoderLayer
 
 # Temporarily leave PositionalEncoding module here. Will be moved somewhere else.
 class PositionalEncoding(nn.Module):
@@ -17,7 +18,7 @@ class PositionalEncoding(nn.Module):
         dropout: the dropout value (default=0.1).
         max_len: the max. length of the incoming sequence (default=5000).
     Examples:
-        >>> pos_encoder = PositionalEncoding(d_model)
+        pos_encoder = PositionalEncoding(d_model)
     """
 
     def __init__(self, d_model, dropout=0.1, max_len=5000):
@@ -40,14 +41,14 @@ class PositionalEncoding(nn.Module):
             x: [sequence length, batch size, embed dim]
             output: [sequence length, batch size, embed dim]
         Examples:
-            >>> output = pos_encoder(x)
+            output = pos_encoder(x)
         """
 
         x = x + self.pe[:x.size(0), :]
         return self.dropout(x)
 
 class TransformerModel(nn.Module):
-    """Container module with an encoder, a recurrent or transformer module, and a decoder."""
+    """Container module with an encoder, a transformer module, and a decoder."""
 
     def __init__(self, ntoken, ninp, nhead, nhid, nlayers, d0, d1, dropout=0.5):
         super(TransformerModel, self).__init__()
@@ -55,7 +56,6 @@ class TransformerModel(nn.Module):
             from torch.nn import TransformerEncoder, TransformerEncoderLayer
         except:
             raise ImportError('TransformerEncoder module does not exist in PyTorch 1.1 or lower.')
-        self.model_type = 'Transformer'
         self.src_mask = None
         self.pos_encoder = PositionalEncoding(ninp, dropout)
         encoder_layers = TransformerEncoderLayer(ninp, nhead, nhid, dropout)

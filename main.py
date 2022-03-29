@@ -28,7 +28,7 @@ momentum = 0.45
 #gradient clipping
 clip = 25e-2
 #upper epoch limit
-epochs = 100000
+epochs = 100
 #batch size
 batch_size = 80
 #sequence length
@@ -82,7 +82,8 @@ model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, devi
 criterion = nn.NLLLoss()
 #criterion = nn.CrossEntropyLoss()
 #optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-optimizer = torch.optim.Adam(model.parameters())
+#optimizer = torch.optim.Adam(model.parameters())
+optimizer = torch.optim.AdamW(model.parameters())
 
 ###############################################################################
 # Training code
