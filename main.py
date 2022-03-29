@@ -3,6 +3,8 @@ from Transformer_Model import *
 import data
 import os
 import time
+dataset = "./dataset/set3"
+from_bin = True
 
 if(torch.cuda.is_available()):
     print("GPU: ",torch.cuda.get_device_name(0), " is available, Switching now.")
@@ -39,7 +41,6 @@ log_interval = 200
 num_heads = 8
 
 cwd = os.getcwd()
-dataset = "./dataset/set2"
 
 # Checkpoint location:
 CHECKPOINT_DIR = 'training_checkpoints_pytorch'
@@ -54,7 +55,7 @@ CHECKPOINT_PREFIX = 'my_ckpt.pth'
 CHECKPOINT_DIR = os.path.join(cwd, CHECKPOINT_DIR)
 CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
 
-myCorpus = data.Corpus(dataset)
+myCorpus = data.Corpus(dataset, from_bin=from_bin)
 print("Found {} bad songs out of {}.".format(myCorpus.bad, myCorpus.total))
 
 def batchify(data, bsz):
