@@ -7,3 +7,17 @@ Music generator based on GoodBoyChan
 ...snip...    
 <a name="headers"/>
 ## Headers
+1
+2
+3
+4
+5
+6
+<a name="emphasis"/>
+## Emphasis
+1
+2
+3
+4
+5
+6
