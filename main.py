@@ -4,7 +4,7 @@ import data
 import os
 import time
 dataset = "./dataset/set3"
-from_bin = True
+from_bin = False
 
 if(torch.cuda.is_available()):
     print("GPU: ",torch.cuda.get_device_name(0), " is available, Switching now.")

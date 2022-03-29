@@ -6,7 +6,7 @@ from music21 import *
 import data
 import pickle
 OUTPUT_DATASET_DIR = "set3"
-save_to_bin = True
+save_to_bin = False
 
 SHUFFLE = True
 PATH = sys.argv[1]
