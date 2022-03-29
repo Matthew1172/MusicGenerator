@@ -74,6 +74,13 @@ class Corpus(object):
             self.dictionary.save_dictionary(path)
             self.dictionary.save_list(path)
 
+    def has_part(self, song):
+        try:
+            song[1]
+        except IndexError:
+            return False
+        return True
+
     def tokenize(self, path):
         """Tokenizes a text file."""
         assert os.path.exists(path)
@@ -95,7 +102,7 @@ class Corpus(object):
                     f.write(songs[i] + "\n\n")
                 continue
 
-        info = [s[1].elements for s in m21]
+        info = [s[1].elements for s in m21 if self.has_part(s)]
 
         pretty_info = []
         for s in info:
