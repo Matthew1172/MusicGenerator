@@ -79,6 +79,8 @@ class Corpus(object):
             song[1].expandRepeats()
         except IndexError:
             return False
+        except exceptions21.StreamException:
+            return False
         return True
 
     def tokenize(self, path):
