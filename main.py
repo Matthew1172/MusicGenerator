@@ -30,7 +30,7 @@ clip = 25e-2
 #upper epoch limit
 epochs = 200
 #batch size
-batch_size = 80
+batch_size = 160
 #sequence length
 bptt = 300
 #dropout applied to layers (0 = no dropout)
