@@ -81,6 +81,10 @@ class Corpus(object):
             return False
         except exceptions21.StreamException:
             return False
+        except repeat.ExpanderException:
+            return False
+        except:
+            return False
         return True
 
     def tokenize(self, path):
