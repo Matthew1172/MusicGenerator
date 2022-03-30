@@ -76,7 +76,7 @@ class Corpus(object):
 
     def has_part(self, song):
         try:
-            song[1]
+            song[1].expandRepeats()
         except IndexError:
             return False
         return True

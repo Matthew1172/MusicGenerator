@@ -52,7 +52,7 @@ def is_song(str):
 
 def has_part(song):
     try:
-        song[1]
+        song[1].expandRepeats()
     except IndexError:
         return False
     return True
