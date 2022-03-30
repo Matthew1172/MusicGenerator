@@ -125,12 +125,6 @@ class Corpus(object):
                             da += n.name
                             da += " "
                             da += str(n.quarterLength)
-                        elif isinstance(n, bar.Repeat):
-                            da += "Rep"
-                            da += " "
-                            da += n.type
-                            da += " "
-                            da += n.direction
                         elif isinstance(n, bar.Barline):
                             da += "Bar"
                             da += " "

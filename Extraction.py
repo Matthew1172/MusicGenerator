@@ -5,8 +5,8 @@ import regex as re
 from music21 import *
 import data
 import pickle
-OUTPUT_DATASET_DIR = "set3"
-save_to_bin = False
+OUTPUT_DATASET_DIR = "set1"
+save_to_bin = True
 
 SHUFFLE = True
 PATH = sys.argv[1]
@@ -87,7 +87,7 @@ if save_to_bin:
                 f.write(songs[i] + "\n\n")
             continue
 
-    info = [s[1].elements for s in m21 if has_part(s)]
+    info = [s[1].expandRepeats().elements for s in m21 if has_part(s)]
 
     pretty_info = []
     for s in info:
@@ -110,12 +110,6 @@ if save_to_bin:
                         da += n.name
                         da += " "
                         da += str(n.quarterLength)
-                    elif isinstance(n, bar.Repeat):
-                        da += "Rep"
-                        da += " "
-                        da += n.type
-                        da += " "
-                        da += n.direction
                     elif isinstance(n, bar.Barline):
                         da += "Bar"
                         da += " "

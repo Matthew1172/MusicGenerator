@@ -97,9 +97,6 @@ for sn in range(1, numberOfSongs+1):
             elif "Rest" in j:
                 length = float(j[2])
                 m.append(note.Rest(quarterLength=length))
-            elif "Rep" in j:
-                direction = j[2]
-                m.append(bar.Repeat(direction=direction))
             elif "Bar" in j:
                 type = j[1]
                 m.append(bar.Barline(type=type))
