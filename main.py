@@ -16,11 +16,11 @@ device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
-emsize = 512
+emsize = 256
 #number of hidden units per layer
 hidden_units = 4096
 #number of layers
-nlayers = 6
+nlayers = 4
 #initial learning rate
 learning_rate = 5e-4
 #momentum for SGD
@@ -28,7 +28,7 @@ momentum = 0.45
 #gradient clipping
 clip = 25e-2
 #upper epoch limit
-epochs = 1000
+epochs = 200
 #batch size
 batch_size = 80
 #sequence length
