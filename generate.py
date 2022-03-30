@@ -38,11 +38,11 @@ GENERATION_PREFIX = os.path.join(OUTPUT, GENERATION_PREFIX)
 # Set the random seed manually for reproducibility.
 torch.manual_seed(seed)
 if(torch.cuda.is_available()):
-    print("GPU: ",torch.cuda.get_device_name(0), " is available, Switching now.")
+    print("GPU: ",torch.cuda.get_device_name(1), " is available, Switching now.")
 else:
     print("GPU is not available, using CPU.")
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #-999 : temperature has to be greater or equal 1e-3.
