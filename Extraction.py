@@ -7,7 +7,7 @@ import data
 import pickle
 from tqdm import tqdm
 OUTPUT_DATASET_DIR = "set1"
-save_to_bin = True
+save_to_bin = False
 
 SHUFFLE = True
 PATH = sys.argv[1]
@@ -51,6 +51,19 @@ def is_song(str):
     else:
         return False
 
+def has_part(song):
+    try:
+        song[1]
+    except IndexError:
+        return False
+    except exceptions21.StreamException:
+        return False
+    except repeat.ExpanderException:
+        return False
+    except:
+        return False
+    return True
+
 result = [os.path.join(dp, f) for dp, dn, filenames in os.walk(PATH) for f in filenames if os.path.splitext(f)[1] == '.abc']
 songs_raw = []
 for f in result:
@@ -81,20 +94,7 @@ if save_to_bin:
                 f.write(songs[i] + "\n\n")
             continue
 
-    # info = [s[1].expandRepeats().elements for s in m21 if self.has_part(s)]
-    print("Expanding repeats on songs.")
-    info = []
-    for i in tqdm(range(len(m21))):
-        try:
-            info.append(m21[i][1].expandRepeats().elements)
-        except IndexError:
-            continue
-        except exceptions21.StreamException:
-            continue
-        except repeat.ExpanderException:
-            continue
-        except:
-            continue
+    info = [s[1].elements for s in songs if has_part(s)]
 
     pretty_info = []
     for s in info:
