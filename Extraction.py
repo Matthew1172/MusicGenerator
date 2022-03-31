@@ -93,7 +93,19 @@ if save_to_bin:
                 f.write(songs[i] + "\n\n")
             continue
 
-    info = [s[1].expandRepeats().elements for s in m21 if has_part(s)]
+    #info = [s[1].expandRepeats().elements for s in m21 if has_part(s)]
+    info = []
+    for s in m21:
+        try:
+            info.append(s[1].expandRepeats().elements)
+        except IndexError:
+            continue
+        except exceptions21.StreamException:
+            continue
+        except repeat.ExpanderException:
+            continue
+        except:
+            continue
 
     pretty_info = []
     for s in info:
