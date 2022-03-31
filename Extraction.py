@@ -5,6 +5,7 @@ import regex as re
 from music21 import *
 import data
 import pickle
+from tqdm import tqdm
 OUTPUT_DATASET_DIR = "set1"
 save_to_bin = True
 
@@ -50,19 +51,6 @@ def is_song(str):
     else:
         return False
 
-def has_part(song):
-    try:
-        song[1].expandRepeats()
-    except IndexError:
-        return False
-    except exceptions21.StreamException:
-        return False
-    except repeat.ExpanderException:
-        return False
-    except:
-        return False
-    return True
-
 result = [os.path.join(dp, f) for dp, dn, filenames in os.walk(PATH) for f in filenames if os.path.splitext(f)[1] == '.abc']
 songs_raw = []
 for f in result:
@@ -93,11 +81,12 @@ if save_to_bin:
                 f.write(songs[i] + "\n\n")
             continue
 
-    #info = [s[1].expandRepeats().elements for s in m21 if has_part(s)]
+    # info = [s[1].expandRepeats().elements for s in m21 if self.has_part(s)]
+    print("Expanding repeats on songs.")
     info = []
-    for s in m21:
+    for i in tqdm(range(len(m21))):
         try:
-            info.append(s[1].expandRepeats().elements)
+            info.append(m21[i][1].expandRepeats().elements)
         except IndexError:
             continue
         except exceptions21.StreamException:

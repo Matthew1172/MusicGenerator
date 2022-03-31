@@ -74,19 +74,6 @@ class Corpus(object):
             self.dictionary.save_dictionary(path)
             self.dictionary.save_list(path)
 
-    def has_part(self, song):
-        try:
-            song[1].expandRepeats()
-        except IndexError:
-            return False
-        except exceptions21.StreamException:
-            return False
-        except repeat.ExpanderException:
-            return False
-        except:
-            return False
-        return True
-
     def tokenize(self, path):
         """Tokenizes a text file."""
         assert os.path.exists(path)
@@ -109,10 +96,11 @@ class Corpus(object):
                 continue
 
         #info = [s[1].expandRepeats().elements for s in m21 if self.has_part(s)]
+        print("Expanding repeats on songs.")
         info = []
-        for s in m21:
+        for i in tqdm(range(len(m21))):
             try:
-                info.append(s[1].expandRepeats().elements)
+                info.append(m21[i][1].expandRepeats().elements)
             except IndexError:
                 continue
             except exceptions21.StreamException:
