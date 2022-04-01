@@ -28,7 +28,7 @@ momentum = 0.45
 #gradient clipping
 clip = 25e-2
 #upper epoch limit
-epochs = 800
+epochs = 200
 #batch size
 batch_size = 160
 #sequence length
