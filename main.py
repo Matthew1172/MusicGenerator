@@ -11,8 +11,8 @@ if(torch.cuda.is_available()):
 else:
     print("GPU is not available, using CPU.")
 
-device2 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device2 = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
