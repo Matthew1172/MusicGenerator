@@ -3,7 +3,7 @@ from Transformer_Model import *
 import data
 import os
 import time
-dataset = "./dataset/set3"
+dataset = "./dataset/set1"
 from_bin = False
 
 if(torch.cuda.is_available()):
