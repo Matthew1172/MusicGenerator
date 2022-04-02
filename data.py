@@ -48,6 +48,7 @@ class Dictionary(object):
 
 class Corpus(object):
     def __init__(self, path, from_bin=False):
+        self.m21 = []
         self.BAD_PREFIX = 'bad.abc'
         self.BAD_PREFIX = os.path.join(path, self.BAD_PREFIX)
         self.bad = 0
@@ -97,18 +98,17 @@ class Corpus(object):
             songs = text.split("\n\n")
         self.total = len(songs)
 
-        m21 = []
         for i in tqdm(range(len(songs))):
             #print("\n\nParsing song {}/{}. Bad: {} : \n\n {}".format(i + 1, len(songs), bad, songs[i]))
             try:
-                m21.append(converter.parse(songs[i]))
+                self.m21.append(converter.parse(songs[i]))
             except(converter.ConverterException, Exception):
                 self.bad += 1
                 with open(self.BAD_PREFIX, "a", encoding="ISO-8859-1") as f:
                     f.write(songs[i] + "\n\n")
                 continue
 
-        info = [s[1].elements for s in m21 if self.has_part(s)]
+        info = [s[1].elements for s in self.m21 if self.has_part(s)]
 
         pretty_info = []
         for s in info:

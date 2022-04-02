@@ -16,11 +16,11 @@ device2 = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
-emsize = 512
+emsize = 4096
 #number of hidden units per layer
-hidden_units = 8192
+hidden_units = 2048
 #number of layers
-nlayers = 4
+nlayers = 2
 #initial learning rate
 learning_rate = 5e-4
 #momentum for SGD
@@ -30,15 +30,15 @@ clip = 25e-2
 #upper epoch limit
 epochs = 200
 #batch size
-batch_size = 160
+batch_size = 320
 #sequence length
-bptt = 150
+bptt = 85
 #dropout applied to layers (0 = no dropout)
 dropout = 2e-1
 #report interval
 log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
-num_heads = 16
+num_heads = 2
 
 cwd = os.getcwd()
 
