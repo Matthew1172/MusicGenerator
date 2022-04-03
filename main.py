@@ -20,7 +20,7 @@ emsize = 8192
 #number of hidden units per layer
 hidden_units = 2048
 #number of layers
-nlayers = 4
+nlayers = 2
 #initial learning rate
 learning_rate = 5e-4
 #momentum for SGD
@@ -28,7 +28,7 @@ momentum = 0.45
 #gradient clipping
 clip = 25e-2
 #upper epoch limit
-epochs = 200
+epochs = 50
 #batch size
 batch_size = 64
 #sequence length
