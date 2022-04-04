@@ -7,11 +7,20 @@ from tqdm import tqdm
 from music21 import *
 dataset = "./dataset/set3"
 
-seed = 1
-temp = 1.0
-gen_length = 500
+'''
+song = [<clef>, <key>, <time>, <note>, ...]
+'''
+''' seed = Note C 1.0'''
+#seed = 492
+temp = 0.85
+gen_length = 100
 log_interval = 200
-numberOfSongs = 10
+numberOfSongs = 3
+
+initClef = 'Clef G'
+keySig = 'Key 2'
+timeSig = 'Time 4 4'
+initSeq = ["Note C 1.0"]
 
 # Checkpoint location:
 cwd = os.getcwd()
@@ -21,22 +30,11 @@ CHECKPOINT_PREFIX = 'my_ckpt.pth'
 CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
 
 OUTPUTS_DIRECTORY = os.path.join(cwd, "outputs")
-try:
-    os.mkdir(OUTPUTS_DIRECTORY)
-except FileExistsError:
-    print("The {} directory already exists...".format(OUTPUTS_DIRECTORY))
-
 OUTPUT = os.path.join(OUTPUTS_DIRECTORY, "output@"+time.asctime().replace(' ', '').replace(':', ''))
-try:
-    os.mkdir(OUTPUT)
-except FileExistsError:
-    print("The directory {} already exists...".format(OUTPUT))
 
 GENERATION_PREFIX = "generated"
 GENERATION_PREFIX = os.path.join(OUTPUT, GENERATION_PREFIX)
 
-# Set the random seed manually for reproducibility.
-torch.manual_seed(seed)
 if(torch.cuda.is_available()):
     print("GPU: ",torch.cuda.get_device_name(1), " is available, Switching now.")
 else:
@@ -45,9 +43,8 @@ else:
 device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
-#-999 : temperature has to be greater or equal 1e-3.
-if temp < 1e-3:
-    exit(-999)
+#-999 : temperature has to be greater than 1e-3.
+assert temp > 1e-3
 
 with open(CHECKPOINT_PREFIX, 'rb') as f:
     model = torch.load(f, map_location=device)
@@ -61,14 +58,24 @@ except:
     print("No dictionary file available for loading. Please run the Extraction.py script before generation or training.")
     exit(-998)
 
-ntokens = len(dic)
+# Set the random seed manually for reproducibility.
+torch.manual_seed(dic.word2idx[timeSig])
 
-input = torch.randint(ntokens, (1, 1), dtype=torch.long).to(device)
+ntokens = len(dic)
 
 for sn in range(1, numberOfSongs+1):
     print("Generating song {}/{}".format(sn, numberOfSongs))
     generatedSong = []
-    generatedSong.append(dic.idx2word[seed])
+    if initClef != '':
+        generatedSong.append(dic.idx2word[dic.word2idx[initClef]])
+    if keySig != '':
+        generatedSong.append(dic.idx2word[dic.word2idx[keySig]])
+    if timeSig != '':
+        generatedSong.append(dic.idx2word[dic.word2idx[timeSig]])
+    if len(initSeq) > 0:
+        for n in initSeq: generatedSong.append(dic.idx2word[dic.word2idx[n]])
+    input = torch.Tensor([[dic.word2idx[word]] for word in generatedSong]).long().to(device)
+    input = torch.cat([input, torch.randint(ntokens, (1, 1), dtype=torch.long)], 0)
     with torch.no_grad():  # no tracking history
         for i in tqdm(range(gen_length)):
             output = model(input, False)
@@ -116,6 +123,16 @@ for sn in range(1, numberOfSongs+1):
             else:
                 continue
 
+    try:
+        os.mkdir(OUTPUTS_DIRECTORY)
+    except FileExistsError:
+        print("The {} directory already exists...".format(OUTPUTS_DIRECTORY))
+
+    try:
+        os.mkdir(OUTPUT)
+    except FileExistsError:
+        print("The directory {} already exists...".format(OUTPUT))
+
     out = GENERATION_PREFIX + "_"+str(sn)
 
     try:
@@ -130,5 +147,7 @@ for sn in range(1, numberOfSongs+1):
 
     try:
         p.write("midi", out + ".mid")
-    except (repeat.ExpanderException):
+    except repeat.ExpanderException:
         print("Could not output MIDI file. Badly formed repeats or repeat expressions.")
+    except:
+        pass
