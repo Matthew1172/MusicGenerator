@@ -18,9 +18,9 @@ valid = .10
 if train+test+valid != 1.0:
     exit(-999)
 
-cwd = os.getcwd()
+CWD = os.getcwd()
 DATASETS = "dataset"
-DATASETS = os.path.join(cwd, DATASETS)
+DATASETS = os.path.join(CWD, DATASETS)
 try:
     os.mkdir(DATASETS)
 except:

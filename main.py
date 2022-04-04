@@ -3,7 +3,7 @@ from Transformer_Model import *
 import data
 import os
 import time
-dataset = "./dataset/set1"
+DATASET = "set1"
 from_bin = False
 
 if(torch.cuda.is_available()):
@@ -40,22 +40,24 @@ log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
 num_heads = 8
 
-cwd = os.getcwd()
-
+CWD = os.getcwd()
+#Dataset location
+DATASETS = "dataset"
+DATASETS = os.path.join(CWD, DATASETS)
+assert os.path.exists(DATASETS)
+DATASET = os.path.join(DATASETS, DATASET)
+assert os.path.exists(DATASET)
 # Checkpoint location:
 CHECKPOINT_DIR = 'training_checkpoints_pytorch'
-
+CHECKPOINT_DIR = os.path.join(DATASET, CHECKPOINT_DIR)
 try:
     os.mkdir(CHECKPOINT_DIR)
 except FileExistsError:
     print("The directory {} already exists...".format(CHECKPOINT_DIR))
-
 CHECKPOINT_PREFIX = 'my_ckpt.pth'
-
-CHECKPOINT_DIR = os.path.join(cwd, CHECKPOINT_DIR)
 CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
 
-myCorpus = data.Corpus(dataset, from_bin=from_bin)
+myCorpus = data.Corpus(DATASET, from_bin=from_bin)
 print("Found {} bad songs out of {}.".format(myCorpus.bad, myCorpus.total))
 
 def batchify(data, bsz):
@@ -82,8 +84,8 @@ model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, devi
 criterion = nn.NLLLoss()
 #criterion = nn.CrossEntropyLoss()
 #optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-#optimizer = torch.optim.Adam(model.parameters())
-optimizer = torch.optim.AdamW(model.parameters())
+optimizer = torch.optim.Adam(model.parameters())
+#optimizer = torch.optim.AdamW(model.parameters())
 
 ###############################################################################
 # Training code

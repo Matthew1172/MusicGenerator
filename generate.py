@@ -5,7 +5,7 @@ import time
 from fractions import Fraction
 from tqdm import tqdm
 from music21 import *
-dataset = "./dataset/set3"
+DATASET = "set1"
 
 '''
 song = [<clef>, <key>, <time>, <note>, ...]
@@ -23,13 +23,20 @@ timeSig = 'Time 4 4'
 initSeq = ["Note C 1.0"]
 
 # Checkpoint location:
-cwd = os.getcwd()
+CWD = os.getcwd()
+#Dataset location
+DATASETS = "dataset"
+DATASETS = os.path.join(CWD, DATASETS)
+assert os.path.exists(DATASETS)
+DATASET = os.path.join(DATASETS, DATASET)
+assert os.path.exists(DATASET)
+# Checkpoint location:
 CHECKPOINT_DIR = 'training_checkpoints_pytorch'
-CHECKPOINT_DIR = os.path.join(cwd, CHECKPOINT_DIR)
+CHECKPOINT_DIR = os.path.join(DATASET, CHECKPOINT_DIR)
 CHECKPOINT_PREFIX = 'my_ckpt.pth'
 CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
 
-OUTPUTS_DIRECTORY = os.path.join(cwd, "outputs")
+OUTPUTS_DIRECTORY = os.path.join(CWD, "outputs")
 OUTPUT = os.path.join(OUTPUTS_DIRECTORY, "output@"+time.asctime().replace(' ', '').replace(':', ''))
 
 GENERATION_PREFIX = "generated"
@@ -52,8 +59,8 @@ model.eval()
 
 dic = data.Dictionary()
 try:
-    dic.load_dictionary(dataset)
-    dic.load_list(dataset)
+    dic.load_dictionary(DATASET)
+    dic.load_list(DATASET)
 except:
     print("No dictionary file available for loading. Please run the Extraction.py script before generation or training.")
     exit(-998)
