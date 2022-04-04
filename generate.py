@@ -7,7 +7,6 @@ from tqdm import tqdm
 from music21 import *
 from random import randint
 import argparse
-import sys
 
 parser = argparse.ArgumentParser(description='Music Generator by Matthew Pecko')
 parser.add_argument('--dataset', type=str, default="set1",
