@@ -7,28 +7,26 @@ from tqdm import tqdm
 from music21 import *
 from random import randint
 import argparse
-DATASET = "set3"
 
 parser = argparse.ArgumentParser(description='Music Generator by Matthew Pecko')
-# Model parameters.
+parser.add_argument('--dataset', type=str, default="set1",
+                    help='dataset to use')
 parser.add_argument('--temperature', type=float, default=0.85,
                     help='temperature - higher will increase diversity')
 parser.add_argument('--length', type=int, default=100,
                     help='Length of song to be generated')
 parser.add_argument('--songs', type=int, default=3,
                     help='Number of songs to generate')
-
-parser.add_argument('--random-clef', type=bool, default=False,
+parser.add_argument('--random-clef', action=argparse.BooleanOptionalAction,
                     help='Assign a random clef')
-parser.add_argument('--random-key', type=bool, default=True,
+parser.add_argument('--random-key', action=argparse.BooleanOptionalAction,
                     help='Assign a random key signature')
-parser.add_argument('--random-time', type=bool, default=True,
+parser.add_argument('--random-time', action=argparse.BooleanOptionalAction,
                     help='Assign a random time signature')
-parser.add_argument('--random-seq', type=bool, default=True,
+parser.add_argument('--random-seq', action=argparse.BooleanOptionalAction,
                     help='Assign a random sequence of notes')
 parser.add_argument('--random-seq-length', type=int, default=1,
                     help='Number of random notes to create')
-
 parser.add_argument('--input-clef', type=str, default="Clef G",
                     help='Assign a clef ("Clef G", "Clef F"). Only supports treble clef as of version 1.0')
 parser.add_argument('--input-time', type=str, default="Time 4 4",
@@ -73,8 +71,12 @@ CWD = os.getcwd()
 DATASETS = "dataset"
 DATASETS = os.path.join(CWD, DATASETS)
 assert os.path.exists(DATASETS)
+DATASET = args.dataset
 DATASET = os.path.join(DATASETS, DATASET)
-assert os.path.exists(DATASET)
+try:
+    assert os.path.exists(DATASET)
+except:
+    parser.error("The dataset {} does not exist.".format(DATASET))
 # Checkpoint location:
 CHECKPOINT_DIR = 'training_checkpoints_pytorch'
 CHECKPOINT_DIR = os.path.join(DATASET, CHECKPOINT_DIR)
@@ -174,6 +176,7 @@ torch.manual_seed(dic.word2idx[iTime])
 
 ntokens = len(dic)
 
+export = []
 for sn in range(1, numberOfSongs+1):
     print("Generating song {}/{}".format(sn, numberOfSongs))
     generatedSong = []
@@ -213,7 +216,10 @@ for sn in range(1, numberOfSongs+1):
                     length = Fraction(j[2])
                 m.append(note.Note(nameWithOctave=name, quarterLength=length))
             elif "Rest" in j:
-                length = float(j[2])
+                try:
+                    length = float(j[2])
+                except(ValueError):
+                    length = Fraction(j[2])
                 m.append(note.Rest(quarterLength=length))
             elif "Bar" in j:
                 type = j[1]
@@ -233,7 +239,10 @@ for sn in range(1, numberOfSongs+1):
                 m.append(meter.TimeSignature(tsig))
             else:
                 continue
+    out = GENERATION_PREFIX + "_"+str(sn)
+    export.append((out, p))
 
+if len(export) > 0:
     try:
         os.mkdir(OUTPUTS_DIRECTORY)
     except FileExistsError:
@@ -244,21 +253,23 @@ for sn in range(1, numberOfSongs+1):
     except FileExistsError:
         print("The directory {} already exists...".format(OUTPUT))
 
-    out = GENERATION_PREFIX + "_"+str(sn)
+    for e in export:
 
-    try:
-        p.write("text", out + ".txt")
-    except:
-        pass
+        try:
+            e[1].write("text", e[0] + ".txt")
+        except:
+            pass
 
-    try:
-        p.write("musicxml", out + ".mxl")
-    except:
-        pass
+        try:
+            e[1].write("musicxml", e[0] + ".mxl")
+        except:
+            pass
 
-    try:
-        p.write("midi", out + ".mid")
-    except repeat.ExpanderException:
-        print("Could not output MIDI file. Badly formed repeats or repeat expressions.")
-    except:
-        pass
+        try:
+            e[1].write("midi", e[0] + ".mid")
+        except repeat.ExpanderException:
+            print("Could not output MIDI file. Badly formed repeats or repeat expressions.")
+        except:
+            pass
+else:
+    print("No songs were generated.")
