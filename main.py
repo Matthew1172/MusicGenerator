@@ -58,6 +58,7 @@ CHECKPOINT_PREFIX = 'my_ckpt.pth'
 CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
 
 myCorpus = data.Corpus(DATASET, from_bin=from_bin)
+myCorpus.run_tokenize()
 print("Found {} bad songs out of {}.".format(myCorpus.bad, myCorpus.total))
 
 def batchify(data, bsz):
