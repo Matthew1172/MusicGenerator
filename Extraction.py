@@ -5,9 +5,8 @@ import regex as re
 from music21 import *
 import data
 import pickle
-from tqdm import tqdm
-OUTPUT_DATASET_DIR = "set1"
-save_to_bin = False
+OUTPUT_DATASET_DIR = "set2"
+save_to_bin = True
 
 SHUFFLE = True
 PATH = sys.argv[1]
@@ -64,41 +63,10 @@ def has_part(song):
         return False
     return True
 
-result = [os.path.join(dp, f) for dp, dn, filenames in os.walk(PATH) for f in filenames if os.path.splitext(f)[1] == '.abc']
-songs_raw = []
-for f in result:
-    with open(f, "r", encoding="utf8") as file:
-        songs_raw.append(extract_song_snippet(file.read()))
-
-songs = list(set([item for sub in songs_raw for item in sub if is_song(item)]))
-
-print("Found {} songs in folder".format(len(songs)))
-
-if SHUFFLE: random.shuffle(songs)
-
-if save_to_bin:
-    dic = data.Dictionary()
-    m21 = []
-    songs_good = []
-    bad = 0
-    BAD_PREFIX = "bad.abc"
-    BAD_PREFIX = os.path.join(OUTPUT_DATASET_DIR, BAD_PREFIX)
-    for i in tqdm(range(len(songs))):
-        #print("\n\nParsing song {}/{}. Bad: {} : \n\n {}".format(i + 1, len(songs), bad, songs[i]))
-        try:
-            m21.append(converter.parse(songs[i]))
-            songs_good.append(songs[i])
-        except(converter.ConverterException, Exception):
-            bad += 1
-            with open(BAD_PREFIX, "a") as f:
-                f.write(songs[i] + "\n\n")
-            continue
-
-    info = [s[1].elements for s in songs if has_part(s)]
-
-    pretty_info = []
-    for s in info:
-        pretty_song = []
+def parseAbcString(abc_song):
+    pretty_song = []
+    try:
+        s = converter.parse(abc_song)[1].elements
         for m in s:
             if isinstance(m, stream.Measure):
                 pretty_song.append("|")
@@ -143,21 +111,41 @@ if save_to_bin:
                 continue
             else:
                 continue
-        pretty_info.append(pretty_song[1:])
+    except:
+        pass
+    finally:
+        return pretty_song[1:]
 
-        with open(TRAIN_PREFIX_PRETTY, 'wb') as f:
-            pickle.dump(pretty_info[:int(train * len(pretty_info))], f)
+result = [os.path.join(dp, f) for dp, dn, filenames in os.walk(PATH) for f in filenames if os.path.splitext(f)[1] == '.abc']
+songs_raw = []
+for f in result:
+    with open(f, "r", encoding="utf8") as file:
+        songs_raw.append(extract_song_snippet(file.read()))
 
-        with open(TEST_PREFIX_PRETTY, 'wb') as f:
-            pickle.dump(
-                pretty_info[int(train * len(pretty_info)):int(train * len(pretty_info)) + int(test * len(pretty_info))],
-                f)
+songs = list(set([item for sub in songs_raw for item in sub if is_song(item)]))
 
-        with open(VALID_PREFIX_PRETTY, 'wb') as f:
-            pickle.dump(pretty_info[int(train * len(pretty_info)) + int(test * len(pretty_info)):], f)
+print("Found {} songs in folder".format(len(songs)))
 
-        dic.save_dictionary(OUTPUT_DATASET_DIR)
-        dic.save_list(OUTPUT_DATASET_DIR)
+if SHUFFLE: random.shuffle(songs)
+
+if save_to_bin:
+    dic = data.Dictionary()
+
+    outputs = common.runParallel(songs, parseAbcString)
+
+    with open(TRAIN_PREFIX_PRETTY, 'wb') as f:
+        pickle.dump(outputs[:int(train * len(outputs))], f)
+
+    with open(TEST_PREFIX_PRETTY, 'wb') as f:
+        pickle.dump(
+            outputs[int(train * len(outputs)):int(train * len(outputs)) + int(test * len(outputs))],
+            f)
+
+    with open(VALID_PREFIX_PRETTY, 'wb') as f:
+        pickle.dump(outputs[int(train * len(outputs)) + int(test * len(outputs)):], f)
+
+    dic.save_dictionary(OUTPUT_DATASET_DIR)
+    dic.save_list(OUTPUT_DATASET_DIR)
 else:
     songs_good = songs
 
