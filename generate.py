@@ -7,6 +7,7 @@ from tqdm import tqdm
 from music21 import *
 from random import randint
 import argparse
+import sys
 
 parser = argparse.ArgumentParser(description='Music Generator by Matthew Pecko')
 parser.add_argument('--dataset', type=str, default="set1",
@@ -17,14 +18,38 @@ parser.add_argument('--length', type=int, default=100,
                     help='Length of song to be generated')
 parser.add_argument('--songs', type=int, default=3,
                     help='Number of songs to generate')
-parser.add_argument('--random-clef', action=argparse.BooleanOptionalAction,
-                    help='Assign a random clef')
-parser.add_argument('--random-key', action=argparse.BooleanOptionalAction,
-                    help='Assign a random key signature')
-parser.add_argument('--random-time', action=argparse.BooleanOptionalAction,
-                    help='Assign a random time signature')
-parser.add_argument('--random-seq', action=argparse.BooleanOptionalAction,
-                    help='Assign a random sequence of notes')
+try:
+    parser.add_argument('--random-clef', action=argparse.BooleanOptionalAction,
+                        help='Assign a random clef')
+    parser.add_argument('--random-key', action=argparse.BooleanOptionalAction,
+                        help='Assign a random key signature')
+    parser.add_argument('--random-time', action=argparse.BooleanOptionalAction,
+                        help='Assign a random time signature')
+    parser.add_argument('--random-seq', action=argparse.BooleanOptionalAction,
+                        help='Assign a random sequence of notes')
+except AttributeError:
+    parser.add_argument('--random-clef', default=True, action='store_true',
+                        help='Assign a random clef')
+    parser.add_argument('--no-random-clef', dest='random_clef', action='store_false',
+                        help='Assign a random clef')
+
+    parser.add_argument('--random-key', default=True, action='store_true',
+                        help='Assign a random key signature')
+    parser.add_argument('--no-random-key', dest='random_key', action='store_false',
+                        help='Assign a random key signature')
+
+    parser.add_argument('--random-time', default=True, action='store_true',
+                        help='Assign a random time signature')
+    parser.add_argument('--no-random-time', dest='random_time', action='store_false',
+                        help='Assign a random time signature')
+
+    parser.add_argument('--random-seq', default=True, action='store_true',
+                        help='Assign a random sequence of notes')
+    parser.add_argument('--no-random-seq', dest='random_seq', action='store_false',
+                        help='Assign a random sequence of notes')
+except:
+    exit(1)
+
 parser.add_argument('--random-seq-length', type=int, default=1,
                     help='Number of random notes to create')
 parser.add_argument('--input-clef', type=str, default="Clef G",
@@ -112,25 +137,25 @@ except:
 '''TODO: Find a random clef in dictionary and set it to iClef'''
 if rClef:
     clefs = [clef for clef in dic.idx2word if "Clef" in clef]
-    iClef = clefs[randint(0, len(clefs))]
+    iClef = clefs[randint(0, len(clefs)-1)]
 else:
     iClef = args.input_clef
 
 if rKey:
     keys = [key for key in dic.idx2word if "Key" in key]
-    iKey = keys[randint(0, len(keys))]
+    iKey = keys[randint(0, len(keys)-1)]
 else:
     iKey = args.input_key
 
 if rTime:
     times = [time for time in dic.idx2word if "Time" in time]
-    iTime = times[randint(0, len(times))]
+    iTime = times[randint(0, len(times)-1)]
 else:
     iTime = args.input_time
 
 if rSeq:
     notes = [note for note in dic.idx2word if "Note" in note]
-    iSeq = [notes[randint(0, len(notes))] for i in range(rSeqLen)]
+    iSeq = [notes[randint(0, len(notes)-1)] for i in range(rSeqLen)]
 else:
     iSeq = args.input_seq.split('$')
     #iSeq = ["Note C 1.0"]
