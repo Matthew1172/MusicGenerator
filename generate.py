@@ -9,7 +9,7 @@ from random import randint
 import argparse
 DATASET = "set3"
 
-parser = argparse.ArgumentParser(description='PyTorch Wikitext-2 Language Model')
+parser = argparse.ArgumentParser(description='Music Generator by Matthew Pecko')
 # Model parameters.
 parser.add_argument('--temperature', type=float, default=0.85,
                     help='temperature - higher will increase diversity')
@@ -21,7 +21,7 @@ parser.add_argument('--songs', type=int, default=3,
 parser.add_argument('--random-clef', type=bool, default=False,
                     help='Assign a random clef')
 parser.add_argument('--random-key', type=bool, default=True,
-                    help='Assign a random keysignature')
+                    help='Assign a random key signature')
 parser.add_argument('--random-time', type=bool, default=True,
                     help='Assign a random time signature')
 parser.add_argument('--random-seq', type=bool, default=True,
