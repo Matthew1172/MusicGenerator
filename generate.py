@@ -27,22 +27,22 @@ try:
     parser.add_argument('--random-seq', action=argparse.BooleanOptionalAction,
                         help='Assign a random sequence of notes')
 except AttributeError:
-    parser.add_argument('--random-clef', default=True, action='store_true',
+    parser.add_argument('--random-clef', default=False, action='store_true',
                         help='Assign a random clef')
     parser.add_argument('--no-random-clef', dest='random_clef', action='store_false',
                         help='Assign a random clef')
 
-    parser.add_argument('--random-key', default=True, action='store_true',
+    parser.add_argument('--random-key', default=False, action='store_true',
                         help='Assign a random key signature')
     parser.add_argument('--no-random-key', dest='random_key', action='store_false',
                         help='Assign a random key signature')
 
-    parser.add_argument('--random-time', default=True, action='store_true',
+    parser.add_argument('--random-time', default=False, action='store_true',
                         help='Assign a random time signature')
     parser.add_argument('--no-random-time', dest='random_time', action='store_false',
                         help='Assign a random time signature')
 
-    parser.add_argument('--random-seq', default=True, action='store_true',
+    parser.add_argument('--random-seq', default=False, action='store_true',
                         help='Assign a random sequence of notes')
     parser.add_argument('--no-random-seq', dest='random_seq', action='store_false',
                         help='Assign a random sequence of notes')
