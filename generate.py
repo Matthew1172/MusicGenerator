@@ -5,7 +5,7 @@ import time
 from fractions import Fraction
 from tqdm import tqdm
 from music21 import *
-dataset = "./dataset/set1"
+dataset = "./dataset/set3"
 
 '''
 song = [<clef>, <key>, <time>, <note>, ...]
