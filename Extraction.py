@@ -134,6 +134,7 @@ if SHUFFLE: random.shuffle(songs)
 if save_to_bin:
     dic = data.Dictionary()
 
+    #outputs = common.runParallel(songs, parseAbcString, updateFunction=logProcess)
     outputs = common.runParallel(songs, parseAbcString, updateFunction=logProcess)
 
     with open(TRAIN_PREFIX_PRETTY, 'wb') as f:
