@@ -3,7 +3,7 @@ from Transformer_Model import *
 import data
 import os
 import time
-DATASET = "set1"
+DATASET_PATH_NAME = "set3"
 from_bin = False
 
 if(torch.cuda.is_available()):
@@ -40,26 +40,19 @@ log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
 num_heads = 8
 
+myCorpus = data.Corpus(DATASET_PATH_NAME, bin=from_bin)
+print("Found {} bad songs out of {}.".format(myCorpus.bad, myCorpus.total))
+
 CWD = os.getcwd()
-#Dataset location
-DATASETS = "dataset"
-DATASETS = os.path.join(CWD, DATASETS)
-assert os.path.exists(DATASETS)
-DATASET = os.path.join(DATASETS, DATASET)
-assert os.path.exists(DATASET)
 # Checkpoint location:
 CHECKPOINT_DIR = 'training_checkpoints_pytorch'
-CHECKPOINT_DIR = os.path.join(DATASET, CHECKPOINT_DIR)
+CHECKPOINT_DIR = os.path.join(myCorpus.DATASET_PATH, CHECKPOINT_DIR)
 try:
     os.mkdir(CHECKPOINT_DIR)
 except FileExistsError:
     print("The directory {} already exists...".format(CHECKPOINT_DIR))
 CHECKPOINT_PREFIX = 'my_ckpt.pth'
 CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
-
-myCorpus = data.Corpus(DATASET, from_bin=from_bin)
-myCorpus.run_tokenize()
-print("Found {} bad songs out of {}.".format(myCorpus.bad, myCorpus.total))
 
 def batchify(data, bsz):
     # Work out how cleanly we can divide the dataset into bsz parts.

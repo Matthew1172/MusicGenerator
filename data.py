@@ -48,11 +48,12 @@ class Dictionary(object):
         with open(self.LIST_PREFIX, 'rb') as f:
             self.idx2word = pickle.load(f)
 
-class Pathing:
-    def __init__(self, DATASET_PATH_NAME, bin=False, DATASETS_PATH_NAME="dataset"):
+class Extractor():
+    def __init__(self, DATASET_PATH_NAME, shuffle=True, bin=False, train=0.80, test=0.1, valid=0.1, DATASETS_PATH_NAME="datasets", SRC_CORPUS=""):
         self.DATASETS_PATH_NAME = DATASETS_PATH_NAME
         self.DATASET_PATH_NAME = DATASET_PATH_NAME
         self.bin = bin
+        self.SRC_CORPUS = SRC_CORPUS
 
         self.CWD = os.getcwd()
         self.DATASETS_PATH = os.path.join(self.CWD, self.DATASETS_PATH_NAME)
@@ -73,15 +74,41 @@ class Pathing:
 
         self.dictionary = Dictionary()
 
+        self.shuffle = shuffle
+        self.train = train
+        self.test = test
+        self.valid = valid
+        assert self.train + self.test + self.valid == 1.0
+
+        self.song_paths = []
+        self.raw_songs = []
+        self.songs = []
+
+    def extract(self):
+        '''Create the Datasets directory and check if it exists'''
+        self.createDatasetsDirectory()
+
+        '''Create the Dataset directory and check if it exists'''
+        self.createDatasetDirectory()
+
+        self.song_paths = self.getPaths()
+        self.readRawSongs()
+
+        self.songs = list(set([item for sub in self.raw_songs for item in sub if self.is_song(item)]))
+        print("Found {} songs in folder".format(len(self.songs)))
+
+        if self.shuffle: r.shuffle(self.songs)
+        self.save()
+
     def createDatasetsDirectory(self):
         try:
-            os.mkdir(self.DATASETS_PATH_NAME)
+            os.mkdir(self.DATASETS_PATH)
         except:
             print("The datasets directory {} already exists.".format(self.DATASETS_PATH_NAME))
 
     def createDatasetDirectory(self):
         try:
-            os.mkdir(self.DATASET_PATH_NAME)
+            os.mkdir(self.DATASET_PATH)
         except:
             print("The new dataset directory {} already exists.".format(self.DATASET_PATH_NAME))
 
@@ -141,11 +168,64 @@ class Pathing:
         finally:
             return pretty_song[1:]
 
+    def extract_song_snippet(self, text):
+        pattern = '(^|\n\n)(.*?)\n\n'
+        search_results = re.findall(pattern, text, overlapped=True, flags=re.DOTALL)
+        songs = [song[1] for song in search_results]
+        return songs
 
-class Corpus(object, Pathing):
+    def is_song(self, str):
+        if "X:" in str:
+            return True
+        else:
+            return False
+
+    def getPaths(self):
+        return [os.path.join(dp, f) for dp, dn, filenames in os.walk(self.SRC_CORPUS) for f in filenames if
+                  os.path.splitext(f)[1] == '.abc']
+
+    def readRawSongs(self):
+        for f in self.song_paths:
+            with open(f, "r", encoding="utf8") as file:
+                self.raw_songs.append(self.extract_song_snippet(file.read()))
+
+    def save(self):
+        if self.bin:
+            # outputs = common.runParallel(songs, parseAbcString, updateFunction=logProcess)
+            outputs = common.runParallel(self.songs, self.parseAbcString)
+
+            with open(self.TRAIN_PREFIX_PRETTY, 'wb') as f:
+                pickle.dump(outputs[:int(self.train * len(outputs))], f)
+
+            with open(self.TEST_PREFIX_PRETTY, 'wb') as f:
+                pickle.dump(
+                    outputs[int(self.train * len(outputs)):int(self.train * len(outputs)) + int(self.test * len(outputs))],
+                    f)
+
+            with open(self.VALID_PREFIX_PRETTY, 'wb') as f:
+                pickle.dump(outputs[int(self.train * len(outputs)) + int(self.test * len(outputs)):], f)
+
+            self.dictionary.save_dictionary(self.DATASET_PATH)
+            self.dictionary.save_list(self.DATASET_PATH)
+        else:
+            songs_good = self.songs
+
+            with open(self.TRAIN_PREFIX, "w") as f:
+                for s in songs_good[:int(self.train * len(songs_good))]:
+                    f.write(s + "\n\n")
+
+            with open(self.TEST_PREFIX, "w") as f:
+                for s in songs_good[
+                         int(self.train * len(songs_good)):int(self.train * len(songs_good)) + int(self.test * len(songs_good))]:
+                    f.write(s + "\n\n")
+
+            with open(self.VALID_PREFIX, "w") as f:
+                for s in songs_good[int(self.train * len(songs_good)) + int(self.test * len(songs_good)):]:
+                    f.write(s + "\n\n")
+
+class Corpus(Extractor):
     def __init__(self, path, bin=False):
         super(Corpus, self).__init__(path, bin)
-
         if self.bin:
             try:
                 self.dictionary.load_dictionary(self.DATASET_PATH)
@@ -182,28 +262,19 @@ class Corpus(object, Pathing):
     def tokenize(self, path):
         """Tokenizes a text file."""
         assert os.path.exists(path)
-
         songs = []
         with open(path, 'r', encoding="ISO-8859-1") as f:
             text = f.read()
             songs = text.split("\n\n")
-        self.total = len(songs)
-
-        outputs = common.runParallel(self.songs, self.parseAbcString)
-
-        info = [s[1].elements for s in outputs if self.has_part(s)]
-
-        pretty_info = [self.parseAbcString(s) for s in info]
-
-        return self.tokenizeFileContent(pretty_info)
+        #self.total += len(songs)
+        outputs = common.runParallel(songs, self.parseAbcString)
+        return self.tokenizeFileContent(outputs)
 
     def tokenize_from_bin(self, path):
         """Tokenizes a text file."""
         assert os.path.exists(path)
-
         with open(path, 'rb') as f:
             pretty_info = pickle.load(f)
-
         return self.tokenizeFileContent(pretty_info)
 
     def tokenizeFileContent(self, mySongFormat):
@@ -216,86 +287,3 @@ class Corpus(object, Pathing):
             idss.append(torch.tensor(ids, dtype=torch.int64))
         ids = torch.cat(idss)
         return ids
-
-class Extractor(Pathing):
-    def __init__(self, DATASETS_PATH_NAME, DATASET_PATH_NAME, shuffle, bin=False, train=0.80, test=0.1, valid=0.1):
-        super(Extractor, self).__init__(DATASET_PATH_NAME, bin, DATASETS_PATH_NAME=DATASETS_PATH_NAME)
-        self.shuffle = shuffle
-        self.train = train
-        self.test = test
-        self.valid = valid
-
-        '''Create the Datasets directory and check if it exists'''
-        self.createDatasetsDirectory()
-        assert os.path.exists(self.DATASETS_PATH)
-
-        '''Create the Dataset directory and check if it exists'''
-        self.createDatasetDirectory()
-        assert os.path.exists(self.DATASET_PATH)
-
-        assert self.train + self.test + self.valid == 1.0
-
-        self.song_paths = self.getPaths()
-        self.raw_songs = []
-        self.readRawSongs()
-
-        self.songs = list(set([item for sub in self.raw_songs for item in sub if self.is_song(item)]))
-        print("Found {} songs in folder".format(len(self.songs)))
-
-        if self.shuffle: r.shuffle(self.songs)
-        self.extract()
-
-    def extract_song_snippet(self, text):
-        pattern = '(^|\n\n)(.*?)\n\n'
-        search_results = re.findall(pattern, text, overlapped=True, flags=re.DOTALL)
-        songs = [song[1] for song in search_results]
-        return songs
-
-    def is_song(self, str):
-        if "X:" in str:
-            return True
-        else:
-            return False
-
-    def getPaths(self):
-        return [os.path.join(dp, f) for dp, dn, filenames in os.walk(self.DATASET_PATH) for f in filenames if
-                  os.path.splitext(f)[1] == '.abc']
-
-    def readRawSongs(self):
-        for f in self.song_paths:
-            with open(f, "r", encoding="utf8") as file:
-                self.raw_songs.append(self.extract_song_snippet(file.read()))
-
-    def extract(self):
-        if self.bin:
-            # outputs = common.runParallel(songs, parseAbcString, updateFunction=logProcess)
-            outputs = common.runParallel(self.songs, self.parseAbcString)
-
-            with open(self.TRAIN_PREFIX_PRETTY, 'wb') as f:
-                pickle.dump(outputs[:int(self.train * len(outputs))], f)
-
-            with open(self.TEST_PREFIX_PRETTY, 'wb') as f:
-                pickle.dump(
-                    outputs[int(self.train * len(outputs)):int(self.train * len(outputs)) + int(self.test * len(outputs))],
-                    f)
-
-            with open(self.VALID_PREFIX_PRETTY, 'wb') as f:
-                pickle.dump(outputs[int(self.train * len(outputs)) + int(self.test * len(outputs)):], f)
-
-            self.dictionary.save_dictionary(self.DATASET_PATH)
-            self.dictionary.save_list(self.DATASET_PATH)
-        else:
-            songs_good = self.songs
-
-            with open(self.TRAIN_PREFIX, "w") as f:
-                for s in songs_good[:int(self.train * len(songs_good))]:
-                    f.write(s + "\n\n")
-
-            with open(self.TEST_PREFIX, "w") as f:
-                for s in songs_good[
-                         int(self.train * len(songs_good)):int(self.train * len(songs_good)) + int(self.test * len(songs_good))]:
-                    f.write(s + "\n\n")
-
-            with open(self.VALID_PREFIX, "w") as f:
-                for s in songs_good[int(self.train * len(songs_good)) + int(self.test * len(songs_good)):]:
-                    f.write(s + "\n\n")
