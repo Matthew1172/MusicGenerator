@@ -83,8 +83,8 @@ if save_to_bin:
     bad = 0
     BAD_PREFIX = "bad.abc"
     BAD_PREFIX = os.path.join(OUTPUT_DATASET_DIR, BAD_PREFIX)
-    for i in range(len(songs)):
-        print("\n\nParsing song {}/{}. Bad: {} : \n\n {}".format(i + 1, len(songs), bad, songs[i]))
+    for i in tqdm(range(len(songs))):
+        #print("\n\nParsing song {}/{}. Bad: {} : \n\n {}".format(i + 1, len(songs), bad, songs[i]))
         try:
             m21.append(converter.parse(songs[i]))
             songs_good.append(songs[i])
