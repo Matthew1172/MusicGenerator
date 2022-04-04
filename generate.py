@@ -5,22 +5,67 @@ import time
 from fractions import Fraction
 from tqdm import tqdm
 from music21 import *
-DATASET = "set1"
+from random import randint
+import argparse
+DATASET = "set3"
+
+parser = argparse.ArgumentParser(description='PyTorch Wikitext-2 Language Model')
+# Model parameters.
+parser.add_argument('--temperature', type=float, default=0.85,
+                    help='temperature - higher will increase diversity')
+parser.add_argument('--length', type=int, default=100,
+                    help='Length of song to be generated')
+parser.add_argument('--songs', type=int, default=3,
+                    help='Number of songs to generate')
+
+parser.add_argument('--random-clef', type=bool, default=False,
+                    help='Assign a random clef')
+parser.add_argument('--random-key', type=bool, default=True,
+                    help='Assign a random keysignature')
+parser.add_argument('--random-time', type=bool, default=True,
+                    help='Assign a random time signature')
+parser.add_argument('--random-seq', type=bool, default=True,
+                    help='Assign a random sequence of notes')
+parser.add_argument('--random-seq-length', type=int, default=1,
+                    help='Number of random notes to create')
+
+parser.add_argument('--input-clef', type=str, default="Clef G",
+                    help='Assign a clef ("Clef G", "Clef F"). Only supports treble clef as of version 1.0')
+parser.add_argument('--input-time', type=str, default="Time 4 4",
+                    help='Assign a time signature ("Time 4 4", "Time 2 4", "Time 3 4", "Time 27 16")')
+parser.add_argument('--input-key', type=str, default="Key 2",
+                    help='Assign a key signature ("Key 2", "Key 1", "Key -6", "Key 8")')
+parser.add_argument('--input-seq', type=str, default="Note C 1.0",
+                    help='Assign a sequence of notes. Use $ as delimiter. ("Note C 1.0", "Note C 1.0$Note F#4 1/3$Note C4 0.5")')
+args = parser.parse_args()
+
+if args.temperature < 1e-3:
+    parser.error("--temperature has to be greater than 1e-3.")
+
+if args.songs < 1 or args.songs > 100:
+    parser.error("--songs has to be greater than 0 and less than 100.")
+
+if args.length < 1 or args.length > 1000:
+    parser.error("--length has to be greater than 0 and less than 1000.")
+
+if args.random_seq and (args.random_seq_length < 1 or args.random_seq_length > 1000 or args.random_seq_length > args.length):
+    parser.error("if --random-seq is true then --random-seq-length must be less than --length, and has to be greater than 0 and less than 1000.")
+
+rClef = args.random_clef
+rKey = args.random_key
+rTime = args.random_time
+rSeq = args.random_seq
+rSeqLen = args.random_seq_length
 
 '''
 song = [<clef>, <key>, <time>, <note>, ...]
 '''
 ''' seed = Note C 1.0'''
 #seed = 492
-temp = 0.85
-gen_length = 100
+temp = args.temperature
+gen_length = args.length
 log_interval = 200
-numberOfSongs = 3
-
-initClef = 'Clef G'
-keySig = 'Key 2'
-timeSig = 'Time 4 4'
-initSeq = ["Note C 1.0"]
+numberOfSongs = args.songs
 
 # Checkpoint location:
 CWD = os.getcwd()
@@ -50,9 +95,6 @@ else:
 device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
-#-999 : temperature has to be greater than 1e-3.
-assert temp > 1e-3
-
 with open(CHECKPOINT_PREFIX, 'rb') as f:
     model = torch.load(f, map_location=device)
 model.eval()
@@ -65,22 +107,84 @@ except:
     print("No dictionary file available for loading. Please run the Extraction.py script before generation or training.")
     exit(-998)
 
+'''TODO: Find a random clef in dictionary and set it to iClef'''
+if rClef:
+    clefs = [clef for clef in dic.idx2word if "Clef" in clef]
+    iClef = clefs[randint(0, len(clefs))]
+else:
+    iClef = args.input_clef
+
+if rKey:
+    keys = [key for key in dic.idx2word if "Key" in key]
+    iKey = keys[randint(0, len(keys))]
+else:
+    iKey = args.input_key
+
+if rTime:
+    times = [time for time in dic.idx2word if "Time" in time]
+    iTime = times[randint(0, len(times))]
+else:
+    iTime = args.input_time
+
+if rSeq:
+    notes = [note for note in dic.idx2word if "Note" in note]
+    iSeq = [notes[randint(0, len(notes))] for i in range(rSeqLen)]
+else:
+    iSeq = args.input_seq.split('$')
+    #iSeq = ["Note C 1.0"]
+    #iSeq = []
+
+try:
+    dic.word2idx[iClef]
+except KeyError:
+    parser.error("The clef {} was not found in the dictionary.".format(iClef))
+except:
+    exit(1)
+
+try:
+    dic.word2idx[iKey]
+except KeyError:
+    parser.error("The key signature {} was not found in the dictionary.".format(iKey))
+except:
+    exit(1)
+
+try:
+    dic.word2idx[iTime]
+except KeyError:
+    parser.error("The time signature {} was not found in the dictionary.".format(iTime))
+except:
+    exit(1)
+
+flag = False
+b = []
+for n in iSeq:
+    try:
+        dic.word2idx[n]
+    except KeyError:
+        flag = True
+        b.append(n)
+        continue
+    except:
+        exit(1)
+if flag:
+    parser.error("One or more notes in the input sequence was not found in the dictionary. {}".format(b))
+
 # Set the random seed manually for reproducibility.
-torch.manual_seed(dic.word2idx[timeSig])
+torch.manual_seed(dic.word2idx[iTime])
 
 ntokens = len(dic)
 
 for sn in range(1, numberOfSongs+1):
     print("Generating song {}/{}".format(sn, numberOfSongs))
     generatedSong = []
-    if initClef != '':
-        generatedSong.append(dic.idx2word[dic.word2idx[initClef]])
-    if keySig != '':
-        generatedSong.append(dic.idx2word[dic.word2idx[keySig]])
-    if timeSig != '':
-        generatedSong.append(dic.idx2word[dic.word2idx[timeSig]])
-    if len(initSeq) > 0:
-        for n in initSeq: generatedSong.append(dic.idx2word[dic.word2idx[n]])
+    if iClef != '':
+        generatedSong.append(dic.idx2word[dic.word2idx[iClef]])
+    if iKey != '':
+        generatedSong.append(dic.idx2word[dic.word2idx[iKey]])
+    if iTime != '':
+        generatedSong.append(dic.idx2word[dic.word2idx[iTime]])
+    if len(iSeq) > 0:
+        for n in iSeq: generatedSong.append(dic.idx2word[dic.word2idx[n]])
     input = torch.Tensor([[dic.word2idx[word]] for word in generatedSong]).long().to(device)
     input = torch.cat([input, torch.randint(ntokens, (1, 1), dtype=torch.long)], 0)
     with torch.no_grad():  # no tracking history
