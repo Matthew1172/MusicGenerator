@@ -1,7 +1,6 @@
 import os
 from io import open
 import torch
-from tqdm import tqdm
 from music21 import *
 import pickle
 import regex as re
@@ -122,7 +121,6 @@ class Extractor():
             for m in s:
                 if isinstance(m, stream.Measure):
                     pretty_song.append("|")
-                    self.dictionary.add_word("|")
                     for n in m:
                         da = ""
                         if isinstance(n, note.Note):
@@ -158,7 +156,6 @@ class Extractor():
                         else:
                             continue
                         pretty_song.append(da)
-                        self.dictionary.add_word(da)
                 elif isinstance(m, spanner.RepeatBracket):
                     continue
                 else:
@@ -194,6 +191,9 @@ class Extractor():
             # outputs = common.runParallel(songs, parseAbcString, updateFunction=logProcess)
             outputs = common.runParallel(self.songs, self.parseAbcString)
 
+            '''Create dictionary'''
+            self.createDictionary(outputs)
+
             with open(self.TRAIN_PREFIX_PRETTY, 'wb') as f:
                 pickle.dump(outputs[:int(self.train * len(outputs))], f)
 
@@ -223,9 +223,14 @@ class Extractor():
                 for s in songs_good[int(self.train * len(songs_good)) + int(self.test * len(songs_good)):]:
                     f.write(s + "\n\n")
 
+    def createDictionary(self, mySongFormatCombined):
+        for ps in mySongFormatCombined:
+            for ele in ps:
+                self.dictionary.add_word(ele)
+
 class Corpus(Extractor):
     def __init__(self, path, bin=False):
-        super(Corpus, self).__init__(path, bin)
+        super(Corpus, self).__init__(path, bin=bin)
         if self.bin:
             try:
                 self.dictionary.load_dictionary(self.DATASET_PATH)
@@ -268,6 +273,8 @@ class Corpus(Extractor):
             songs = text.split("\n\n")
         #self.total += len(songs)
         outputs = common.runParallel(songs, self.parseAbcString)
+        '''Create dictionary'''
+        self.createDictionary(outputs)
         return self.tokenizeFileContent(outputs)
 
     def tokenize_from_bin(self, path):

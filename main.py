@@ -4,7 +4,7 @@ import data
 import os
 import time
 DATASET_PATH_NAME = "set3"
-from_bin = False
+bin = False
 
 if(torch.cuda.is_available()):
     print("GPU: ",torch.cuda.get_device_name(0), " is available, Switching now.")
@@ -16,9 +16,9 @@ device2 = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
-emsize = 8192
+emsize = 256
 #number of hidden units per layer
-hidden_units = 2048
+hidden_units = 1024
 #number of layers
 nlayers = 2
 #initial learning rate
@@ -30,7 +30,7 @@ clip = 25e-2
 #upper epoch limit
 epochs = 50
 #batch size
-batch_size = 64
+batch_size = 8
 #sequence length
 bptt = 85
 #dropout applied to layers (0 = no dropout)
@@ -38,10 +38,10 @@ dropout = 2e-1
 #report interval
 log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
-num_heads = 8
+num_heads = 2
 
-myCorpus = data.Corpus(DATASET_PATH_NAME, bin=from_bin)
-print("Found {} bad songs out of {}.".format(myCorpus.bad, myCorpus.total))
+myCorpus = data.Corpus(DATASET_PATH_NAME, bin=bin)
+#print("Found {} bad songs out of {}.".format(myCorpus.bad, myCorpus.total))
 
 CWD = os.getcwd()
 # Checkpoint location:

@@ -92,7 +92,7 @@ numberOfSongs = args.songs
 # Checkpoint location:
 CWD = os.getcwd()
 #Dataset location
-DATASETS = "dataset"
+DATASETS = "datasets"
 DATASETS = os.path.join(CWD, DATASETS)
 assert os.path.exists(DATASETS)
 DATASET = args.dataset
