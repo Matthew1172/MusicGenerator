@@ -99,6 +99,43 @@ class Extractor():
         if self.shuffle: r.shuffle(self.songs)
         self.save()
 
+    def save(self):
+        if self.bin:
+            outputs = common.runParallel(self.songs, self.parseAbcString, updateFunction=self.logProcess)
+            #outputs = common.runParallel(self.songs, self.parseAbcString)
+
+            '''Create dictionary'''
+            self.createDictionary(outputs)
+
+            with open(self.TRAIN_PREFIX_PRETTY, 'wb') as f:
+                pickle.dump(outputs[:int(self.train * len(outputs))], f)
+
+            with open(self.TEST_PREFIX_PRETTY, 'wb') as f:
+                pickle.dump(
+                    outputs[int(self.train * len(outputs)):int(self.train * len(outputs)) + int(self.test * len(outputs))],
+                    f)
+
+            with open(self.VALID_PREFIX_PRETTY, 'wb') as f:
+                pickle.dump(outputs[int(self.train * len(outputs)) + int(self.test * len(outputs)):], f)
+
+            self.dictionary.save_dictionary(self.DATASET_PATH)
+            self.dictionary.save_list(self.DATASET_PATH)
+        else:
+            songs_good = self.songs
+
+            with open(self.TRAIN_PREFIX, "w") as f:
+                for s in songs_good[:int(self.train * len(songs_good))]:
+                    f.write(s + "\n\n")
+
+            with open(self.TEST_PREFIX, "w") as f:
+                for s in songs_good[
+                         int(self.train * len(songs_good)):int(self.train * len(songs_good)) + int(self.test * len(songs_good))]:
+                    f.write(s + "\n\n")
+
+            with open(self.VALID_PREFIX, "w") as f:
+                for s in songs_good[int(self.train * len(songs_good)) + int(self.test * len(songs_good)):]:
+                    f.write(s + "\n\n")
+
     def createDatasetsDirectory(self):
         try:
             os.mkdir(self.DATASETS_PATH)
@@ -185,43 +222,6 @@ class Extractor():
         for f in self.song_paths:
             with open(f, "r", encoding="utf8") as file:
                 self.raw_songs.append(self.extract_song_snippet(file.read()))
-
-    def save(self):
-        if self.bin:
-            # outputs = common.runParallel(songs, parseAbcString, updateFunction=logProcess)
-            outputs = common.runParallel(self.songs, self.parseAbcString)
-
-            '''Create dictionary'''
-            self.createDictionary(outputs)
-
-            with open(self.TRAIN_PREFIX_PRETTY, 'wb') as f:
-                pickle.dump(outputs[:int(self.train * len(outputs))], f)
-
-            with open(self.TEST_PREFIX_PRETTY, 'wb') as f:
-                pickle.dump(
-                    outputs[int(self.train * len(outputs)):int(self.train * len(outputs)) + int(self.test * len(outputs))],
-                    f)
-
-            with open(self.VALID_PREFIX_PRETTY, 'wb') as f:
-                pickle.dump(outputs[int(self.train * len(outputs)) + int(self.test * len(outputs)):], f)
-
-            self.dictionary.save_dictionary(self.DATASET_PATH)
-            self.dictionary.save_list(self.DATASET_PATH)
-        else:
-            songs_good = self.songs
-
-            with open(self.TRAIN_PREFIX, "w") as f:
-                for s in songs_good[:int(self.train * len(songs_good))]:
-                    f.write(s + "\n\n")
-
-            with open(self.TEST_PREFIX, "w") as f:
-                for s in songs_good[
-                         int(self.train * len(songs_good)):int(self.train * len(songs_good)) + int(self.test * len(songs_good))]:
-                    f.write(s + "\n\n")
-
-            with open(self.VALID_PREFIX, "w") as f:
-                for s in songs_good[int(self.train * len(songs_good)) + int(self.test * len(songs_good)):]:
-                    f.write(s + "\n\n")
 
     def createDictionary(self, mySongFormatCombined):
         for ps in mySongFormatCombined:
