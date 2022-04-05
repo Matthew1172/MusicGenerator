@@ -3,8 +3,7 @@ from Transformer_Model import *
 import data
 import os
 import time
-DATASET = "set1"
-from_bin = False
+from common import DATASETS, DATASET
 
 if(torch.cuda.is_available()):
     print("GPU: ",torch.cuda.get_device_name(0), " is available, Switching now.")
@@ -40,13 +39,9 @@ log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
 num_heads = 8
 
-CWD = os.getcwd()
-#Dataset location
-DATASETS = "dataset"
-DATASETS = os.path.join(CWD, DATASETS)
 assert os.path.exists(DATASETS)
-DATASET = os.path.join(DATASETS, DATASET)
 assert os.path.exists(DATASET)
+
 # Checkpoint location:
 CHECKPOINT_DIR = 'training_checkpoints_pytorch'
 CHECKPOINT_DIR = os.path.join(DATASET, CHECKPOINT_DIR)
@@ -57,7 +52,7 @@ except FileExistsError:
 CHECKPOINT_PREFIX = 'my_ckpt.pth'
 CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
 
-myCorpus = data.Corpus(DATASET, from_bin=from_bin)
+myCorpus = data.Corpus(DATASET, from_bin=bin)
 print("Found {} bad songs out of {}.".format(myCorpus.bad, myCorpus.total))
 
 def batchify(data, bsz):

@@ -1,9 +1,9 @@
 import os
 from io import open
 import torch
-from tqdm import tqdm
 from music21 import *
 import pickle
+from common import parseAbcString
 
 class Dictionary(object):
     def __init__(self):
@@ -75,113 +75,38 @@ class Corpus(object):
             self.dictionary.save_dictionary(path)
             self.dictionary.save_list(path)
 
-    def has_part(self, song):
-        try:
-            song[1]
-        except IndexError:
-            return False
-        except exceptions21.StreamException:
-            return False
-        except repeat.ExpanderException:
-            return False
-        except:
-            return False
-        return True
-
     def tokenize(self, path):
         """Tokenizes a text file."""
         assert os.path.exists(path)
-
         songs = []
         with open(path, 'r', encoding="ISO-8859-1") as f:
             text = f.read()
             songs = text.split("\n\n")
         self.total = len(songs)
-
-        for i in tqdm(range(len(songs))):
-            #print("\n\nParsing song {}/{}. Bad: {} : \n\n {}".format(i + 1, len(songs), bad, songs[i]))
-            try:
-                self.m21.append(converter.parse(songs[i]))
-            except(converter.ConverterException, Exception):
-                self.bad += 1
-                with open(self.BAD_PREFIX, "a", encoding="ISO-8859-1") as f:
-                    f.write(songs[i] + "\n\n")
-                continue
-
-        info = [s[1].elements for s in self.m21 if self.has_part(s)]
-
-        pretty_info = []
-        for s in info:
-            pretty_song = []
-            for m in s:
-                if isinstance(m, stream.Measure):
-                    pretty_song.append("|")
-                    self.dictionary.add_word("|")
-                    for n in m:
-                        da = ""
-                        if isinstance(n, note.Note):
-                            da += "Note"
-                            da += " "
-                            da += n.nameWithOctave
-                            da += " "
-                            da += str(n.quarterLength)
-                        elif isinstance(n, note.Rest):
-                            da += "Rest"
-                            da += " "
-                            da += n.name
-                            da += " "
-                            da += str(n.quarterLength)
-                        elif isinstance(n, bar.Barline):
-                            da += "Bar"
-                            da += " "
-                            da += n.type
-                        elif isinstance(n, clef.Clef):
-                            da += "Clef"
-                            da += " "
-                            da += n.sign
-                        elif isinstance(n, key.KeySignature):
-                            da += "Key"
-                            da += " "
-                            da += str(n.sharps)
-                        elif isinstance(n, meter.TimeSignature):
-                            da += "Time"
-                            da += " "
-                            da += str(n.numerator)
-                            da += " "
-                            da += str(n.denominator)
-                        else:
-                            continue
-                        pretty_song.append(da)
-                        self.dictionary.add_word(da)
-                elif isinstance(m, spanner.RepeatBracket):
-                    continue
-                else:
-                    continue
-            pretty_info.append(pretty_song[1:])
-
-        # Tokenize file content
-        idss = []
-        for s in pretty_info:
-            ids = []
-            for n in s:
-                ids.append(self.dictionary.word2idx[n])
-            idss.append(torch.tensor(ids, dtype=torch.int64))
-        ids = torch.cat(idss)
-        return ids
+        outputs = common.runParallel(songs, parseAbcString)
+        '''Create dictionary'''
+        self.createDictionary(outputs)
+        return self.tokenizeFileContent(outputs)
 
     def tokenize_from_bin(self, path):
         """Tokenizes a text file."""
         assert os.path.exists(path)
-
         with open(path, 'rb') as f:
             pretty_info = pickle.load(f)
+        return self.tokenizeFileContent(pretty_info)
 
+    def tokenizeFileContent(self, mySongFormat):
         # Tokenize file content
         idss = []
-        for s in pretty_info:
+        for s in mySongFormat:
             ids = []
             for n in s:
                 ids.append(self.dictionary.word2idx[n])
             idss.append(torch.tensor(ids, dtype=torch.int64))
         ids = torch.cat(idss)
         return ids
+
+    def createDictionary(self, mySongFormatCombined):
+        for ps in mySongFormatCombined:
+            for ele in ps:
+                self.dictionary.add_word(ele)
