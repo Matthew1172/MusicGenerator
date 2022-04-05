@@ -3,8 +3,8 @@ from Transformer_Model import *
 import data
 import os
 import time
-DATASET_PATH_NAME = "set3"
-bin = False
+DATASET_PATH_NAME = "set2"
+bin = True
 
 if(torch.cuda.is_available()):
     print("GPU: ",torch.cuda.get_device_name(0), " is available, Switching now.")
