@@ -3,7 +3,7 @@ from Transformer_Model import *
 import data
 import os
 import time
-DATASET_PATH_NAME = "set2"
+DATASET_PATH_NAME = "NewSet"
 bin = True
 
 if(torch.cuda.is_available()):
