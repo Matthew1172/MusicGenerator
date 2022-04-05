@@ -1,16 +1,9 @@
-import torch
-import data
-import os
-import time
-from fractions import Fraction
-from tqdm import tqdm
-from music21 import *
-from random import randint
 import argparse
-from common import CWD, DATASET, CHECKPOINT_PREFIX
+from Generation import *
+from common import DATASETS
 
 parser = argparse.ArgumentParser(description='Music Generator by Matthew Pecko')
-parser.add_argument('--dataset', type=str, default="set1",
+parser.add_argument('--dataset', type=str, default="Good",
                     help='dataset to use')
 parser.add_argument('--temperature', type=float, default=0.85,
                     help='temperature - higher will increase diversity')
@@ -74,209 +67,32 @@ if args.length < 1 or args.length > 1000:
 if args.random_seq and (args.random_seq_length < 1 or args.random_seq_length > 1000 or args.random_seq_length > args.length):
     parser.error("if --random-seq is true then --random-seq-length must be less than --length, and has to be greater than 0 and less than 1000.")
 
-rClef = args.random_clef
-rKey = args.random_key
-rTime = args.random_time
-rSeq = args.random_seq
-rSeqLen = args.random_seq_length
 
-'''
-song = [<clef>, <key>, <time>, <note>, ...]
-'''
-''' seed = Note C 1.0'''
-#seed = 492
-temp = args.temperature
-gen_length = args.length
-log_interval = 200
-numberOfSongs = args.songs
 
-OUTPUTS_DIRECTORY = os.path.join(CWD, "outputs")
-OUTPUT = os.path.join(OUTPUTS_DIRECTORY, "output@"+time.asctime().replace(' ', '').replace(':', ''))
+g = Generation(dataset=os.path.join(DATASETS, args.dataset),
+               input_clef=args.input_clef,
+               input_key=args.input_key,
+               input_seq=args.input_seq,
+               input_time=args.input_time,
+               length=args.length,
+               random_clef=args.random_clef,
+               random_key=args.random_key,
+               random_time=args.random_time,
+               random_seq=args.random_seq,
+               random_seq_length=args.random_seq_length,
+               randtom_time=args.random_time,
+               songs=args.songs,
+               temperature=args.temperature)
 
-GENERATION_PREFIX = "generated"
-GENERATION_PREFIX = os.path.join(OUTPUT, GENERATION_PREFIX)
-
-if(torch.cuda.is_available()):
-    print("GPU: ",torch.cuda.get_device_name(1), " is available, Switching now.")
-else:
-    print("GPU is not available, using CPU.")
-
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
-print("Device is now: ", device)
-
-with open(CHECKPOINT_PREFIX, 'rb') as f:
-    model = torch.load(f, map_location=device)
-model.eval()
-
-dic = data.Dictionary()
-try:
-    dic.load_dictionary(DATASET)
-    dic.load_list(DATASET)
-except:
-    print("No dictionary file available for loading. Please run the Extraction.py script before generation or training.")
-    exit(-998)
-
-'''TODO: Find a random clef in dictionary and set it to iClef'''
-if rClef:
-    clefs = [clef for clef in dic.idx2word if "Clef" in clef]
-    iClef = clefs[randint(0, len(clefs)-1)]
-else:
-    iClef = args.input_clef
-
-if rKey:
-    keys = [key for key in dic.idx2word if "Key" in key]
-    iKey = keys[randint(0, len(keys)-1)]
-else:
-    iKey = args.input_key
-
-if rTime:
-    times = [time for time in dic.idx2word if "Time" in time]
-    iTime = times[randint(0, len(times)-1)]
-else:
-    iTime = args.input_time
-
-if rSeq:
-    notes = [note for note in dic.idx2word if "Note" in note]
-    iSeq = [notes[randint(0, len(notes)-1)] for i in range(rSeqLen)]
-else:
-    iSeq = args.input_seq.split('$')
-    #iSeq = ["Note C 1.0"]
-    #iSeq = []
-
-try:
-    dic.word2idx[iClef]
-except KeyError:
-    parser.error("The clef {} was not found in the dictionary.".format(iClef))
-except:
-    exit(1)
-
-try:
-    dic.word2idx[iKey]
-except KeyError:
-    parser.error("The key signature {} was not found in the dictionary.".format(iKey))
-except:
-    exit(1)
-
-try:
-    dic.word2idx[iTime]
-except KeyError:
-    parser.error("The time signature {} was not found in the dictionary.".format(iTime))
-except:
-    exit(1)
-
-flag = False
-b = []
-for n in iSeq:
-    try:
-        dic.word2idx[n]
-    except KeyError:
-        flag = True
-        b.append(n)
-        continue
-    except:
-        exit(1)
-if flag:
-    parser.error("One or more notes in the input sequence was not found in the dictionary. {}".format(b))
-
-# Set the random seed manually for reproducibility.
-torch.manual_seed(dic.word2idx[iTime])
-
-ntokens = len(dic)
-
-export = []
-for sn in range(1, numberOfSongs+1):
-    print("Generating song {}/{}".format(sn, numberOfSongs))
-    generatedSong = []
-    if iClef != '':
-        generatedSong.append(dic.idx2word[dic.word2idx[iClef]])
-    if iKey != '':
-        generatedSong.append(dic.idx2word[dic.word2idx[iKey]])
-    if iTime != '':
-        generatedSong.append(dic.idx2word[dic.word2idx[iTime]])
-    if len(iSeq) > 0:
-        for n in iSeq: generatedSong.append(dic.idx2word[dic.word2idx[n]])
-    input = torch.Tensor([[dic.word2idx[word]] for word in generatedSong]).long().to(device)
-    input = torch.cat([input, torch.randint(ntokens, (1, 1), dtype=torch.long)], 0)
-    with torch.no_grad():  # no tracking history
-        for i in tqdm(range(gen_length)):
-            output = model(input, False)
-            word_weights = output[-1].squeeze().div(temp).exp().cpu()
-            word_idx = torch.multinomial(word_weights, 1)[0]
-            word_tensor = torch.Tensor([[word_idx]]).long().to(device)
-            input = torch.cat([input, word_tensor], 0)
-            word = dic.idx2word[word_idx]
-            generatedSong.append(word)
-
-    p = stream.Part()
-    m = stream.Measure()
-    for i in generatedSong:
-        if i == "|":
-            p.append(m)
-            m = stream.Measure()
-        else:
-            j = i.split(" ")
-            if "Note" in j:
-                name = j[1]
-                try:
-                    length = float(j[2])
-                except(ValueError):
-                    length = Fraction(j[2])
-                m.append(note.Note(nameWithOctave=name, quarterLength=length))
-            elif "Rest" in j:
-                try:
-                    length = float(j[2])
-                except(ValueError):
-                    length = Fraction(j[2])
-                m.append(note.Rest(quarterLength=length))
-            elif "Bar" in j:
-                type = j[1]
-                m.append(bar.Barline(type=type))
-            elif "Clef" in j:
-                if j[1] == 'G':
-                    m.append(clef.TrebleClef())
-                else:
-                    continue
-            elif "Key" in j:
-                sharps = int(j[1])
-                m.append(key.KeySignature(sharps=sharps))
-            elif "Time" in j:
-                numerator = j[1]
-                denominator = j[2]
-                tsig = numerator + "/" + denominator
-                m.append(meter.TimeSignature(tsig))
-            else:
-                continue
-    out = GENERATION_PREFIX + "_"+str(sn)
-    export.append((out, p))
-
-if len(export) > 0:
-    try:
-        os.mkdir(OUTPUTS_DIRECTORY)
-    except FileExistsError:
-        print("The {} directory already exists...".format(OUTPUTS_DIRECTORY))
-
-    try:
-        os.mkdir(OUTPUT)
-    except FileExistsError:
-        print("The directory {} already exists...".format(OUTPUT))
-
-    for e in export:
-
-        try:
-            e[1].write("text", e[0] + ".txt")
-        except:
-            pass
-
-        try:
-            e[1].write("musicxml", e[0] + ".mxl")
-        except:
-            pass
-
-        try:
-            e[1].write("midi", e[0] + ".mid")
-        except repeat.ExpanderException:
-            print("Could not output MIDI file. Badly formed repeats or repeat expressions.")
-        except:
-            pass
-else:
-    print("No songs were generated.")
+g.loadModel()
+g.loadDictionary()
+g.setInitClef()
+g.setInitKey()
+g.setInitTime()
+g.setInitSeq()
+g.checkInitClef()
+g.checkInitKey()
+g.checkInitTime()
+g.checkInitSeq()
+g.generate()
+g.save()
