@@ -6,6 +6,58 @@ import pickle
 import regex as re
 import random as r
 
+def parseAbcString(abc_song):
+    pretty_song = []
+    try:
+        s = converter.parse(abc_song)[1].elements
+        for m in s:
+            if isinstance(m, stream.Measure):
+                pretty_song.append("|")
+                for n in m:
+                    da = ""
+                    if isinstance(n, note.Note):
+                        da += "Note"
+                        da += " "
+                        da += n.nameWithOctave
+                        da += " "
+                        da += str(n.quarterLength)
+                    elif isinstance(n, note.Rest):
+                        da += "Rest"
+                        da += " "
+                        da += n.name
+                        da += " "
+                        da += str(n.quarterLength)
+                    elif isinstance(n, bar.Barline):
+                        da += "Bar"
+                        da += " "
+                        da += n.type
+                    elif isinstance(n, clef.Clef):
+                        da += "Clef"
+                        da += " "
+                        da += n.sign
+                    elif isinstance(n, key.KeySignature):
+                        da += "Key"
+                        da += " "
+                        da += str(n.sharps)
+                    elif isinstance(n, meter.TimeSignature):
+                        da += "Time"
+                        da += " "
+                        da += str(n.numerator)
+                        da += " "
+                        da += str(n.denominator)
+                    else:
+                        continue
+                    pretty_song.append(da)
+            elif isinstance(m, spanner.RepeatBracket):
+                continue
+            else:
+                continue
+    except:
+        pass
+    finally:
+        return pretty_song[1:]
+
+
 class Dictionary(object):
     def __init__(self):
         self.word2idx = {}
@@ -101,7 +153,7 @@ class Extractor():
 
     def save(self):
         if self.bin:
-            outputs = common.runParallel(self.songs, self.parseAbcString, updateFunction=self.logProcess)
+            outputs = common.runParallel(self.songs, parseAbcString, updateFunction=self.logProcess)
             #outputs = common.runParallel(self.songs, self.parseAbcString)
 
             '''Create dictionary'''
@@ -150,57 +202,6 @@ class Extractor():
 
     def logProcess(self, position, length, output):
         print("%s/%s" % (position, length))
-
-    def parseAbcString(self, abc_song):
-        pretty_song = []
-        try:
-            s = converter.parse(abc_song)[1].elements
-            for m in s:
-                if isinstance(m, stream.Measure):
-                    pretty_song.append("|")
-                    for n in m:
-                        da = ""
-                        if isinstance(n, note.Note):
-                            da += "Note"
-                            da += " "
-                            da += n.nameWithOctave
-                            da += " "
-                            da += str(n.quarterLength)
-                        elif isinstance(n, note.Rest):
-                            da += "Rest"
-                            da += " "
-                            da += n.name
-                            da += " "
-                            da += str(n.quarterLength)
-                        elif isinstance(n, bar.Barline):
-                            da += "Bar"
-                            da += " "
-                            da += n.type
-                        elif isinstance(n, clef.Clef):
-                            da += "Clef"
-                            da += " "
-                            da += n.sign
-                        elif isinstance(n, key.KeySignature):
-                            da += "Key"
-                            da += " "
-                            da += str(n.sharps)
-                        elif isinstance(n, meter.TimeSignature):
-                            da += "Time"
-                            da += " "
-                            da += str(n.numerator)
-                            da += " "
-                            da += str(n.denominator)
-                        else:
-                            continue
-                        pretty_song.append(da)
-                elif isinstance(m, spanner.RepeatBracket):
-                    continue
-                else:
-                    continue
-        except:
-            pass
-        finally:
-            return pretty_song[1:]
 
     def extract_song_snippet(self, text):
         pattern = '(^|\n\n)(.*?)\n\n'
