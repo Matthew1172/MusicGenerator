@@ -12,24 +12,53 @@ class Generation:
         self.args = {**kwargs}
 
         assert self.args['temperature'] >= 1e-3
-        assert self.args['songs'] >= 1 or self.args['songs'] < 100
-        assert self.args['length'] >= 1 or self.args['length'] < 1000
-        assert self.args['random_seq'] and (self.args['random_seq_length'] >= 1
-                                            or self.args['random_seq_length'] <= 1000
-                                            or self.args['random_seq_length'] <= self.args['length'])
+        assert self.args['songs'] >= 1 and self.args['songs'] < 100
+        assert self.args['length'] >= 1 and self.args['length'] < 1000
         assert os.path.exists(self.args['dataset'])
 
         self.DATASET = self.args['dataset']
 
-        self.rClef = self.args['random_clef']
-        self.rKey = self.args['random_key']
-        self.rTime = self.args['random_time']
-        self.rSeq = self.args['random_seq']
-        self.rSeqLen = self.args['random_seq_length']
-        self.temp = self.args['temperature']
-        self.gen_length = self.args['length']
+        try:
+            self.rClef = self.args['random_clef']
+        except KeyError:
+            self.rClef = False
+
+        try:
+            self.rKey = self.args['random_key']
+        except KeyError:
+            self.rKey = False
+
+        try:
+            self.rTime = self.args['random_time']
+        except KeyError:
+            self.rTime = False
+
+        try:
+            self.rSeq = self.args['random_seq']
+        except KeyError:
+            self.rSeq = False
+
+        try:
+            self.rSeqLen = self.args['random_seq_length']
+        except KeyError:
+            self.rSeqLen = 1
+
+        try:
+            self.temp = self.args['temperature']
+        except KeyError:
+            self.temp = 0.85
+
+        try:
+            self.gen_length = self.args['length']
+        except KeyError:
+            self.gen_length = 100
+
         self.log_interval = 200
-        self.numberOfSongs = self.args['songs']
+
+        try:
+            self.numberOfSongs = self.args['songs']
+        except KeyError:
+            self.numberOfSongs = 1
 
         if (torch.cuda.is_available()):
             print("GPU: ", torch.cuda.get_device_name(1), " is available, Switching now.")
@@ -40,10 +69,26 @@ class Generation:
         print("Device is now: ", self.device)
 
         self.dic = data.Dictionary()
-        self.iClef = None
-        self.iKey = None
-        self.iTime = None
-        self.iSeq = None
+        try:
+            self.iClef = self.args['input_clef']
+        except KeyError:
+            self.iClef = "Clef G"
+
+        try:
+            self.iKey = self.args['input_key']
+        except KeyError:
+            self.iKey = "Key 2"
+
+        try:
+            self.iTime = self.args['input_time']
+        except KeyError:
+            self.iTime = "Time 4 4"
+
+        try:
+            self.iSeq = self.args['input_seq'].split('$')
+        except KeyError:
+            self.iSeq = ["Note C 1.0"]
+
         self.export = []
 
         CWD = os.getcwd()
@@ -77,31 +122,21 @@ class Generation:
         if self.rClef:
             clefs = [clef for clef in self.dic.idx2word if "Clef" in clef]
             self.iClef = clefs[randint(0, len(clefs) - 1)]
-        else:
-            self.iClef = self.args['input_clef']
 
     def setInitKey(self):
         if self.rKey:
             keys = [key for key in self.dic.idx2word if "Key" in key]
             self.iKey = keys[randint(0, len(keys) - 1)]
-        else:
-            self.iKey = self.args['input_key']
 
     def setInitTime(self):
         if self.rTime:
             times = [time for time in self.dic.idx2word if "Time" in time]
             self.iTime = times[randint(0, len(times) - 1)]
-        else:
-            self.iTime = self.args['input_time']
 
     def setInitSeq(self):
         if self.rSeq:
             notes = [note for note in self.dic.idx2word if "Note" in note]
             self.iSeq = [notes[randint(0, len(notes) - 1)] for i in range(self.rSeqLen)]
-        else:
-            self.iSeq = self.args['input_seq'].split('$')
-            # iSeq = ["Note C 1.0"]
-            # iSeq = []
 
     def checkInitClef(self):
         try:

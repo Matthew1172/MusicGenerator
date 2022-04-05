@@ -27,19 +27,8 @@ def predict():
     if request.method == 'POST':
         content = request.json
         DATASETS = "datasets"
-        g = Generation(dataset=os.path.join(DATASETS, content['dataset']),
-                       input_clef=content['input_clef'],
-                       input_key=content['input_key'],
-                       input_seq=content['input_seq'],
-                       input_time=content['input_time'],
-                       length=content['length'],
-                       random_clef=content['random_clef'],
-                       random_key=content['random_key'],
-                       random_seq=content['random_seq'],
-                       random_seq_length=content['random_seq_length'],
-                       random_time=content['random_time'],
-                       songs=content['songs'],
-                       temperature=content['temperature'])
+        content['dataset'] = os.path.join(DATASETS, content['dataset'])
+        g = Generation(**content)
         g.loadModel()
         g.loadDictionary()
         g.setInitClef()
@@ -61,7 +50,6 @@ def predict():
             })
         else:
             return jsonify({'saved': False})
-        #return send_file(g.GENERATION_PREFIX+"_1.mxl", mimetype='image/gif')
 
 @app.route('/mxl', methods=['GET'])
 def mxl():
@@ -69,8 +57,10 @@ def mxl():
         folder = request.args.get('folder')
         file = request.args.get('file')
         path = os.path.join(os.getcwd(), os.path.join("outputs", os.path.join(folder, file)))
-        print(path)
-        return send_file(path, mimetype='application/vnd.recordare.musicxml')
+        return send_file(path,
+                         mimetype='application/vnd.recordare.musicxml',
+                         attachment_filename=file,
+                         as_attachment=True)
 
 @app.route('/midi', methods=['GET'])
 def midi():
@@ -78,5 +68,4 @@ def midi():
         folder = request.args.get('folder')
         file = request.args.get('file')
         path = os.path.join(os.getcwd(), os.path.join("outputs", os.path.join(folder, file)))
-        print(path)
         return send_file(path, mimetype='audio/midi')
