@@ -4,7 +4,7 @@ from Dictionary import *
 
 DATASETS = "datasets"
 DATASET = "set1"
-bin = False
+bin = True
 
 CWD = os.getcwd()
 DATASETS = os.path.join(CWD, DATASETS)
