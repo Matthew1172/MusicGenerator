@@ -77,10 +77,9 @@ g = Generation(dataset=os.path.join(DATASETS, args.dataset),
                length=args.length,
                random_clef=args.random_clef,
                random_key=args.random_key,
-               random_time=args.random_time,
                random_seq=args.random_seq,
                random_seq_length=args.random_seq_length,
-               randtom_time=args.random_time,
+               random_time=args.random_time,
                songs=args.songs,
                temperature=args.temperature)
 
