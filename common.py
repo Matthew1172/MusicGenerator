@@ -1,5 +1,6 @@
 from music21 import *
 import os
+from Dictionary import *
 
 DATASETS = "datasets"
 DATASET = "set1"
@@ -72,3 +73,10 @@ def parseAbcString(abc_song):
 
 def logProcess(position, length, output):
     print("%s/%s" % (position, length))
+
+def createDictionary(mySongFormatCombined):
+    dic = Dictionary()
+    for ps in mySongFormatCombined:
+        for ele in ps:
+            dic.add_word(ele)
+    return dic
