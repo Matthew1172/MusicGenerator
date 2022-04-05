@@ -7,6 +7,7 @@ from tqdm import tqdm
 from music21 import *
 from random import randint
 import argparse
+from common import CWD, DATASET, CHECKPOINT_PREFIX
 
 parser = argparse.ArgumentParser(description='Music Generator by Matthew Pecko')
 parser.add_argument('--dataset', type=str, default="set1",
@@ -88,24 +89,6 @@ temp = args.temperature
 gen_length = args.length
 log_interval = 200
 numberOfSongs = args.songs
-
-# Checkpoint location:
-CWD = os.getcwd()
-#Dataset location
-DATASETS = "dataset"
-DATASETS = os.path.join(CWD, DATASETS)
-assert os.path.exists(DATASETS)
-DATASET = args.dataset
-DATASET = os.path.join(DATASETS, DATASET)
-try:
-    assert os.path.exists(DATASET)
-except:
-    parser.error("The dataset {} does not exist.".format(DATASET))
-# Checkpoint location:
-CHECKPOINT_DIR = 'training_checkpoints_pytorch'
-CHECKPOINT_DIR = os.path.join(DATASET, CHECKPOINT_DIR)
-CHECKPOINT_PREFIX = 'my_ckpt.pth'
-CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
 
 OUTPUTS_DIRECTORY = os.path.join(CWD, "outputs")
 OUTPUT = os.path.join(OUTPUTS_DIRECTORY, "output@"+time.asctime().replace(' ', '').replace(':', ''))

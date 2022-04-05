@@ -3,7 +3,7 @@ from Transformer_Model import *
 import data
 import os
 import time
-from common import DATASETS, DATASET
+from common import DATASETS, DATASET, CHECKPOINT_DIR, CHECKPOINT_PREFIX
 
 if(torch.cuda.is_available()):
     print("GPU: ",torch.cuda.get_device_name(0), " is available, Switching now.")
@@ -41,16 +41,7 @@ num_heads = 8
 
 assert os.path.exists(DATASETS)
 assert os.path.exists(DATASET)
-
-# Checkpoint location:
-CHECKPOINT_DIR = 'training_checkpoints_pytorch'
-CHECKPOINT_DIR = os.path.join(DATASET, CHECKPOINT_DIR)
-try:
-    os.mkdir(CHECKPOINT_DIR)
-except FileExistsError:
-    print("The directory {} already exists...".format(CHECKPOINT_DIR))
-CHECKPOINT_PREFIX = 'my_ckpt.pth'
-CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
+assert os.path.exists(CHECKPOINT_DIR)
 
 myCorpus = data.Corpus(DATASET, from_bin=bin)
 print("Found {} bad songs out of {}.".format(myCorpus.bad, myCorpus.total))

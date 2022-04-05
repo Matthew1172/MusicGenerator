@@ -19,6 +19,7 @@ class Dictionary(object):
 
     '''Pass the PATH to the folder e.x <set2>'''
     def save_dictionary(self, PATH):
+        assert os.path.exists(PATH)
         self.DIC_PREFIX = os.path.join(PATH, self.DIC_PREFIX)
         output = open(self.DIC_PREFIX, 'wb')
         pickle.dump(self.word2idx, output)
@@ -32,6 +33,7 @@ class Dictionary(object):
         pkl_file.close()
 
     def save_list(self, PATH):
+        assert os.path.exists(PATH)
         self.LIST_PREFIX = os.path.join(PATH, self.LIST_PREFIX)
         with open(self.LIST_PREFIX, 'wb') as f:
             pickle.dump(self.idx2word, f)
