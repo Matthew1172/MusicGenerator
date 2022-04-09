@@ -35,6 +35,10 @@ req = {
 def predict():
     if request.method == 'POST':
         content = request.json
+
+        '''TODO: check all keys of content and do error handling.'''
+        print(content)
+
         DATASETS = "datasets"
         content['dataset'] = os.path.join(DATASETS, content['dataset'])
         g = Generation(**content)
