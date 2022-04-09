@@ -33,6 +33,7 @@ req = {
 '''
 @app.route('/predict', methods=['POST'])
 def predict():
+    print("req: ", request)
     if request.method == 'POST':
         content = request.json
 
