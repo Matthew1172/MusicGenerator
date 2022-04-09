@@ -11,11 +11,6 @@ class Generation:
     def __init__(self, **kwargs):
         self.args = {**kwargs}
 
-        assert self.args['temperature'] >= 1e-3
-        assert self.args['songs'] >= 1 and self.args['songs'] < 100
-        assert self.args['length'] >= 1 and self.args['length'] < 1000
-        assert os.path.exists(self.args['dataset'])
-
         self.DATASET = self.args['dataset']
 
         try:
@@ -39,25 +34,33 @@ class Generation:
             self.rSeq = False
 
         try:
-            self.rSeqLen = self.args['random_seq_length']
+            self.rSeqLen = int(self.args['random_seq_length'])
         except KeyError:
+            self.rSeqLen = 1
+        except:
             self.rSeqLen = 1
 
         try:
-            self.temp = self.args['temperature']
+            self.temp = float(self.args['temperature'])
         except KeyError:
+            self.temp = 0.85
+        except:
             self.temp = 0.85
 
         try:
-            self.gen_length = self.args['length']
+            self.gen_length = int(self.args['length'])
         except KeyError:
+            self.gen_length = 100
+        except:
             self.gen_length = 100
 
         self.log_interval = 200
 
         try:
-            self.numberOfSongs = self.args['songs']
+            self.numberOfSongs = int(self.args['songs'])
         except KeyError:
+            self.numberOfSongs = 1
+        except:
             self.numberOfSongs = 1
 
         if (torch.cuda.is_available()):
@@ -103,6 +106,13 @@ class Generation:
         CHECKPOINT_DIR = os.path.join(self.DATASET, CHECKPOINT_DIR)
         CHECKPOINT_PREFIX = 'my_ckpt.pth'
         self.CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
+
+        '''PERFORM CHECKING'''
+        assert self.temp >= 1e-3
+        assert self.numberOfSongs >= 1 and self.numberOfSongs < 100
+        assert self.gen_length >= 1 and self.gen_length < 1000
+        assert os.path.exists(self.DATASET)
+
 
     def loadModel(self):
         with open(self.CHECKPOINT_PREFIX, 'rb') as f:
