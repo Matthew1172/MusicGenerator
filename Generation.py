@@ -193,7 +193,8 @@ class Generation:
             except:
                 exit(1)
         if flag:
-            exit(3)
+            print("One or more notes was not found in the dictionary: {}".format(b))
+            raise Exception
 
     def generate(self):
         # Set the random seed manually for reproducibility.
