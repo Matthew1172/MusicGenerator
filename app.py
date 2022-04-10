@@ -59,9 +59,14 @@ def predict():
         midi = g.GENERATION_PREFIX+"_1.mid"
         mxl = g.GENERATION_PREFIX+"_1.mxl"
         if os.path.exists(mxl) and os.path.exists(midi):
+            mxl_path = mxl.split('\\')[-2:]
+            midi_path = midi.split('\\')[-2:]
+            if len(mxl_path) < 2:
+                mxl_path = mxl.split('/')[-2:]
+                midi_path = midi.split('/')[-2:]
             return jsonify({
-                'mxl': mxl.split('\\')[-2:],
-                'midi': midi.split('\\')[-2:]
+                'mxl': mxl_path,
+                'midi': midi_path
             })
         else:
             return jsonify({'saved': False})
