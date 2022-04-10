@@ -14,18 +14,24 @@ class Generation:
         self.DATASET = self.args['dataset']
 
         try:
-            self.rClef = self.args['random_clef']
+            self.rClef = bool(self.args['random_clef'])
         except KeyError:
+            self.rClef = False
+        except:
             self.rClef = False
 
         try:
-            self.rKey = self.args['random_key']
+            self.rKey = bool(self.args['random_key'])
         except KeyError:
+            self.rKey = False
+        except:
             self.rKey = False
 
         try:
-            self.rTime = self.args['random_time']
+            self.rTime = bool(self.args['random_time'])
         except KeyError:
+            self.rTime = False
+        except:
             self.rTime = False
 
         try:
