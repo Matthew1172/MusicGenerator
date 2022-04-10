@@ -14,29 +14,31 @@ class Generation:
         self.DATASET = self.args['dataset']
 
         try:
-            self.rClef = bool(self.args['random_clef'])
+            self.rClef = eval(self.args['random_clef'])
         except KeyError:
             self.rClef = False
         except:
             self.rClef = False
 
         try:
-            self.rKey = bool(self.args['random_key'])
+            self.rKey = eval(self.args['random_key'])
         except KeyError:
             self.rKey = False
         except:
             self.rKey = False
 
         try:
-            self.rTime = bool(self.args['random_time'])
+            self.rTime = eval(self.args['random_time'])
         except KeyError:
             self.rTime = False
         except:
             self.rTime = False
 
         try:
-            self.rSeq = self.args['random_seq']
+            self.rSeq = eval(self.args['random_seq'])
         except KeyError:
+            self.rSeq = False
+        except:
             self.rSeq = False
 
         try:
