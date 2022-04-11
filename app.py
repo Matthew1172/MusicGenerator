@@ -49,7 +49,10 @@ def predict():
         g.setInitClef()
         g.setInitKey()
         g.setInitTime()
-        g.setInitSeq()
+        try:
+            g.setInitSeq()
+        except:
+            return jsonify({'error': "note not found"})
         g.checkInitClef()
         g.checkInitKey()
         g.checkInitTime()
@@ -97,6 +100,7 @@ def ex():
     folder = request.args.get('folder')
     file = request.args.get('file')
     path = os.path.join(os.getcwd(), os.path.join("outputs", os.path.join(folder, file)))
+    print(path)
     _current_sheet = converter.parse(path)
     return sheet_to_xml_response(_current_sheet)
 
