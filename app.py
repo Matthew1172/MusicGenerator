@@ -59,7 +59,8 @@ def predict():
         g.setInitTime()
         g.setInitSeq()
 
-        '''TODO: check for custom excepions and return proper error codes'''
+        '''TODO: check for custom exceptions and return proper error codes.
+        Append all errors to one error code so the user can see everything at once.'''
         try:
             g.checkInitClef()
             g.checkInitKey()
