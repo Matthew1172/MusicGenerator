@@ -6,6 +6,7 @@ from random import randint
 from music21 import *
 from tqdm import tqdm
 from fractions import Fraction
+from exceptions import *
 
 class Generation:
     def __init__(self, **kwargs):
@@ -156,11 +157,13 @@ class Generation:
             notes = [note for note in self.dic.idx2word if "Note" in note]
             self.iSeq = [notes[randint(0, len(notes) - 1)] for i in range(self.rSeqLen)]
 
+    '''TODO: raise proper custom exceptions for flask server'''
+
     def checkInitClef(self):
         try:
             self.dic.word2idx[self.iClef]
         except KeyError:
-            exit(2)
+            raise ClefNotFoundInDictionary(self.iClef)
         except:
             exit(1)
 
@@ -168,7 +171,7 @@ class Generation:
         try:
             self.dic.word2idx[self.iKey]
         except KeyError:
-            exit(2)
+            raise KeyNotFoundInDictionary(self.iKey)
         except:
             exit(1)
 
@@ -176,7 +179,7 @@ class Generation:
         try:
             self.dic.word2idx[self.iTime]
         except KeyError:
-            exit(2)
+            raise TimeNotFoundInDictionary(self.iTime)
         except:
             exit(1)
 
@@ -193,8 +196,7 @@ class Generation:
             except:
                 exit(1)
         if flag:
-            print("One or more notes was not found in the dictionary: {}".format(b))
-            raise Exception
+            raise NoteNotFoundInDictionary(b)
 
     def generate(self):
         # Set the random seed manually for reproducibility.

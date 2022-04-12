@@ -2,6 +2,7 @@ import os.path
 from flask import Flask, request, send_file, jsonify, make_response
 from Generation import *
 from music21 import *
+from exceptions import *
 
 app = Flask(__name__)
 
@@ -49,14 +50,25 @@ def predict():
         g.setInitClef()
         g.setInitKey()
         g.setInitTime()
+        g.setInitSeq()
+
+        '''TODO: check for custom excepions and return proper error codes'''
         try:
-            g.setInitSeq()
+            g.checkInitClef()
+            g.checkInitKey()
+            g.checkInitTime()
+            g.checkInitSeq()
+        except NoteNotFoundInDictionary as nnf:
+            return jsonify({'error': nnf})
+        except ClefNotFoundInDictionary as cnf:
+            return jsonify({'error': cnf})
+        except TimeNotFoundInDictionary as tnf:
+            return jsonify({'error': tnf})
+        except KeyNotFoundInDictionary as knf:
+            return jsonify({'error': knf})
         except:
-            return jsonify({'error': "note not found"})
-        g.checkInitClef()
-        g.checkInitKey()
-        g.checkInitTime()
-        g.checkInitSeq()
+            return jsonify({'error': "could not run generation with inputs."})
+
         g.generate()
         g.save()
         midi = g.GENERATION_PREFIX+"_1.mid"
@@ -102,6 +114,7 @@ def ex():
     path = os.path.join(os.getcwd(), os.path.join("outputs", os.path.join(folder, file)))
     print(path)
     _current_sheet = converter.parse(path)
+    #next line throws error
     return sheet_to_xml_response(_current_sheet)
 
 
