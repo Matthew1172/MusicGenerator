@@ -59,13 +59,13 @@ def predict():
             g.checkInitTime()
             g.checkInitSeq()
         except NoteNotFoundInDictionary as nnf:
-            return jsonify({'error': nnf})
+            return jsonify({'error': str(nnf)})
         except ClefNotFoundInDictionary as cnf:
-            return jsonify({'error': cnf})
+            return jsonify({'error': str(cnf)})
         except TimeNotFoundInDictionary as tnf:
-            return jsonify({'error': tnf})
+            return jsonify({'error': str(tnf)})
         except KeyNotFoundInDictionary as knf:
-            return jsonify({'error': knf})
+            return jsonify({'error': str(knf)})
         except:
             return jsonify({'error': "could not run generation with inputs."})
 
