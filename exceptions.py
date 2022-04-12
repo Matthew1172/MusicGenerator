@@ -1,7 +1,8 @@
 '''TODO: create custom exceptions for flask server'''
 class NoteNotFoundInDictionary(Exception):
     def __init__(self, notes):
-        msg = "One or more notes was not found in the dictionary: {}".format(notes)
+        m = [k for (k, v) in notes.items()]
+        msg = "One or more notes was not found in the dictionary: {}".format(m)
         super().__init__(msg)
 
 class TimeNotFoundInDictionary(Exception):

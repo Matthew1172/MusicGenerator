@@ -185,13 +185,13 @@ class Generation:
 
     def checkInitSeq(self):
         flag = False
-        b = []
+        b = {}
         for n in self.iSeq:
             try:
                 self.dic.word2idx[n]
             except KeyError:
                 flag = True
-                b.append(n)
+                b[n] = 1
                 continue
             except:
                 exit(1)
