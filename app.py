@@ -4,6 +4,8 @@ from Generation import *
 from music21 import *
 from exceptions import *
 
+from music21.clef import TrebleClef, BassClef, Treble8vbClef
+
 app = Flask(__name__)
 
 # INITIALIZATION
@@ -11,8 +13,13 @@ xml_response_headers = {"Content-Type": "text/xml",
                         "charset":      "utf-8"
                         }
 
+'''TODO: remove this and extract time signature properly'''
 #use this parameter or extract it from the metadata somehow
 timesignature = meter.TimeSignature('4/4')
+
+'''TODO: add a routes to get all notes, clefs, times, and keys available in dictionary'''
+
+
 
 '''
 request looks like:
@@ -125,7 +132,6 @@ def insert_musicxml_metadata(sheet: stream.Stream):
     """
     global timesignature
 
-    from music21.clef import TrebleClef, BassClef, Treble8vbClef
     for part, name, clef in zip(
             sheet.parts,
             ['soprano', 'alto', 'tenor', 'bass'],
