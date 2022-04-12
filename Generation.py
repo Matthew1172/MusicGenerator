@@ -120,8 +120,12 @@ class Generation:
         assert self.temp >= 1e-3
         assert self.numberOfSongs >= 1 and self.numberOfSongs < 100
         assert self.gen_length >= 1 and self.gen_length < 1000
-        assert os.path.exists(self.DATASET)
 
+    def checkDataset(self):
+        try:
+            assert os.path.exists(self.DATASET)
+        except:
+            raise DatasetNotFound(self.DATASET)
 
     def loadModel(self):
         with open(self.CHECKPOINT_PREFIX, 'rb') as f:

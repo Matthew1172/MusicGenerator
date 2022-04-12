@@ -19,3 +19,8 @@ class KeyNotFoundInDictionary(Exception):
     def __init__(self, key):
         msg = "The key signature {} was not found in the dictionary.".format(key)
         super().__init__(msg)
+
+class DatasetNotFound(Exception):
+    def __init__(self, ds):
+        msg = "The dataset {} was not found on the server.".format(ds)
+        super().__init__(msg)

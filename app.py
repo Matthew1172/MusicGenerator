@@ -18,6 +18,7 @@ xml_response_headers = {"Content-Type": "text/xml",
 timesignature = meter.TimeSignature('4/4')
 
 '''TODO: add a routes to get all notes, clefs, times, and keys available in dictionary'''
+'''TODO: add route to get all available datasets'''
 
 
 
@@ -52,6 +53,12 @@ def predict():
         DATASETS = "datasets"
         content['dataset'] = os.path.join(DATASETS, content['dataset'])
         g = Generation(**content)
+
+        try:
+            g.checkDataset()
+        except DatasetNotFound as dnf:
+            return jsonify({'error': str(dnf)})
+
         g.loadModel()
         g.loadDictionary()
         g.setInitClef()
