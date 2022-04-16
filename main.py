@@ -21,23 +21,24 @@ hidden_units = 2048
 #number of layers
 nlayers = 2
 #initial learning rate
-learning_rate = 1e-5
+learning_rate = 1e-3
 #momentum for SGD
 momentum = 1
 #gradient clipping
 clip = 25e-2
 #upper epoch limit
-epochs = 10
+epochs = 100
 #batch size
-batch_size = 64
+batch_size = 256
 #sequence length
-bptt = 85
+bptt = 150
 #dropout applied to layers (0 = no dropout)
 dropout = 2e-1
 #report interval
 log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
 num_heads = 8
+#model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
 
 assert os.path.exists(DATASETS)
 assert os.path.exists(DATASET)
@@ -67,10 +68,10 @@ test_data = batchify(myCorpus.test, eval_batch_size)
 ntokens = len(myCorpus.dictionary)
 model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
 
-#criterion = nn.NLLLoss()
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
-#optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, amsgrad=True)
+criterion = nn.NLLLoss()
+#criterion = nn.CrossEntropyLoss()
+#optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, amsgrad=True)
 #optimizer = torch.optim.AdamW(model.parameters())
 
 ###############################################################################
