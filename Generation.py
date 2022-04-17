@@ -254,7 +254,7 @@ class Generation:
                         m.append(note.Rest(quarterLength=length))
                     elif "Bar" in j:
                         type = j[1]
-                        m.append(bar.Barline(type=type))
+                        #m.append(bar.Barline(type=type))
                     elif "Clef" in j:
                         if j[1] == 'G':
                             m.append(clef.TrebleClef())
