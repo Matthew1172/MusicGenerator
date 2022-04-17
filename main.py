@@ -21,7 +21,7 @@ hidden_units = 1024
 #number of layers
 nlayers = 4
 #initial learning rate
-learning_rate = 1e-5
+learning_rate = 1e-3
 #momentum for SGD
 momentum = 1
 #upper epoch limit
@@ -37,8 +37,8 @@ log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
 num_heads = 2
 #model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
-loss_fn = "CE"
-opt = "SGD"
+loss_fn = "NLL"
+opt = "ADAM"
 
 assert os.path.exists(DATASETS)
 assert os.path.exists(DATASET)
@@ -68,10 +68,10 @@ test_data = batchify(myCorpus.test, eval_batch_size)
 ntokens = len(myCorpus.dictionary)
 model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
 
-#criterion = nn.NLLLoss()
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
-#optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, amsgrad=True)
+criterion = nn.NLLLoss()
+#criterion = nn.CrossEntropyLoss()
+#optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, amsgrad=True)
 #optimizer = torch.optim.AdamW(model.parameters())
 
 ###############################################################################
