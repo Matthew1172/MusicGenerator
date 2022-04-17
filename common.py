@@ -3,7 +3,7 @@ import os
 from Dictionary import *
 
 DATASETS = "datasets"
-DATASET = "V2-0"
+DATASET = "V3"
 bin = True
 
 CWD = os.getcwd()
