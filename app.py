@@ -37,9 +37,10 @@ def clefs():
         datasets = "datasets"
         dataset = request.args.get('dataset')
         path = os.path.join(os.getcwd(), os.path.join(datasets, dataset))
-        dic.load_dictionary(path)
-        print({k for (k,v) in dic.word2idx.items() if "Clef" in k})
-        return jsonify({k for (k,v) in dic.word2idx.items() if "Clef" in k})
+        dic.load_list(path)
+
+        print({'clefs': [i for i in dic.idx2word if "Clef" in i]})
+        return jsonify({'clefs': [i for i in dic.idx2word if "Clef" in i]})
 
 @app.route('/keys', methods=['GET'])
 def keys():
