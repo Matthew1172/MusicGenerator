@@ -15,9 +15,9 @@ device2 = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
-emsize = 256
+emsize = 1024
 #number of hidden units per layer
-hidden_units = 1024
+hidden_units = 2048
 #number of layers
 nlayers = 4
 #initial learning rate
