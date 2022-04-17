@@ -38,21 +38,37 @@ def clefs():
         dataset = request.args.get('dataset')
         path = os.path.join(os.getcwd(), os.path.join(datasets, dataset))
         dic.load_list(path)
-
-        print({'clefs': [i for i in dic.idx2word if "Clef" in i]})
         return jsonify({'clefs': [i for i in dic.idx2word if "Clef" in i]})
 
 @app.route('/keys', methods=['GET'])
 def keys():
-    pass
+    if request.method == 'GET':
+        dic = Dictionary()
+        datasets = "datasets"
+        dataset = request.args.get('dataset')
+        path = os.path.join(os.getcwd(), os.path.join(datasets, dataset))
+        dic.load_list(path)
+        return jsonify({'keys': [i for i in dic.idx2word if "Key" in i]})
 
 @app.route('/times', methods=['GET'])
 def times():
-    pass
+    if request.method == 'GET':
+        dic = Dictionary()
+        datasets = "datasets"
+        dataset = request.args.get('dataset')
+        path = os.path.join(os.getcwd(), os.path.join(datasets, dataset))
+        dic.load_list(path)
+        return jsonify({'times': [i for i in dic.idx2word if "Time" in i]})
 
 @app.route('/notes', methods=['GET'])
 def notes():
-    pass
+    if request.method == 'GET':
+        dic = Dictionary()
+        datasets = "datasets"
+        dataset = request.args.get('dataset')
+        path = os.path.join(os.getcwd(), os.path.join(datasets, dataset))
+        dic.load_list(path)
+        return jsonify({'notes': [i for i in dic.idx2word if "Note" in i]})
 
 '''
 request looks like:
