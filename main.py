@@ -10,8 +10,8 @@ if(torch.cuda.is_available()):
 else:
     print("GPU is not available, using CPU.")
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-device2 = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device2 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
@@ -21,11 +21,11 @@ hidden_units = 2048
 #number of layers
 nlayers = 4
 #initial learning rate
-learning_rate = 1e-3
+learning_rate = 1e-5
 #momentum for SGD
 momentum = 1
 #upper epoch limit
-epochs = 300
+epochs = 600
 #batch size
 batch_size = 512
 #sequence length
@@ -70,8 +70,8 @@ model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, devi
 
 criterion = nn.NLLLoss()
 #criterion = nn.CrossEntropyLoss()
-#optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, amsgrad=True)
+optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+#optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, amsgrad=True)
 #optimizer = torch.optim.AdamW(model.parameters())
 
 ###############################################################################
