@@ -220,7 +220,7 @@ class Generation:
             if len(self.iSeq) > 0:
                 for n in self.iSeq: generatedSong.append(self.dic.idx2word[self.dic.word2idx[n]])
             input = torch.Tensor([[self.dic.word2idx[word]] for word in generatedSong]).long().to(self.device)
-            input = torch.cat([input, torch.randint(ntokens, (1, 1), dtype=torch.long)], 0)
+            input = torch.cat([input, torch.randint(ntokens, (1, 1), dtype=torch.long, device=self.device)], 0)
             with torch.no_grad():  # no tracking history
                 for i in tqdm(range(self.gen_length)):
                     output = self.model(input, False)
