@@ -138,7 +138,8 @@ def insert_musicxml_metadata(sheet: stream.Stream):
     Insert various metadata into the provided XML document
     The timesignature in particular is required for proper MIDI conversion
     """
-    global timesignature
+    '''
+        global timesignature
 
     for part, name, clef in zip(
             sheet.parts,
@@ -151,6 +152,7 @@ def insert_musicxml_metadata(sheet: stream.Stream):
         part.id = name
         part.partName = name
 
+    '''
     md = metadata.Metadata()
     sheet.insert(0, md)
 
