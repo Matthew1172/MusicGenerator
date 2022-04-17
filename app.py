@@ -3,6 +3,7 @@ from flask import Flask, request, send_file, jsonify, make_response
 from Generation import *
 from music21 import *
 from exceptions import *
+from Dictionary import *
 
 from music21.clef import TrebleClef, BassClef, Treble8vbClef
 
@@ -19,8 +20,37 @@ timesignature = meter.TimeSignature('4/4')
 
 '''TODO: add a routes to get all notes, clefs, times, and keys available in dictionary'''
 '''TODO: add route to get all available datasets'''
+'''
+try:
+    self.dic.load_dictionary(self.DATASET)
+    self.dic.load_list(self.DATASET)
+except:
+    print(
+        "No dictionary file available for loading. Please run the Extraction.py script before generation or training.")
+    exit(-998)
+'''
 
+@app.route('/clefs', methods=['GET'])
+def clefs():
+    if request.method == 'GET':
+        dic = Dictionary()
+        datasets = "datasets"
+        dataset = request.args.get('dataset')
+        path = os.path.join(os.getcwd(), os.path.join(datasets, dataset))
+        dic.load_dictionary(path)
+        return jsonify({k for (k,v) in dic.word2idx.items() if "Clef" in k})
 
+@app.route('/keys', methods=['GET'])
+def keys():
+    pass
+
+@app.route('/times', methods=['GET'])
+def times():
+    pass
+
+@app.route('/notes', methods=['GET'])
+def notes():
+    pass
 
 '''
 request looks like:
