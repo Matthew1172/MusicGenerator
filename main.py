@@ -10,8 +10,8 @@ if(torch.cuda.is_available()):
 else:
     print("GPU is not available, using CPU.")
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-device2 = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device2 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
@@ -19,13 +19,11 @@ emsize = 512
 #number of hidden units per layer
 hidden_units = 2048
 #number of layers
-nlayers = 2
+nlayers = 4
 #initial learning rate
-learning_rate = 1e-3
+learning_rate = 1e-5
 #momentum for SGD
 momentum = 1
-#gradient clipping
-clip = 25e-2
 #upper epoch limit
 epochs = 100
 #batch size
@@ -68,10 +66,10 @@ test_data = batchify(myCorpus.test, eval_batch_size)
 ntokens = len(myCorpus.dictionary)
 model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
 
-criterion = nn.NLLLoss()
-#criterion = nn.CrossEntropyLoss()
-#optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, amsgrad=True)
+#criterion = nn.NLLLoss()
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+#optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, amsgrad=True)
 #optimizer = torch.optim.AdamW(model.parameters())
 
 ###############################################################################
@@ -123,12 +121,6 @@ def train():
         loss.backward()
         optimizer.step()
 
-        # `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs.
-        '''
-        torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
-        for p in model.parameters():
-            p.data.add_(p.grad, alpha=-lr)
-        '''
         total_loss += loss.item()
 
         if batch % log_interval == 0 and batch > 0:
