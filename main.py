@@ -29,7 +29,7 @@ epochs = 300
 #batch size
 batch_size = 1024
 #sequence length
-bptt = 150
+bptt = 300
 #dropout applied to layers (0 = no dropout)
 dropout = 2e-1
 #report interval
