@@ -55,7 +55,6 @@ if bin:
 
     '''Create dictionary'''
     dic = createDictionary(outputs)
-    encode(outputs[0])
     with open(TRAIN_PREFIX_PRETTY, 'wb') as f:
         pickle.dump(outputs[:int(train * len(outputs))], f)
 
