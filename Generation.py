@@ -232,65 +232,66 @@ class Generation:
                     word = self.dic.idx2word[word_idx]
                     generatedSong.append(word)
 
-            p = stream.Part()
-            m = stream.Measure()
-            for i in generatedSong:
-                if i == "|":
-                    p.append(m)
-                    m = stream.Measure()
-                else:
-                    j = i.split(" ")
-                    if "Note" in j:
-                        name = j[1]
-                        try:
-                            length = float(j[2])
-                        except(ValueError):
-                            length = Fraction(j[2])
-                        m.append(note.Note(nameWithOctave=name, quarterLength=length))
-                    elif "Rest" in j:
-                        try:
-                            length = float(j[2])
-                        except(ValueError):
-                            length = Fraction(j[2])
-                        m.append(note.Rest(quarterLength=length))
-                    elif "Bar" in j:
-                        type = j[1]
-                        #m.append(bar.Barline(type=type))
-                    elif "Clef" in j:
-                        if j[1] == 'G':
-                            m.append(clef.TrebleClef())
-                        else:
-                            continue
-                    elif "Key" in j:
-                        sharps = int(j[1])
-                        m.append(key.KeySignature(sharps=sharps))
-                    elif "Time" in j:
-                        numerator = j[1]
-                        denominator = j[2]
-                        tsig = numerator + "/" + denominator
-                        m.append(meter.TimeSignature(tsig))
-                    elif "Chord" in j:
-                        '''Handle chord'''
-                        decode = re.findall('\{(.*?)\}', j)
-
-                        try:
-                            dur = float(decode[1])
-                        except(ValueError):
-                            dur = Fraction(decode[1])
-
-                        chords = decode[0].split("|")
-                        chordNotes = []
-                        for ch in chords:
-                            t = ch.split(' ')
-                            noteName = t[0]
-                            noteName += t[-1]
-                            chordNotes.append(note.Note(nameWithOctave=noteName, quarterLength=dur))
-                        chord.Chord(chordNotes)
-
-                    else:
-                        continue
+            p = self.encode(generatedSong)
             out = self.GENERATION_PREFIX + "_" + str(sn)
             self.export.append((out, p))
+
+    def encode(self, generatedSong):
+        p = stream.Part()
+        m = stream.Measure()
+        for i in generatedSong:
+            if i == "|":
+                p.append(m)
+                m = stream.Measure()
+            elif "Chord" in i:
+                '''Handle chord'''
+                decode = re.findall('\{(.*?)\}', i)
+                chords = decode[0].split("$")
+                chordNotes = []
+                for ch in chords:
+                    temp = ch.split(' ')
+                    if "Note" in temp:
+                        name = temp[1]
+                        try:
+                            length = float(temp[2])
+                        except(ValueError):
+                            length = Fraction(temp[2])
+                        chordNotes.append(note.Note(nameWithOctave=name, quarterLength=length))
+                m.append(chord.Chord(chordNotes))
+            else:
+                j = i.split(" ")
+                if "Note" in j:
+                    name = j[1]
+                    try:
+                        length = float(j[2])
+                    except(ValueError):
+                        length = Fraction(j[2])
+                    m.append(note.Note(nameWithOctave=name, quarterLength=length))
+                elif "Rest" in j:
+                    try:
+                        length = float(j[2])
+                    except(ValueError):
+                        length = Fraction(j[2])
+                    m.append(note.Rest(quarterLength=length))
+                elif "Bar" in j:
+                    type = j[1]
+                    # m.append(bar.Barline(type=type))
+                elif "Clef" in j:
+                    if j[1] == 'G':
+                        m.append(clef.TrebleClef())
+                    else:
+                        continue
+                elif "Key" in j:
+                    sharps = int(j[1])
+                    m.append(key.KeySignature(sharps=sharps))
+                elif "Time" in j:
+                    numerator = j[1]
+                    denominator = j[2]
+                    tsig = numerator + "/" + denominator
+                    m.append(meter.TimeSignature(tsig))
+                else:
+                    continue
+        return p
 
     def save(self):
         if len(self.export) > 0:

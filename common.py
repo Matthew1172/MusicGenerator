@@ -71,9 +71,19 @@ def parseAbcString(abc_song):
                         da += " "
                         da += str(n.denominator)
                     elif isinstance(n, chord.Chord):
-                        da += n.fullName
+                        da += "Chord"
+                        da += " "
                         da += "{"
-                        da += str(n.duration.quarterLength)
+                        for temp in n.notes:
+                            da += "Note"
+                            da += " "
+                            da += temp.nameWithOctave
+                            da += " "
+                            da += str(temp.quarterLength)
+                            da += "$"
+                        da += "} "
+                        da += "{"
+                        da += str(n.quarterLength)
                         da += "}"
                     else:
                         continue

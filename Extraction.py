@@ -4,7 +4,7 @@ import sys
 import regex as re
 from music21 import *
 import pickle
-from common import DATASET, parseAbcString, createDictionary
+from common import DATASET, parseAbcString, createDictionary, encode
 
 SHUFFLE = True
 PATH = sys.argv[1]
@@ -55,7 +55,7 @@ if bin:
 
     '''Create dictionary'''
     dic = createDictionary(outputs)
-
+    encode(outputs[0])
     with open(TRAIN_PREFIX_PRETTY, 'wb') as f:
         pickle.dump(outputs[:int(train * len(outputs))], f)
 
