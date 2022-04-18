@@ -4,7 +4,7 @@ import sys
 import regex as re
 from music21 import *
 import pickle
-from common import DATASET, parseAbcString, createDictionary, encode
+from common import DATASET, parseAbcString, createDictionary
 
 SHUFFLE = True
 PATH = sys.argv[1]
