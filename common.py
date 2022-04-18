@@ -3,7 +3,7 @@ import os
 from Dictionary import *
 
 DATASETS = "datasets"
-DATASET = "V3"
+DATASET = "test"
 bin = True
 
 CWD = os.getcwd()
@@ -70,6 +70,11 @@ def parseAbcString(abc_song):
                         da += str(n.numerator)
                         da += " "
                         da += str(n.denominator)
+                    elif isinstance(n, chord.Chord):
+                        da += n.fullName
+                        da += "{"
+                        da += str(n.duration.quarterLength)
+                        da += "}"
                     else:
                         continue
                     pretty_song.append(da)

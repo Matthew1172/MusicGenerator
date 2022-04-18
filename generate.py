@@ -3,7 +3,7 @@ from Generation import *
 from common import DATASETS
 
 parser = argparse.ArgumentParser(description='Music Generator by Matthew Pecko')
-parser.add_argument('--dataset', type=str, default="V1",
+parser.add_argument('--dataset', type=str, default="V3",
                     help='dataset to use')
 parser.add_argument('--temperature', type=float, default=0.85,
                     help='temperature - higher will increase diversity')

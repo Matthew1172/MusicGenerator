@@ -7,6 +7,7 @@ from music21 import *
 from tqdm import tqdm
 from fractions import Fraction
 from exceptions import *
+import re
 
 class Generation:
     def __init__(self, **kwargs):
@@ -268,6 +269,24 @@ class Generation:
                         denominator = j[2]
                         tsig = numerator + "/" + denominator
                         m.append(meter.TimeSignature(tsig))
+                    elif "Chord" in j:
+                        '''Handle chord'''
+                        decode = re.findall('\{(.*?)\}', j)
+
+                        try:
+                            dur = float(decode[1])
+                        except(ValueError):
+                            dur = Fraction(decode[1])
+
+                        chords = decode[0].split("|")
+                        chordNotes = []
+                        for ch in chords:
+                            t = ch.split(' ')
+                            noteName = t[0]
+                            noteName += t[-1]
+                            chordNotes.append(note.Note(nameWithOctave=noteName, quarterLength=dur))
+                        chord.Chord(chordNotes)
+
                     else:
                         continue
             out = self.GENERATION_PREFIX + "_" + str(sn)
