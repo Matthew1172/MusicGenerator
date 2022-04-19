@@ -1,9 +1,13 @@
 from music21 import *
 
-def logProcess(position, length, output, fn):
+def logProcessSlow(position, length, output, fn):
     print("{}/{}\n\n{}\n\n".format(position, length, fn))
 
+def logProcessFast(position, length):
+    print("{}/{}\n\n".format(position, length))
+
 def parseAbcString(abc_song):
+    print(abc_song)
     pretty_song = []
     try:
         s = converter.parse(abc_song)
