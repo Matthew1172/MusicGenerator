@@ -2,8 +2,9 @@ import os
 from io import open
 import torch
 from music21 import *
-from common import parseAbcString, createDictionary
+from common import createDictionary
 from Dictionary import *
+from parseAbcString import *
 
 class Corpus(object):
     def __init__(self, path, from_bin=False):
