@@ -51,7 +51,7 @@ if SHUFFLE: random.shuffle(songs)
 if bin:
     #outputs = common.runParallel(songs, parseAbcString, updateFunction=logProcess, updateSendsIterable=True)
     outputs = common.runParallel(songs, parseAbcString)
-
+    print("Done parsing.")
 
     '''Create dictionary'''
     dic = createDictionary(outputs)
