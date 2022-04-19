@@ -27,7 +27,6 @@ def extract_song_snippet(text):
     search_results = re.findall(pattern, text, overlapped=True, flags=re.DOTALL)
     songs = [song[1] for song in search_results]
     return songs
-    #return re.split("X:",text)
 
 def is_song(str):
     if "X:" in str:
