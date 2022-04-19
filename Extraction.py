@@ -52,6 +52,7 @@ if bin:
     #outputs = common.runParallel(songs, parseAbcString, updateFunction=logProcess, updateSendsIterable=True)
     outputs = common.runParallel(songs, parseAbcString)
 
+
     '''Create dictionary'''
     dic = createDictionary(outputs)
     with open(TRAIN_PREFIX_PRETTY, 'wb') as f:
