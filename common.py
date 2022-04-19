@@ -34,8 +34,9 @@ except FileExistsError:
 def parseAbcString(abc_song):
     pretty_song = []
     try:
-        s = converter.parse(abc_song)[1].elements
-        for m in s:
+        s = converter.parse(abc_song)
+        print(s[0].title)
+        for m in s[1].elements:
             if isinstance(m, stream.Measure):
                 pretty_song.append("|")
                 for n in m:
