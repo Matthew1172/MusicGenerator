@@ -37,9 +37,10 @@ def is_song(str):
 
 result = [os.path.join(dp, f) for dp, dn, filenames in os.walk(PATH) for f in filenames if os.path.splitext(f)[1] == '.abc']
 songs_raw = []
+read = ""
 for f in result:
     with open(f, "r", encoding="utf8") as file:
-        read = file.read()
+        read += file.read()
 songs_raw.append(["X:"+s for s in re.split("X:", read) if len(s) > 1 and s.split('\n')[0].isdigit()])
 #songs_raw.append(extract_song_snippet(read))
 
