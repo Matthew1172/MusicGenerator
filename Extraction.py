@@ -41,8 +41,7 @@ for f in result:
     with open(f, "r", encoding="utf8") as file:
         read = file.read()
 songs_raw.append(["X:"+s for s in re.split("X:", read) if len(s) > 1 and s.split('\n')[0].isdigit()])
-# songs_raw.append(extract_song_snippet(read))
-# songs_raw.append(read)
+#songs_raw.append(extract_song_snippet(read))
 
 songs = list(set([item.rstrip() for sub in songs_raw for item in sub if is_song(item)]))
 
