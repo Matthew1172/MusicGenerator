@@ -98,7 +98,7 @@ def parseAbcString(abc_song):
         return pretty_song[1:]
 
 def logProcess(position, length, output, fn):
-    print("%s/%s\n\n%s\n\n".format(position, length, fn))
+    print("{}/{}\n\n{}\n\n".format(position, length, fn))
 
 def createDictionary(mySongFormatCombined):
     dic = Dictionary()
