@@ -3,7 +3,7 @@ from Transformer_Model import *
 import data
 import os
 import time
-from common import DATASETS, DATASET, CHECKPOINT_DIR, CHECKPOINT_PREFIX, bin, parseAbcString
+from common import DATASETS, DATASET, CHECKPOINT_DIR, CHECKPOINT_PREFIX, bin
 
 if(torch.cuda.is_available()):
     print("GPU: ",torch.cuda.get_device_name(0), " is available, Switching now.")
