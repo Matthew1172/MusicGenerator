@@ -3,7 +3,7 @@ from music21 import *
 def logProcessSlow(position, length, output, fn):
     print("{}/{}\n\n{}\n\n".format(position, length, fn))
 
-def logProcessFast(position, length):
+def logProcessFast(position, length, output):
     print("{}/{}\n\n".format(position, length))
 
 def parseAbcString(abc_song):
