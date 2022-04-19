@@ -4,7 +4,7 @@ import sys
 import regex as re
 from music21 import *
 import pickle
-from common import DATASET, parseAbcString, createDictionary
+from common import DATASET, parseAbcString, createDictionary, logProcess
 
 SHUFFLE = True
 PATH = sys.argv[1]
@@ -50,8 +50,8 @@ print("Found {} songs in folder".format(len(songs)))
 if SHUFFLE: random.shuffle(songs)
 
 if bin:
-    #outputs = common.runParallel(songs, parseAbcString, updateFunction=logProcess)
-    outputs = common.runParallel(songs, parseAbcString)
+    outputs = common.runParallel(songs, parseAbcString, updateFunction=logProcess, updateSendsIterable=True)
+    #outputs = common.runParallel(songs, parseAbcString)
 
     '''Create dictionary'''
     dic = createDictionary(outputs)
