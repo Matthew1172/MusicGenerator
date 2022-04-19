@@ -50,8 +50,8 @@ print("Found {} songs in folder".format(len(songs)))
 if SHUFFLE: random.shuffle(songs)
 
 if bin:
-    outputs = common.runParallel(songs, parseAbcString, updateFunction=logProcess, updateSendsIterable=True)
-    #outputs = common.runParallel(songs, parseAbcString)
+    #outputs = common.runParallel(songs, parseAbcString, updateFunction=logProcess, updateSendsIterable=True)
+    outputs = common.runParallel(songs, parseAbcString)
 
     '''Create dictionary'''
     dic = createDictionary(outputs)
