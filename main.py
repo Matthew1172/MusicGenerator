@@ -21,7 +21,7 @@ hidden_units = 2048
 #number of layers
 nlayers = 8
 #initial learning rate
-learning_rate = 1e-3
+learning_rate = 20
 #momentum for SGD
 momentum = 1
 #upper epoch limit
