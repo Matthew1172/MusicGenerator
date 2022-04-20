@@ -17,27 +17,27 @@ device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
-emsize = 200
+emsize = 1500
 #number of hidden units per layer
-hidden_units = 200
+hidden_units = 1500
 #number of layers
 nlayers = 2
 #initial learning rate
-learning_rate = 1e-3
+learning_rate = 1e-1
 #momentum for SGD
 momentum = 0.9
 #upper epoch limit
-epochs = 300
+epochs = 40
 #batch size
-batch_size = 1024
+batch_size = 20
 #sequence length
 bptt = 35
 #dropout applied to layers (0 = no dropout)
-dropout = 2e-1
+dropout = 0.65
 #report interval
 log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
-num_heads = 8
+num_heads = 2
 #model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
 loss_fn = "NLL"
 opt = "ADAM"
@@ -142,7 +142,6 @@ def train():
     scheduler.step()
 
 # Loop over epochs.
-lr = learning_rate
 best_val_loss = None
 
 # At any point you can hit Ctrl + C to break out of training early.
@@ -161,12 +160,6 @@ try:
             with open(CHECKPOINT_PREFIX, 'wb') as f:
                 torch.save(model, f)
             best_val_loss = val_loss
-        else:
-            #pass
-            lr /= 4.0
-            #Anneal the learning rate if no improvement has been seen in the validation dataset.
-            #if lr > 1e-1:
-                #lr /= 4.0
 except KeyboardInterrupt:
     print('-' * 89)
     print('Exiting from training early')
