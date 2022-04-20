@@ -134,7 +134,7 @@ def train():
         elapsed = time.time() - start_time
         print('| epoch {:3d} | {:5d}/{:5d} batches | lr {:02.2f} | ms/batch {:5.2f} | '
                 'loss {:5.2f} | ppl {:8.2f} | meanloss: {:5.2f}'.format(
-            epoch, batch, len(train_data) // bptt, lr,
+            epoch, batch, len(train_data) // bptt, scheduler.get_last_lr(),
             elapsed * 1000 / log_interval, cur_loss, math.exp(cur_loss), loss.cpu().detach().numpy().mean()))
         total_loss = 0
         start_time = time.time()
