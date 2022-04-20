@@ -19,9 +19,9 @@ print("Device is now: ", device)
 #size of word embeddings
 emsize = 200
 #number of hidden units per layer
-hidden_units = 2048
+hidden_units = 200
 #number of layers
-nlayers = 8
+nlayers = 2
 #initial learning rate
 learning_rate = 1e-3
 #momentum for SGD
