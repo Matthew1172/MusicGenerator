@@ -19,7 +19,7 @@ emsize = 400
 #number of hidden units per layer
 hidden_units = 2048
 #number of layers
-nlayers = 2
+nlayers = 8
 #initial learning rate
 learning_rate = 1e-3
 #momentum for SGD
