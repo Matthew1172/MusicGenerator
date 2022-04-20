@@ -1,4 +1,6 @@
 import torch.distributions.distribution
+from torch.optim.lr_scheduler import ExponentialLR
+
 from Transformer_Model import *
 import data
 import os
@@ -21,9 +23,9 @@ hidden_units = 2048
 #number of layers
 nlayers = 8
 #initial learning rate
-learning_rate = 20
+learning_rate = 1e-1
 #momentum for SGD
-momentum = 1
+momentum = 0.9
 #upper epoch limit
 epochs = 300
 #batch size
@@ -73,6 +75,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
 #optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, amsgrad=True)
 #optimizer = torch.optim.AdamW(model.parameters())
+scheduler = ExponentialLR(optimizer, gamma=0.9)
 
 ###############################################################################
 # Training code
@@ -135,6 +138,8 @@ def train():
             elapsed * 1000 / log_interval, cur_loss, math.exp(cur_loss), loss.cpu().detach().numpy().mean()))
         total_loss = 0
         start_time = time.time()
+
+    scheduler.step()
 
 # Loop over epochs.
 lr = learning_rate
