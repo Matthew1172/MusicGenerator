@@ -19,13 +19,13 @@ emsize = 256
 #number of hidden units per layer
 hidden_units = 4096
 #number of layers
-nlayers = 4
+nlayers = 2
 #initial learning rate
 learning_rate = 1e-3
 #momentum for SGD
 momentum = 1
 #upper epoch limit
-epochs = 1
+epochs = 500
 #batch size
 batch_size = 256
 #sequence length
