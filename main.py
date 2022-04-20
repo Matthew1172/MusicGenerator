@@ -25,7 +25,7 @@ learning_rate = 1e-3
 #momentum for SGD
 momentum = 1
 #upper epoch limit
-epochs = 100
+epochs = 300
 #batch size
 batch_size = 1024
 #sequence length
@@ -37,8 +37,8 @@ log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
 num_heads = 8
 #model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
-loss_fn = "NLL"
-opt = "ADAM"
+loss_fn = "CE"
+opt = "SGD"
 
 assert os.path.exists(DATASETS)
 assert os.path.exists(DATASET)
