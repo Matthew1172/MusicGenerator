@@ -27,7 +27,7 @@ momentum = 1
 #upper epoch limit
 epochs = 100
 #batch size
-batch_size = 512
+batch_size = 256
 #sequence length
 bptt = 300
 #dropout applied to layers (0 = no dropout)
