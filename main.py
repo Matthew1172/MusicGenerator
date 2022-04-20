@@ -17,7 +17,7 @@ print("Device is now: ", device)
 #size of word embeddings
 emsize = 512
 #number of hidden units per layer
-hidden_units = 4096
+hidden_units = 2048
 #number of layers
 nlayers = 2
 #initial learning rate
@@ -25,9 +25,9 @@ learning_rate = 1e-3
 #momentum for SGD
 momentum = 1
 #upper epoch limit
-epochs = 250
+epochs = 100
 #batch size
-batch_size = 256
+batch_size = 512
 #sequence length
 bptt = 300
 #dropout applied to layers (0 = no dropout)
