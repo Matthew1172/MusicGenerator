@@ -29,12 +29,18 @@ def extract_song_snippet(text):
     songs = [song[1] for song in search_results]
     return songs
 
-
 def is_song(s):
     if len(s) > 1 and s.split('\n')[0].strip().isdigit():
         return True
     else:
         return False
+
+def runSingular(songs, parseAbcString):
+    o = []
+    for s in songs:
+        o.append(parseAbcString(s))
+    return o
+    #return [parseAbcString(s) for s in songs]
 
 file_paths = [os.path.join(dp, f) for dp, dn, filenames in os.walk(PATH) for f in filenames if os.path.splitext(f)[1] == '.abc']
 read = ""
@@ -61,9 +67,10 @@ print("Found {} songs in folder".format(len(songs)))
 if SHUFFLE: random.shuffle(songs)
 
 if bin:
-    outputs = common.runParallel(songs, parseAbcString, updateFunction=logProcessFast)
+    #outputs = common.runParallel(songs, parseAbcString, updateFunction=logProcessFast)
     #outputs = common.runParallel(songs, parseAbcString, updateFunction=logProcess, updateSendsIterable=True)
     #outputs = common.runParallel(songs, parseAbcString)
+    outputs = runSingular(songs, parseAbcString)
     print("Done parsing.")
 
     '''Create dictionary'''

@@ -15,9 +15,9 @@ device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
-emsize = 512
+emsize = 256
 #number of hidden units per layer
-hidden_units = 2048
+hidden_units = 4096
 #number of layers
 nlayers = 4
 #initial learning rate
@@ -25,17 +25,17 @@ learning_rate = 1e-5
 #momentum for SGD
 momentum = 1
 #upper epoch limit
-epochs = 600
+epochs = 1
 #batch size
-batch_size = 512
+batch_size = 256
 #sequence length
-bptt = 200
+bptt = 300
 #dropout applied to layers (0 = no dropout)
 dropout = 2e-1
 #report interval
 log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
-num_heads = 4
+num_heads = 2
 #model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
 loss_fn = "NLL"
 opt = "ADAM"
@@ -70,8 +70,8 @@ model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, devi
 
 criterion = nn.NLLLoss()
 #criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
-#optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, amsgrad=True)
+#optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, amsgrad=True)
 #optimizer = torch.optim.AdamW(model.parameters())
 
 ###############################################################################
