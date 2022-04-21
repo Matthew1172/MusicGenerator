@@ -86,6 +86,7 @@ req = {
     random_time: False
     songs: 1
     temperature: 0.85
+    abc: "M:?\nV:1 name=?\nK:?\n?"
 }
 '''
 @app.route('/predict', methods=['POST'])
@@ -113,6 +114,81 @@ def predict():
         g.setInitKey()
         g.setInitTime()
         g.setInitSeq()
+
+        '''TODO: check for custom exceptions and return proper error codes.
+        Append all errors to one error code so the user can see everything at once.'''
+        try:
+            g.checkInitClef()
+            g.checkInitKey()
+            g.checkInitTime()
+            g.checkInitSeq()
+        except NoteNotFoundInDictionary as nnf:
+            return jsonify({'error': str(nnf)})
+        except ClefNotFoundInDictionary as cnf:
+            return jsonify({'error': str(cnf)})
+        except TimeNotFoundInDictionary as tnf:
+            return jsonify({'error': str(tnf)})
+        except KeyNotFoundInDictionary as knf:
+            return jsonify({'error': str(knf)})
+        except:
+            return jsonify({'error': "could not run generation with inputs."})
+
+        g.generate()
+        g.save()
+        midi = g.GENERATION_PREFIX+"_1.mid"
+        mxl = g.GENERATION_PREFIX+"_1.mxl"
+        if os.path.exists(mxl) and os.path.exists(midi):
+            mxl_path = mxl.split('\\')[-2:]
+            midi_path = midi.split('\\')[-2:]
+            if len(mxl_path) < 2:
+                mxl_path = mxl.split('/')[-2:]
+                midi_path = midi.split('/')[-2:]
+            return jsonify({
+                'mxl': mxl_path,
+                'midi': midi_path
+            })
+        else:
+            return jsonify({'saved': False})
+
+'''
+request looks like:
+req = {
+    dataset: "Good"
+    length: 100
+    random_seq_length: 1
+    songs: 1
+    temperature: 0.85
+    abc: "M:?\nV:1 name=?\nK:?\n?"
+}
+'''
+@app.route('/mgen', methods=['POST'])
+def predict():
+    print("req: ", request)
+    if request.method == 'POST':
+        print("req: ", request)
+        content = request.json
+
+        '''TODO: check all keys of content and do error handling.'''
+        print("The content of the post req: ", content)
+
+        DATASETS = "datasets"
+        content['dataset'] = os.path.join(DATASETS, content['dataset'])
+        g = Generation(**content)
+
+        try:
+            g.checkDataset()
+        except DatasetNotFound as dnf:
+            return jsonify({'error': str(dnf)})
+
+        g.loadModel()
+        g.loadDictionary()
+        g.setInitClef()
+        g.setInitKey()
+        g.setInitTime()
+        g.setInitSeq()
+
+        abc = content['abc']
+        g.loadDataFromAbc(abc)
 
         '''TODO: check for custom exceptions and return proper error codes.
         Append all errors to one error code so the user can see everything at once.'''

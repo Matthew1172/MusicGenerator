@@ -371,6 +371,7 @@ class Generation:
 
         abc_new = ""
         abc_list = abc.split('\n')
+        random_notes = []
         for ele in abc_list:
             if "V:" in ele:
                 #get the clef
@@ -415,7 +416,10 @@ class Generation:
                 else:
                     abc_new += "K:"+mykey+"\n"
             else:
+                if self.isRandomProp(ele):
+                    self.setRandInitSeq()
                 abc_new += ele
+
         parsed = parseAbcString(abc_new)
         self.iClef = [ele for ele in parsed if "Clef " in ele][0]
-        self.iSeq = parsed
+        self.iSeq = parsed+self.iSeq

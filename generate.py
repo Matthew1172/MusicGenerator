@@ -94,7 +94,7 @@ g.checkInitKey()
 g.checkInitTime()
 g.checkInitSeq()
 
-test_abc = "M:?\nV:1 name=tenor\nK:?\n|: C2 | FEFG FGFG | AGAB ABAB | cBcd cdcB | ABAB ABAB | c2 G2 c2 G2 | c2 G2 c2 G2 | F2 E>D D3 C | C6 :|"
+test_abc = "M:?\nV:1 name=?\nK:?\n?"
 g.loadDataFromAbc(test_abc)
 
 g.generate()
