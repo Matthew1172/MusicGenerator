@@ -1,9 +1,10 @@
 import argparse
 from Generation import *
 from common import DATASETS
+from parseAbcString import *
 
 parser = argparse.ArgumentParser(description='Music Generator by Matthew Pecko')
-parser.add_argument('--dataset', type=str, default="V3",
+parser.add_argument('--dataset', type=str, default="V1",
                     help='dataset to use')
 parser.add_argument('--temperature', type=float, default=0.85,
                     help='temperature - higher will increase diversity')
@@ -68,7 +69,6 @@ if args.random_seq and (args.random_seq_length < 1 or args.random_seq_length > 1
     parser.error("if --random-seq is true then --random-seq-length must be less than --length, and has to be greater than 0 and less than 1000.")
 
 
-
 g = Generation(dataset=os.path.join(DATASETS, args.dataset),
                input_clef=args.input_clef,
                input_key=args.input_key,
@@ -93,5 +93,9 @@ g.checkInitClef()
 g.checkInitKey()
 g.checkInitTime()
 g.checkInitSeq()
+
+test_abc = "M:?\nV:1 name=tenor\nK:?\n|: C2 | FEFG FGFG | AGAB ABAB | cBcd cdcB | ABAB ABAB | c2 G2 c2 G2 | c2 G2 c2 G2 | F2 E>D D3 C | C6 :|"
+g.loadDataFromAbc(test_abc)
+
 g.generate()
 g.save()

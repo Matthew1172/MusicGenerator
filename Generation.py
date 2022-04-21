@@ -8,6 +8,7 @@ from tqdm import tqdm
 from fractions import Fraction
 from exceptions import *
 import re
+from parseAbcString import *
 
 class Generation:
     def __init__(self, **kwargs):
@@ -99,7 +100,14 @@ class Generation:
 
         try:
             self.iSeq = self.args['input_seq'].split('$')
+            '''User input for notes is in ABC notation. parse it and then decode the notes into out notation'''
+            #self.iSeq = converter.parse(self.args['input_seq'])
         except KeyError:
+            #p = stream.Part()
+            #m = stream.Measure()
+            #m.append(note.Note(nameWithOctave="C5", duration=1.0))
+            #p.append(m)
+            #self.iSeq = p[1]
             self.iSeq = ["Note C 1.0"]
 
         self.export = []
@@ -162,6 +170,22 @@ class Generation:
             notes = [note for note in self.dic.idx2word if "Note" in note]
             self.iSeq = [notes[randint(0, len(notes) - 1)] for i in range(self.rSeqLen)]
 
+    def setRandInitClef(self):
+        clefs = [clef for clef in self.dic.idx2word if "Clef" in clef]
+        self.iClef = clefs[randint(0, len(clefs) - 1)]
+
+    def setRandInitKey(self):
+        keys = [key for key in self.dic.idx2word if "Key" in key]
+        self.iKey = keys[randint(0, len(keys) - 1)]
+
+    def setRandInitTime(self):
+        times = [time for time in self.dic.idx2word if "Time" in time]
+        self.iTime = times[randint(0, len(times) - 1)]
+
+    def setRandInitSeq(self):
+        notes = [note for note in self.dic.idx2word if "Note" in note]
+        self.iSeq = [notes[randint(0, len(notes) - 1)] for i in range(self.rSeqLen)]
+
     '''TODO: raise proper custom exceptions for flask server'''
 
     def checkInitClef(self):
@@ -212,14 +236,19 @@ class Generation:
         for sn in range(1, self.numberOfSongs + 1):
             print("Generating song {}/{}".format(sn, self.numberOfSongs))
             generatedSong = []
+
+            '''
             if self.iClef != '':
                 generatedSong.append(self.dic.idx2word[self.dic.word2idx[self.iClef]])
             if self.iKey != '':
                 generatedSong.append(self.dic.idx2word[self.dic.word2idx[self.iKey]])
             if self.iTime != '':
                 generatedSong.append(self.dic.idx2word[self.dic.word2idx[self.iTime]])
+            '''
+
             if len(self.iSeq) > 0:
                 for n in self.iSeq: generatedSong.append(self.dic.idx2word[self.dic.word2idx[n]])
+
             input = torch.Tensor([[self.dic.word2idx[word]] for word in generatedSong]).long().to(self.device)
             input = torch.cat([input, torch.randint(ntokens, (1, 1), dtype=torch.long, device=self.device)], 0)
             with torch.no_grad():  # no tracking history
@@ -325,3 +354,68 @@ class Generation:
                     pass
         else:
             print("No songs were generated.")
+
+    def isRandomProp(self, prop):
+        if "?" in prop:
+            return True
+        else:
+            return False
+
+    def loadDataFromAbc(self, abc):
+        '''
+        TODO: parse the supplied ABC song and create the appropraite Generation object. If the abc song has a ? in any of the fields,
+        set the --random flag for that property.
+        '''
+        if ("K:" not in abc) or ("M:" not in abc):
+            raise Exception
+
+        abc_new = ""
+        abc_list = abc.split('\n')
+        for ele in abc_list:
+            if "V:" in ele:
+                #get the clef
+                if "name=" in ele:
+                    try:
+                        '''
+                        treble
+                        alto
+                        tenor
+                        bass
+                        G (same as treble)
+                        C (same as alto)
+                        F (same as bass)
+                        '''
+                        clef = "Clef "+ele.split("name=")[1]
+                    except:
+                        clef = "Clef G"
+                    if clef == "?":
+                        self.setRandInitClef()
+                        clef = self.iClef
+                    abc_new += "V:1 name="+clef.split(" ")[1]+"\n"
+                else:
+                    abc_new += "V:1 name=tenor\n"
+            elif "M:" in ele:
+                time = ele[2:]
+                # check if it is a ?
+                if self.isRandomProp(time):
+                    self.setRandInitTime()
+                    t = self.iTime.split(" ")
+                    numerator = t[1]
+                    denominator = t[2]
+                    tsig = numerator + "/" + denominator
+                    abc_new += "M:"+str(tsig)+"\n"
+                else:
+                    abc_new += "M:"+time+"\n"
+            elif "K:" in ele:
+                mykey = ele[2:]
+                if self.isRandomProp(mykey):
+                    self.setRandInitKey()
+                    k = key.KeySignature(int(self.iKey.split(" ")[1]))
+                    abc_new += "K:"+k.asKey().name+"\n"
+                else:
+                    abc_new += "K:"+mykey+"\n"
+            else:
+                abc_new += ele
+        parsed = parseAbcString(abc_new)
+        self.iClef = [ele for ele in parsed if "Clef " in ele][0]
+        self.iSeq = parsed
