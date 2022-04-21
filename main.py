@@ -17,7 +17,7 @@ device2 = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
-emsize = 512
+emsize = 256
 #number of hidden units per layer
 hidden_units = 2048
 #number of layers
@@ -29,7 +29,7 @@ momentum = 0.9
 #upper epoch limit
 epochs = 40
 #batch size
-batch_size = 512
+batch_size = 256
 #sequence length
 bptt = 55
 #dropout applied to layers (0 = no dropout)
