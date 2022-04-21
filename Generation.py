@@ -406,6 +406,7 @@ class Generation:
                     tsig = numerator + "/" + denominator
                     abc_new += "M:"+str(tsig)+"\n"
                 else:
+                    self.iTime = time
                     abc_new += "M:"+time+"\n"
             elif "K:" in ele:
                 mykey = ele[2:]
