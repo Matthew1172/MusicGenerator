@@ -12,8 +12,8 @@ if(torch.cuda.is_available()):
 else:
     print("GPU is not available, using CPU.")
 
-device2 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device2 = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
@@ -23,7 +23,7 @@ hidden_units = 2048
 #number of layers
 nlayers = 2
 #initial learning rate
-learning_rate = 1e-1
+learning_rate = 1e-3
 #momentum for SGD
 momentum = 0.9
 #upper epoch limit
@@ -40,7 +40,7 @@ log_interval = 200
 num_heads = 8
 #model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
 loss_fn = "NLL"
-opt = "SGD"
+opt = "ADAM"
 
 assert os.path.exists(DATASETS)
 assert os.path.exists(DATASET)
@@ -72,8 +72,8 @@ model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, devi
 
 criterion = nn.NLLLoss()
 #criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
-#optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, amsgrad=True)
+#optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, amsgrad=True)
 #optimizer = torch.optim.AdamW(model.parameters())
 scheduler = ExponentialLR(optimizer, gamma=0.9)
 
