@@ -218,11 +218,13 @@ def mgen():
             if len(mxl_path) < 2:
                 mxl_path = mxl.split('/')[-2:]
                 midi_path = midi.split('/')[-2:]
+            print("mxl: {}\nmidi: {}".format(mxl_path, midi_path))
             return jsonify({
                 'mxl': mxl_path,
                 'midi': midi_path
             })
         else:
+            print("mxl or midi file does not exist.")
             return jsonify({'saved': False})
 
 @app.route('/mxl', methods=['GET'])
@@ -244,9 +246,7 @@ def midi():
         path = os.path.join(os.getcwd(), os.path.join("outputs", os.path.join(folder, file)))
         return send_file(path, mimetype='audio/midi')
 
-
-
-@app.route('/test-generate', methods=['GET'])
+@app.route('/mxl-data', methods=['GET'])
 def ex():
     folder = request.args.get('folder')
     file = request.args.get('file')
@@ -262,21 +262,6 @@ def insert_musicxml_metadata(sheet: stream.Stream):
     Insert various metadata into the provided XML document
     The timesignature in particular is required for proper MIDI conversion
     """
-    '''
-        global timesignature
-
-    for part, name, clef in zip(
-            sheet.parts,
-            ['soprano', 'alto', 'tenor', 'bass'],
-            [TrebleClef(), TrebleClef(), Treble8vbClef(), BassClef()]
-    ):
-        # empty_part = part.template()
-        part.insert(0, timesignature)
-        part.insert(0, clef)
-        part.id = name
-        part.partName = name
-
-    '''
     md = metadata.Metadata()
     sheet.insert(0, md)
 
