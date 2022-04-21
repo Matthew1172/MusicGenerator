@@ -409,7 +409,7 @@ class Generation:
                     C (same as alto)
                     F (same as bass)
                     '''
-                    clef = "Clef " + t.split("name=")[1]
+                    clef = t.split("name=")[1]
                 except:
                     clef = "Clef G"
                 if clef == "?":
