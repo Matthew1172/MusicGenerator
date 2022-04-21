@@ -23,11 +23,11 @@ hidden_units = 2048
 #number of layers
 nlayers = 2
 #initial learning rate
-learning_rate = 1e-3
+learning_rate = 1e-1
 #momentum for SGD
 momentum = 0.9
 #upper epoch limit
-epochs = 100
+epochs = 200
 #batch size
 batch_size = 512
 #sequence length
