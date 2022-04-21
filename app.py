@@ -162,7 +162,7 @@ req = {
 }
 '''
 @app.route('/mgen', methods=['POST'])
-def predict():
+def mgen():
     print("req: ", request)
     if request.method == 'POST':
         print("req: ", request)
