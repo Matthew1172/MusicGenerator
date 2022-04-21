@@ -163,9 +163,7 @@ req = {
 '''
 @app.route('/mgen', methods=['POST'])
 def mgen():
-    print("req: ", request)
     if request.method == 'POST':
-        print("req: ", request)
         content = request.json
 
         '''TODO: check all keys of content and do error handling.'''
@@ -218,13 +216,21 @@ def mgen():
             if len(mxl_path) < 2:
                 mxl_path = mxl.split('/')[-2:]
                 midi_path = midi.split('/')[-2:]
+
+
             print("mxl: {}\nmidi: {}".format(mxl_path, midi_path))
+
+
             return jsonify({
                 'mxl': mxl_path,
                 'midi': midi_path
             })
         else:
+
+
             print("mxl or midi file does not exist.")
+
+
             return jsonify({'saved': False})
 
 @app.route('/mxl', methods=['GET'])
@@ -251,7 +257,11 @@ def ex():
     folder = request.args.get('folder')
     file = request.args.get('file')
     path = os.path.join(os.getcwd(), os.path.join("outputs", os.path.join(folder, file)))
+
+
     print(path)
+
+
     _current_sheet = converter.parse(path)
     #next line throws error
     return sheet_to_xml_response(_current_sheet)

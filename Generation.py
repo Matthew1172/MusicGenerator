@@ -327,12 +327,13 @@ class Generation:
             try:
                 os.mkdir(self.OUTPUTS_DIRECTORY)
             except FileExistsError:
-                print("The {} directory already exists...".format(self.OUTPUTS_DIRECTORY))
+                #print("The {} directory already exists.".format(self.OUTPUTS_DIRECTORY))
+                pass
 
             try:
                 os.mkdir(self.OUTPUT)
             except FileExistsError:
-                print("The directory {} already exists...".format(self.OUTPUT))
+                print("The directory {} already exists.".format(self.OUTPUT))
 
             for e in self.export:
 
