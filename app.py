@@ -167,7 +167,6 @@ def mgen():
         content = request.json
 
         '''TODO: check all keys of content and do error handling.'''
-        print("The content of the post req: ", content)
 
         DATASETS = "datasets"
         content['dataset'] = os.path.join(DATASETS, content['dataset'])
