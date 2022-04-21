@@ -136,7 +136,12 @@ def mgen():
 
 
         g.generate()
-        g.save()
+
+        try:
+            g.save()
+        except CouldNotSaveInference as inf:
+            pass
+
         midi = g.GENERATION_PREFIX+"_1.mid"
         mxl = g.GENERATION_PREFIX+"_1.mxl"
         if os.path.exists(mxl) and os.path.exists(midi):

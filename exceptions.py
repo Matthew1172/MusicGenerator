@@ -24,3 +24,8 @@ class DatasetNotFound(Exception):
     def __init__(self, ds):
         msg = "The dataset {} was not found on the server.".format(ds)
         super().__init__(msg)
+
+class CouldNotSaveInference(Exception):
+    def __init__(self, dir):
+        msg = "The inference could not be saved in this directory {}".format(dir)
+        super().__init__(msg)
