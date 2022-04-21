@@ -120,14 +120,19 @@ def mgen():
             g.checkInitTime()
             g.checkInitSeq()
         except NoteNotFoundInDictionary as nnf:
+            print(nnf)
             return jsonify({'error': str(nnf)})
         except ClefNotFoundInDictionary as cnf:
+            print(cnf)
             return jsonify({'error': str(cnf)})
         except TimeNotFoundInDictionary as tnf:
+            print(tnf)
             return jsonify({'error': str(tnf)})
         except KeyNotFoundInDictionary as knf:
+            print(knf)
             return jsonify({'error': str(knf)})
         except:
+            print("Could not run generation with inputs.")
             return jsonify({'error': "could not run generation with inputs."})
 
 
@@ -140,7 +145,8 @@ def mgen():
         try:
             g.save()
         except CouldNotSaveInference as inf:
-            pass
+            print(inf)
+            return jsonify({'error': str(inf)})
 
         midi = g.GENERATION_PREFIX+"_1.mid"
         mxl = g.GENERATION_PREFIX+"_1.mxl"
