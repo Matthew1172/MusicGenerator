@@ -23,13 +23,13 @@ hidden_units = 2048
 #number of layers
 nlayers = 2
 #initial learning rate
-learning_rate = 1e-3
+learning_rate = 1e-1
 #momentum for SGD
 momentum = 0.9
 #upper epoch limit
-epochs = 40
+epochs = 100
 #batch size
-batch_size = 128
+batch_size = 256
 #sequence length
 bptt = 150
 #dropout applied to layers (0 = no dropout)
@@ -37,10 +37,10 @@ dropout = 0.65
 #report interval
 log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
-num_heads = 2
+num_heads = 8
 #model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
 loss_fn = "NLL"
-opt = "ADAM"
+opt = "SGD"
 
 assert os.path.exists(DATASETS)
 assert os.path.exists(DATASET)
