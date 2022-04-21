@@ -361,65 +361,63 @@ class Generation:
         else:
             return False
 
+    def parseAbcToken(self, t):
+        if "V:" in t:
+            # get the clef
+            if "name=" in t:
+                try:
+                    '''
+                    treble
+                    alto
+                    tenor
+                    bass
+                    G (same as treble)
+                    C (same as alto)
+                    F (same as bass)
+                    '''
+                    clef = "Clef " + t.split("name=")[1]
+                except:
+                    clef = "Clef G"
+                if clef == "?":
+                    self.setRandInitClef()
+                    clef = self.iClef
+                return "V:1 name=" + clef.split(" ")[1] + "\n"
+            else:
+                return "V:1 name=tenor\n"
+        elif "M:" in t:
+            time = t[2:]
+            # check if it is a ?
+            if self.isRandomProp(time):
+                self.setRandInitTime()
+                t = self.iTime.split(" ")
+                numerator = t[1]
+                denominator = t[2]
+                tsig = numerator + "/" + denominator
+                return "M:" + str(tsig) + "\n"
+            else:
+                self.iTime = "Time " + time
+                return "M:" + time + "\n"
+        elif "K:" in t:
+            mykey = t[2:]
+            if self.isRandomProp(mykey):
+                self.setRandInitKey()
+                k = key.KeySignature(int(self.iKey.split(" ")[1]))
+                return "K:" + k.asKey().name + "\n"
+            else:
+                self.iKey = "Key " + mykey
+                return "K:" + mykey + "\n"
+        else:
+            if self.isRandomProp(t):
+                self.setRandInitSeq()
+            return t
+
     def loadDataFromAbc(self, abc):
-        '''
-        TODO: parse the supplied ABC song and create the appropraite Generation object. If the abc song has a ? in any of the fields,
-        set the --random flag for that property.
-        '''
         if ("K:" not in abc) or ("M:" not in abc):
             raise Exception
 
         abc_new = ""
-        abc_list = abc.split('\n')
-        random_notes = []
-        for ele in abc_list:
-            if "V:" in ele:
-                #get the clef
-                if "name=" in ele:
-                    try:
-                        '''
-                        treble
-                        alto
-                        tenor
-                        bass
-                        G (same as treble)
-                        C (same as alto)
-                        F (same as bass)
-                        '''
-                        clef = "Clef "+ele.split("name=")[1]
-                    except:
-                        clef = "Clef G"
-                    if clef == "?":
-                        self.setRandInitClef()
-                        clef = self.iClef
-                    abc_new += "V:1 name="+clef.split(" ")[1]+"\n"
-                else:
-                    abc_new += "V:1 name=tenor\n"
-            elif "M:" in ele:
-                time = ele[2:]
-                # check if it is a ?
-                if self.isRandomProp(time):
-                    self.setRandInitTime()
-                    t = self.iTime.split(" ")
-                    numerator = t[1]
-                    denominator = t[2]
-                    tsig = numerator + "/" + denominator
-                    abc_new += "M:"+str(tsig)+"\n"
-                else:
-                    self.iTime = time
-                    abc_new += "M:"+time+"\n"
-            elif "K:" in ele:
-                mykey = ele[2:]
-                if self.isRandomProp(mykey):
-                    self.setRandInitKey()
-                    k = key.KeySignature(int(self.iKey.split(" ")[1]))
-                    abc_new += "K:"+k.asKey().name+"\n"
-                else:
-                    abc_new += "K:"+mykey+"\n"
-            else:
-                if self.isRandomProp(ele):
-                    self.setRandInitSeq()
-                abc_new += ele
+        for ele in abc.split('\n'):
+            abc_new += self.parseAbcToken(ele)
 
         parsed = parseAbcString(abc_new)
         self.iClef = [ele for ele in parsed if "Clef " in ele][0]
