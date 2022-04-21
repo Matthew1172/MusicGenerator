@@ -91,13 +91,8 @@ req = {
 '''
 @app.route('/predict', methods=['POST'])
 def predict():
-    print("req: ", request)
     if request.method == 'POST':
-        print("req: ", request)
         content = request.json
-
-        '''TODO: check all keys of content and do error handling.'''
-        print("The content of the post req: ", content)
 
         DATASETS = "datasets"
         content['dataset'] = os.path.join(DATASETS, content['dataset'])
