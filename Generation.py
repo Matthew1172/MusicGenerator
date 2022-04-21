@@ -334,27 +334,33 @@ class Generation:
                 os.mkdir(self.OUTPUT)
             except FileExistsError:
                 print("The directory {} already exists.".format(self.OUTPUT))
+                raise CouldNotSaveInference("Trying to overwrite an existing output directory.")
 
             for e in self.export:
 
                 try:
                     e[1].write("text", e[0] + ".txt")
+                    print("Saved text file here: {}".format(e[0]))
                 except:
-                    pass
+                    raise CouldNotSaveInference(e[0])
 
                 try:
                     e[1].write("musicxml", e[0] + ".mxl")
+                    print("Saved mxl file here: {}".format(e[0]))
                 except:
-                    pass
+                    raise CouldNotSaveInference(e[0])
 
                 try:
                     e[1].write("midi", e[0] + ".mid")
+                    print("Saved midi file here: {}".format(e[0]))
                 except repeat.ExpanderException:
                     print("Could not output MIDI file. Badly formed repeats or repeat expressions.")
+                    raise CouldNotSaveInference(e[0])
                 except:
                     raise CouldNotSaveInference(e[0])
         else:
             print("No songs were generated.")
+            raise CouldNotSaveInference("Length of export is 0")
 
     def isRandomProp(self, prop):
         if "?" in prop:
