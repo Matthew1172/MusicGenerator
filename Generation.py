@@ -361,6 +361,26 @@ class Generation:
         else:
             return False
 
+    '''
+    Receives a (String) time signature in our format (Time 4 4)
+    Returns a (String) time signature in fractional format (4/4)
+    '''
+    def splitMyTime(self, time):
+        t = time.split(" ")
+        numerator = t[1]
+        denominator = t[2]
+        return numerator + "/" + denominator
+
+    '''
+    Receives a (String) time signature in fractional format (4/4)
+    Returns a (String) time signature in our format (Time 4 4)
+    '''
+    def makeMyTime(self, time):
+        t = time.split("/")
+        numerator = t[0]
+        denominator = t[1]
+        return "Time {} {}".format(numerator, denominator)
+
     def parseAbcToken(self, t):
         if "V:" in t:
             # get the clef
@@ -389,13 +409,10 @@ class Generation:
             # check if it is a ?
             if self.isRandomProp(time):
                 self.setRandInitTime()
-                t = self.iTime.split(" ")
-                numerator = t[1]
-                denominator = t[2]
-                tsig = numerator + "/" + denominator
+                tsig = self.splitMyTime(self.iTime)
                 return "M:" + str(tsig) + "\n"
             else:
-                self.iTime = "Time " + time
+                self.iTime = self.makeMyTime(time)
                 return "M:" + time + "\n"
         elif "K:" in t:
             mykey = t[2:]
