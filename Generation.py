@@ -411,11 +411,11 @@ class Generation:
                     '''
                     clef = t.split("name=")[1]
                 except:
-                    clef = "Clef G"
+                    clef = "treble"
                 if clef == "?":
                     self.setRandInitClef()
-                    clef = self.iClef
-                return "V:1 name=" + clef.split(" ")[1] + "\n"
+                    clef = self.iClef.split(" ")[1]
+                return "V:1 name={}\n".format(clef)
             else:
                 return "V:1 name=tenor\n"
         elif "M:" in t:

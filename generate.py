@@ -94,7 +94,7 @@ g.checkInitKey()
 g.checkInitTime()
 g.checkInitSeq()
 
-test_abc = "M:6/8\nV:1 name=?\nK:Am\n?"
+test_abc = "M:?\nV:1 name=?\nK:?\n?"
 g.loadDataFromAbc(test_abc)
 
 g.generate()
