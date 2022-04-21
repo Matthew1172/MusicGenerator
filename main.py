@@ -12,14 +12,14 @@ if(torch.cuda.is_available()):
 else:
     print("GPU is not available, using CPU.")
 
-device2 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device2 = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
-emsize = 1500
+emsize = 512
 #number of hidden units per layer
-hidden_units = 1500
+hidden_units = 2048
 #number of layers
 nlayers = 2
 #initial learning rate
@@ -29,9 +29,9 @@ momentum = 0.9
 #upper epoch limit
 epochs = 40
 #batch size
-batch_size = 20
+batch_size = 2048
 #sequence length
-bptt = 35
+bptt = 55
 #dropout applied to layers (0 = no dropout)
 dropout = 0.65
 #report interval
