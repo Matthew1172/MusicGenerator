@@ -362,7 +362,7 @@ class Generation:
             return False
 
     '''
-    Receives a (String) time signature in our format (Time 4 4)
+    Receives a (String) time signature in my format (Time 4 4)
     Returns a (String) time signature in fractional format (4/4)
     '''
     def splitMyTime(self, time):
@@ -373,13 +373,27 @@ class Generation:
 
     '''
     Receives a (String) time signature in fractional format (4/4)
-    Returns a (String) time signature in our format (Time 4 4)
+    Returns a (String) time signature in my format (Time 4 4)
     '''
     def makeMyTime(self, time):
         t = time.split("/")
         numerator = t[0]
         denominator = t[1]
         return "Time {} {}".format(numerator, denominator)
+
+    '''
+    Receives a (String) key signature in ABC notation (Am)
+    Returns a (String) key signature in my notation (Key 3)
+    '''
+    def makeMyKey(self, abc_key):
+        return "Key {}".format(str(key.Key(abc_key).sharps))
+
+    '''
+    Receives a (String) key signature in my notation (Key 3)
+    Returns a (String) key signature ABC notation (Am)
+    '''
+    def makeAbcKey(self, my_key):
+        return key.KeySignature(int(my_key.split(" ")[1])).asKey().name
 
     def parseAbcToken(self, t):
         if "V:" in t:
@@ -410,19 +424,19 @@ class Generation:
             if self.isRandomProp(time):
                 self.setRandInitTime()
                 tsig = self.splitMyTime(self.iTime)
-                return "M:" + str(tsig) + "\n"
+                return "M:{}\n".format(str(tsig))
             else:
                 self.iTime = self.makeMyTime(time)
-                return "M:" + time + "\n"
+                return "M:{}\n".format(time)
         elif "K:" in t:
-            mykey = t[2:]
-            if self.isRandomProp(mykey):
+            abc_key = t[2:]
+            if self.isRandomProp(abc_key):
                 self.setRandInitKey()
-                k = key.KeySignature(int(self.iKey.split(" ")[1]))
-                return "K:" + k.asKey().name + "\n"
+                k = self.makeAbcKey(self.iKey)
+                return "K:{}\n".format(k)
             else:
-                self.iKey = "Key " + mykey
-                return "K:" + mykey + "\n"
+                self.iKey = self.makeMyKey(abc_key)
+                return "K:{}\n".format(abc_key)
         else:
             if self.isRandomProp(t):
                 self.setRandInitSeq()
