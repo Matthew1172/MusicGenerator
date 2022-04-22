@@ -94,7 +94,37 @@ g.checkInitKey()
 g.checkInitTime()
 g.checkInitSeq()
 
-test_abc = "M:3/4\nV:1 name=treble\nK:Fm\nBAG | E2A2A2 | A3EAB |"
+test_abc = """X:1
+T:Down the Hill
+V:1 name=treble
+R:air
+H:Originally in Gdor and notated in 6/8 time.
+H:Version 1 from ONeills. Version 2 from Petrie Collection
+H:Related to The Blooming Meadows single jig#23
+Z:id:hn-air-1
+M:3/4
+L:1/8
+Q:1/4=160
+K:Am
+BAG | E2A2A2 | A3EAB | cBABcA | BAGABG | AGEDEF | G4A2 |
+B2c2A2 | G2E2D2 | E2A2A2 | A4Bc | BAGABc | d2B2d2 |
+efg2e2 | d2B2e2 | A3BAG | A3 :|
+|: Bcd | e2a2a2 | a3eab | c\'babc'a | b2g2e2 | d2g2g2 | g4a2 |
+bagabg | a2g2ed | e2a2a2 | a3eab | c\'babc'a | bagabg |
+a2g2e2 | d2B2e2 |1 A3BAG |A3 :|2 A3BAG | A2^c2e2 ||
+|: a2e2^c2 | A2^ceA^c | eA^ce^ce | g2d2B2 | G3BdB |
+G3AB=c | d2c2B2 | cBABcA | dcBcdB | e2a2^g2 | a3bc\'b |
+a2=g2e2 | d2B2e2 |1 A3BAG | A2^c2e2 :|2 A3BAG | A3 || z ||
+P:version 2
+AG | E2A2A2 | A4B2 | cBABcA | BAGABG | AGEDEF | G4A2 |
+B2c2A2 | G2E2D2 | E2A2A2 | A4c2 | BAGABc | dcBcdB |
+e2f2g2 | d2B2e2 | A6- | A4 ||
+cd | e2a2a2 | a4b2 | c'babc'a | b2g2e2 | d2g2g2 | g4a2 |
+b2c\'2a2 | g2e2d2 | e2a2a2 | a4b2 | c\'babc\'a | bagabg |
+a2g2e2 | d2B2^G2 | A6- | A4 ||
+a^g | a2e2c2 | A2c2e2 | a2e2c2 | A2c2e2 | g2d2B2 | G2B2d2 |
+g2d2B2 | G2B2d2 | cBABcA | dcBcdB | e2a2^g2 | a2b2c'2 |
+a2g2e2 | d2B2e2 | A6- | A4 ||"""
 g.loadDataFromAbc(test_abc)
 
 g.generate()

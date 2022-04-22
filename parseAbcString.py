@@ -68,12 +68,15 @@ def parseAbcString(abc_song):
             if isinstance(m, stream.Measure):
                 if first: first = False
                 else: pretty_song.append("|")
-                for n in m: pretty_song.append(parseToken(n))
+                for n in m:
+                    t = parseToken(n)
+                    if t: pretty_song.append(t)
             elif isinstance(m, spanner.RepeatBracket):
                 #Append something to pretty_song
                 continue
             else:
-                pretty_song.append(parseToken(m))
+                t = parseToken(m)
+                if t: pretty_song.append(t)
     except:
         pass
     finally:

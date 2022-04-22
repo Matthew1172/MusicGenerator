@@ -449,7 +449,7 @@ class Generation:
         else:
             if self.isRandomProp(t):
                 self.setRandInitSeq()
-            return t
+            return "{}\n".format(t)
 
     def loadDataFromAbc(self, abc):
         if ("K:" not in abc) or ("M:" not in abc):
