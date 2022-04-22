@@ -29,3 +29,18 @@ class CouldNotSaveInference(Exception):
     def __init__(self, dir):
         msg = "The inference could not be saved in this directory {}".format(dir)
         super().__init__(msg)
+
+class CouldNotSaveMidiFile(Exception):
+    def __init__(self, dir):
+        msg = "The midi file could not be saved. {}".format(dir)
+        super().__init__(msg)
+
+class CouldNotSaveMxlFile(Exception):
+    def __init__(self, dir):
+        msg = "The mxl file could not be saved. {}".format(dir)
+        super().__init__(msg)
+
+class CouldNotSaveTxtFile(Exception):
+    def __init__(self, dir):
+        msg = "The text file could not be saved. {}".format(dir)
+        super().__init__(msg)

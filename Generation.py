@@ -342,22 +342,22 @@ class Generation:
                     e[1].write("text", e[0] + ".txt")
                     print("Saved text file here: {}".format(e[0]))
                 except:
-                    raise CouldNotSaveInference(e[0])
+                    raise CouldNotSaveTxtFile(e[0])
 
                 try:
                     e[1].write("musicxml", e[0] + ".mxl")
                     print("Saved mxl file here: {}".format(e[0]))
                 except:
-                    raise CouldNotSaveInference(e[0])
+                    raise CouldNotSaveMxlFile(e[0])
 
                 try:
                     e[1].write("midi", e[0] + ".mid")
                     print("Saved midi file here: {}".format(e[0]))
                 except repeat.ExpanderException:
                     print("Could not output MIDI file. Badly formed repeats or repeat expressions.")
-                    raise CouldNotSaveInference(e[0])
+                    raise CouldNotSaveMidiFile(e[0])
                 except:
-                    raise CouldNotSaveInference(e[0])
+                    raise CouldNotSaveMidiFile(e[0])
         else:
             print("No songs were generated.")
             raise CouldNotSaveInference("Length of export is 0")
