@@ -1,5 +1,7 @@
 import os
 import time
+
+import music21.musicxml.xmlObjects
 import torch
 import data
 from random import randint
