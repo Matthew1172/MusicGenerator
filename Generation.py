@@ -341,14 +341,16 @@ class Generation:
                 try:
                     e[1].write("text", file_name)
                     print("Saved text file here: {}".format(file_name))
-                except:
+                except e:
+                    print(e)
                     raise CouldNotSaveTxtFile(file_name)
 
                 file_name = e[0] + ".mxl"
                 try:
                     e[1].write("musicxml", file_name)
                     print("Saved mxl file here: {}".format(file_name))
-                except:
+                except e:
+                    print(e)
                     raise CouldNotSaveMxlFile(file_name)
 
                 file_name = e[0] + ".mid"
@@ -358,7 +360,8 @@ class Generation:
                 except repeat.ExpanderException:
                     print("Could not output MIDI file. Badly formed repeats or repeat expressions.")
                     raise CouldNotSaveMidiFile(file_name)
-                except:
+                except e:
+                    print(e)
                     raise CouldNotSaveMidiFile(file_name)
         else:
             print("No songs were generated.")
