@@ -251,15 +251,15 @@ class Generation:
             if len(self.iSeq) > 0:
                 for n in self.iSeq: generatedSong.append(self.dic.idx2word[self.dic.word2idx[n]])
 
-            input = torch.Tensor([[self.dic.word2idx[word]] for word in generatedSong]).long().to(self.device)
-            input = torch.cat([input, torch.randint(ntokens, (1, 1), dtype=torch.long, device=self.device)], 0)
+            inp = torch.Tensor([[self.dic.word2idx[word]] for word in generatedSong]).long().to(self.device)
+            inp = torch.cat([inp, torch.randint(ntokens, (1, 1), dtype=torch.long, device=self.device)], 0)
             with torch.no_grad():  # no tracking history
                 for i in tqdm(range(self.gen_length)):
-                    output = self.model(input, False)
+                    output = self.model(inp, False)
                     word_weights = output[-1].squeeze().div(self.temp).exp().cpu()
                     word_idx = torch.multinomial(word_weights, 1)[0]
                     word_tensor = torch.Tensor([[word_idx]]).long().to(self.device)
-                    input = torch.cat([input, word_tensor], 0)
+                    inp = torch.cat([inp, word_tensor], 0)
                     word = self.dic.idx2word[word_idx]
                     generatedSong.append(word)
 
