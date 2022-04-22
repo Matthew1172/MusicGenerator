@@ -345,7 +345,7 @@ class Generation:
                     print("Saved text file here: {}".format(file_name))
                 except e:
                     print(e)
-                    raise CouldNotSaveTxtFile(file_name)
+                    raise CouldNotSaveTxtFile(e)
 
                 file_name = e[0] + ".mxl"
                 try:
@@ -353,7 +353,7 @@ class Generation:
                     print("Saved mxl file here: {}".format(file_name))
                 except e:
                     print(e)
-                    raise CouldNotSaveMxlFile(file_name)
+                    raise CouldNotSaveMxlFile(e)
 
                 file_name = e[0] + ".mid"
                 try:
@@ -361,10 +361,10 @@ class Generation:
                     print("Saved midi file here: {}".format(file_name))
                 except repeat.ExpanderException:
                     print("Could not output MIDI file. Badly formed repeats or repeat expressions.")
-                    raise CouldNotSaveMidiFile(file_name)
+                    raise CouldNotSaveMidiFile("Could not output MIDI file. Badly formed repeats or repeat expressions.")
                 except e:
                     print(e)
-                    raise CouldNotSaveMidiFile(file_name)
+                    raise CouldNotSaveMidiFile(e)
         else:
             print("No songs were generated.")
             raise CouldNotSaveInference("Length of export is 0")

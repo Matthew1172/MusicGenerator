@@ -156,6 +156,9 @@ def mgen():
         except CouldNotSaveTxtFile as e:
             print(e)
             return jsonify({'error': str(e)})
+        except:
+            return jsonify({'error': "Error when saving inference. Cannot save model inference."})
+
 
         midi = g.GENERATION_PREFIX+"_1.mid"
         mxl = g.GENERATION_PREFIX+"_1.mxl"
