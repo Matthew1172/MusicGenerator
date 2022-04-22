@@ -337,27 +337,29 @@ class Generation:
                 raise CouldNotSaveInference("Trying to overwrite an existing output directory.")
 
             for e in self.export:
-
+                file_name = e[0] + ".txt"
                 try:
-                    e[1].write("text", e[0] + ".txt")
-                    print("Saved text file here: {}".format(e[0]))
+                    e[1].write("text", file_name)
+                    print("Saved text file here: {}".format(file_name))
                 except:
-                    raise CouldNotSaveTxtFile(e[0])
+                    raise CouldNotSaveTxtFile(file_name)
 
+                file_name = e[0] + ".mxl"
                 try:
-                    e[1].write("musicxml", e[0] + ".mxl")
-                    print("Saved mxl file here: {}".format(e[0]))
+                    e[1].write("musicxml", file_name)
+                    print("Saved mxl file here: {}".format(file_name))
                 except:
-                    raise CouldNotSaveMxlFile(e[0])
+                    raise CouldNotSaveMxlFile(file_name)
 
+                file_name = e[0] + ".mid"
                 try:
-                    e[1].write("midi", e[0] + ".mid")
-                    print("Saved midi file here: {}".format(e[0]))
+                    e[1].write("midi", file_name)
+                    print("Saved midi file here: {}".format(file_name))
                 except repeat.ExpanderException:
                     print("Could not output MIDI file. Badly formed repeats or repeat expressions.")
-                    raise CouldNotSaveMidiFile(e[0])
+                    raise CouldNotSaveMidiFile(file_name)
                 except:
-                    raise CouldNotSaveMidiFile(e[0])
+                    raise CouldNotSaveMidiFile(file_name)
         else:
             print("No songs were generated.")
             raise CouldNotSaveInference("Length of export is 0")
