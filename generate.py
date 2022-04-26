@@ -68,20 +68,18 @@ if args.length < 1 or args.length > 1000:
 if args.random_seq and (args.random_seq_length < 1 or args.random_seq_length > 1000 or args.random_seq_length > args.length):
     parser.error("if --random-seq is true then --random-seq-length must be less than --length, and has to be greater than 0 and less than 1000.")
 
-test_abc = """X:1148
-T:Drink to me only.
-T:2 Flutes.
-M:6/8
-L:1/8
-Q:3/8=60
-P:ABA
-Z:Jack Campin * www.campin.me.uk * 2009
-K:A
-P:A
-V:1
-ccc d2d|(ed)c (Bc)d|(eA)d c2B   | HA6    :|
-V:2
-AAA B2B|(cB)A (GA)B|(Ac)B A2[EG]|[HC6HA6]:|"""
+test_abc = """X:153
+T:Polska fr{\aa}n R\"on\"o
+R:sl\"angpolska
+O:\"Osterg\"otland
+Z:id:hn-sp-153
+M:3/4
+L:1/16
+K:Dm
+D3E FEFG A2d2 | d^cec c2A2 A2G2 | F2FG E2EF D3F | FED^C D2C2 C2A,2 |
+D3E FEFG A2d2 | d^cec c2A2 A2G2 | F2FG E2EF D3F | FED^C C2D2 D4 :|
+|: F2F2 A2F2 A2F2 | A2c2 cdcB G4 | ECEG ECEG ECEG | ECEG G2A2 A2F2 |
+D3E FEFG A2d2 | d^cec c2A2 A2G2 | F2FG E2EF D3F | FED^C C2D2 D4 :|"""
 
 out = parseAbcString(test_abc)
 print(out)

@@ -9,10 +9,11 @@ def logProcessFast(position, length, output):
     print("{}/{}\n\n".format(position, length))
 
 def dontCare(t):
-    if "X:" in t or "T:" in t:
-        return True
-    else:
-        return False
+    head = ["X:", "T:", "D:", "S:", "O:", "R:", "Z:", "N:", "H:", "C:"]
+    for h in head:
+        if h in t:
+            return True
+    return False
 
 def parseAbcString(abc_song):
     print(abc_song)
