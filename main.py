@@ -12,8 +12,8 @@ if(torch.cuda.is_available()):
 else:
     print("GPU is not available, using CPU.")
 
-device2 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device2 = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
 #size of word embeddings
@@ -27,9 +27,9 @@ learning_rate = 1e-1
 #momentum for SGD
 momentum = 0.9
 #upper epoch limit
-epochs = 200
+epochs = 50
 #batch size
-batch_size = 128
+batch_size = 64
 #sequence length
 bptt = 150
 #dropout applied to layers (0 = no dropout)
