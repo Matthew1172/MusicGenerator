@@ -9,7 +9,7 @@ def logProcessFast(position, length, output):
     print("{}/{}\n\n".format(position, length))
 
 def dontCare(t):
-    head = ["X:", "T:", "D:", "S:", "O:", "R:", "Z:", "N:", "H:", "C:"]
+    head = ["X:", "T:", "D:", "S:", "O:", "R:", "Z:", "N:", "H:", "C:", "B:", "F:", "A:", "W:", "w:", "Y:"]
     for h in head:
         if h in t:
             return True
