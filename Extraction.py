@@ -48,18 +48,6 @@ for f in file_paths:
     with open(f, "r", encoding="utf8") as file:
         read += file.read()
 
-'''
-songs = []
-didnt = []
-for s in re.split("\r\n\n", read):
-    if is_song(s):
-        songs.append("X:"+s.rstrip())
-    else:
-        didnt.append("X:"+s.rstrip())
-songs = list(set(songs))
-didnt = list(set(didnt))
-'''
-#songs = list(set(["X:"+s.rstrip() for s in re.split("X:", read) if is_song(s)]))
 songs = [i for i in re.split("\n\n", read) if "X:" in i]
 
 print("Found {} songs in folder".format(len(songs)))

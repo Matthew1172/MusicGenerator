@@ -8,75 +8,23 @@ def logProcessSlow(position, length, output, fn):
 def logProcessFast(position, length, output):
     print("{}/{}\n\n".format(position, length))
 
-def parseToken(t):
-    da = ""
-    if isinstance(t, note.Note):
-        da += "Note"
-        da += " "
-        da += t.nameWithOctave
-        da += " "
-        da += str(t.quarterLength)
-    elif isinstance(t, note.Rest):
-        da += "Rest"
-        da += " "
-        da += t.name
-        da += " "
-        da += str(t.quarterLength)
-    elif isinstance(t, bar.Barline):
-        da += "Bar"
-        da += " "
-        da += t.type
-    elif isinstance(t, clef.Clef):
-        da += "Clef"
-        da += " "
-        da += t.sign
-    elif isinstance(t, key.KeySignature):
-        da += "Key"
-        da += " "
-        da += str(t.sharps)
-    elif isinstance(t, meter.TimeSignature):
-        da += "Time"
-        da += " "
-        da += str(t.numerator)
-        da += " "
-        da += str(t.denominator)
-    elif isinstance(t, chord.Chord):
-        da += "Chord"
-        da += " "
-        da += "{"
-        for temp in t.notes:
-            da += "Note"
-            da += " "
-            da += temp.nameWithOctave
-            da += " "
-            da += str(temp.quarterLength)
-            da += "$"
-        da += "} "
-        da += "{"
-        da += str(t.quarterLength)
-        da += "}"
-    return da
+def dontCare(t):
+    if "X:" in t or "T:" in t:
+        return True
+    else:
+        return False
 
 def parseAbcString(abc_song):
     print(abc_song)
     pretty_song = []
-    first = True
+    a = abcFormat.ABCHandler()
     try:
-        s = converter.parse(abc_song)
-        #print(s[0].title)
-        for m in s[1].elements:
-            if isinstance(m, stream.Measure):
-                if first: first = False
-                else: pretty_song.append("|")
-                for n in m:
-                    t = parseToken(n)
-                    if t: pretty_song.append(t)
-            elif isinstance(m, spanner.RepeatBracket):
-                #Append something to pretty_song
-                continue
-            else:
-                t = parseToken(m)
-                if t: pretty_song.append(t)
+        a.process(abc_song)
+        tokenColls = a.splitByVoice()
+        for i in range(len(tokenColls)):
+            #ignore reel and title headers. Some tokens are busted? ex. '(3', '[1', '[2', '[3', '|]'
+            src = [t.src for t in tokenColls[i].tokens if not dontCare(t.src)]
+            pretty_song += src
     except:
         pass
     finally:
