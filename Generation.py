@@ -368,9 +368,8 @@ class Generation:
                 except repeat.ExpanderException:
                     print("Could not output MIDI file. Badly formed repeats or repeat expressions.")
                     raise CouldNotSaveMidiFile("Could not output MIDI file. Badly formed repeats or repeat expressions.")
-                except e:
-                    print(e)
-                    raise CouldNotSaveMidiFile(e)
+                except:
+                    raise CouldNotSaveMidiFile()
         else:
             print("No songs were generated.")
             raise CouldNotSaveInference("Length of export is 0")
