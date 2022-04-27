@@ -173,6 +173,11 @@ class Generation:
         self.model.eval()
 
     def loadDictionary(self):
+
+
+        print(self.DATASET)
+
+
         try:
             self.dic.load_dictionary(self.DATASET)
             self.dic.load_list(self.DATASET)
