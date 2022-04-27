@@ -5,70 +5,12 @@ from music21 import *
 from exceptions import *
 from Dictionary import *
 
-from music21.clef import TrebleClef, BassClef, Treble8vbClef
-
 app = Flask(__name__)
 
 # INITIALIZATION
 xml_response_headers = {"Content-Type": "text/xml",
                         "charset":      "utf-8"
                         }
-
-'''TODO: remove this and extract time signature properly'''
-#use this parameter or extract it from the metadata somehow
-timesignature = meter.TimeSignature('4/4')
-
-'''TODO: add a routes to get all notes, clefs, times, and keys available in dictionary'''
-'''TODO: add route to get all available datasets'''
-'''
-try:
-    self.dic.load_dictionary(self.DATASET)
-    self.dic.load_list(self.DATASET)
-except:
-    print(
-        "No dictionary file available for loading. Please run the Extraction.py script before generation or training.")
-    exit(-998)
-'''
-
-@app.route('/clefs', methods=['GET'])
-def clefs():
-    if request.method == 'GET':
-        dic = Dictionary()
-        datasets = "datasets"
-        dataset = request.args.get('dataset')
-        path = os.path.join(os.getcwd(), os.path.join(datasets, dataset))
-        dic.load_list(path)
-        return jsonify({'clefs': [i for i in dic.idx2word if "Clef" in i]})
-
-@app.route('/keys', methods=['GET'])
-def keys():
-    if request.method == 'GET':
-        dic = Dictionary()
-        datasets = "datasets"
-        dataset = request.args.get('dataset')
-        path = os.path.join(os.getcwd(), os.path.join(datasets, dataset))
-        dic.load_list(path)
-        return jsonify({'keys': [i for i in dic.idx2word if "Key" in i]})
-
-@app.route('/times', methods=['GET'])
-def times():
-    if request.method == 'GET':
-        dic = Dictionary()
-        datasets = "datasets"
-        dataset = request.args.get('dataset')
-        path = os.path.join(os.getcwd(), os.path.join(datasets, dataset))
-        dic.load_list(path)
-        return jsonify({'times': [i for i in dic.idx2word if "Time" in i]})
-
-@app.route('/notes', methods=['GET'])
-def notes():
-    if request.method == 'GET':
-        dic = Dictionary()
-        datasets = "datasets"
-        dataset = request.args.get('dataset')
-        path = os.path.join(os.getcwd(), os.path.join(datasets, dataset))
-        dic.load_list(path)
-        return jsonify({'notes': [i for i in dic.idx2word if "Note" in i]})
 
 '''
 request looks like:
@@ -87,7 +29,7 @@ def mgen():
         content = request.json
         '''TODO: check all keys of content and do error handling.'''
         DATASETS = "datasets"
-        content['dataset'] = os.path.join(DATASETS, content['dataset'])
+        content['dataset'] = os.path.join(os.path.join(os.getcwd(), DATASETS), content['dataset'])
 
         try:
             g = Generation(**content)
