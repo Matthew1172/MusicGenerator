@@ -73,6 +73,9 @@ def mgen():
         except CouldNotSaveTxtFile as e:
             print(e)
             return jsonify({'error': str(e)})
+        except:
+            pass
+
 
         midi = g.GENERATION_PREFIX+"_1.mid"
         mxl = g.GENERATION_PREFIX+"_1.mxl"
