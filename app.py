@@ -79,7 +79,7 @@ def mgen():
 
         midi = g.GENERATION_PREFIX+"_1.mid"
         mxl = g.GENERATION_PREFIX+"_1.mxl"
-        if os.path.exists(mxl) and os.path.exists(midi):
+        if os.path.exists(mxl):
             mxl_path = mxl.split('\\')[-2:]
             midi_path = midi.split('\\')[-2:]
             if len(mxl_path) < 2:
