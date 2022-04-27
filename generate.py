@@ -82,16 +82,23 @@ g = Generation(dataset=os.path.join(DATASETS, args.dataset),
                songs=args.songs,
                temperature=args.temperature)
 
-test_abc = """X:0079
-T:Allemande.
-M:2/4
-L:?
-Q:1/4=104
-P:ABA % Aird prints a da capo
-Z:Jack Campin * www.campin.me.uk * 2009
-K:?
-P:A
-A2"""
+test_abc = """X:1
+T:America the Beautiful
+M:4/4
+L:1/8
+K:C
+V:1
+G2 |"C" G3 E E2 G2 | "G7" G3 D D2 E2 | "G7" F2 G2 A2 B2 | "C" G6 G2 | 
+"C" G3 E E2 G2 | "C" G3 D D2 d2 | "G"  d2 e2 A2 | "G"d6 G2 | 
+"C" e3 e d2 "F#dim" c2 | "Dm7" c3 "G7" B B2 c2 | d2 B2 A2 G2 | 
+"C" c6 c2 | "F" c3A A2 c2 | "C" c3 G G2 G2 | 
+"F" A2 c2 "G7" G2 d2 | "C" c6 |]
+V:2
+E2 | E3 E C2 E2 | B,3  B, B,2 ^C2 | D2 E2 F2 G2 | E6 E2 | 
+E3 C C2 E2 | B,3 B, B,2 G2 | G2 A2 ^F2 E2 |  G6 D2 | 
+c3 c B2 A2 | F3 D D2 E2 | F2 G2 D2 D2 | 
+G6 G2 | F3 F F2 F2 | E3 E E2 E2 | 
+F2 A2 F2 F2 | E6 |]"""
 
 g.loadDataFromAbc(test_abc)
 

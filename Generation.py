@@ -186,11 +186,13 @@ class Generation:
                 "No dictionary file available for loading. Please run the Extraction.py script before generation or training.")
             exit(-998)
 
-    '''TODO: Get a random clef'''
     def setRandInitClef(self):
-        clefs = [clef for clef in self.dic.idx2word if "V:" in clef]
+        clefProg = re.compile(r"clef=[a-zA-Z0-9-?]+")
+        clefs = []
+        for clef in self.dic.idx2word:
+            m = clefProg.search(clef)
+            if m: clefs.append(m.group(0).split("=")[1])
         self.iClef = clefs[randint(0, len(clefs) - 1)]
-        self.iClef = "treble"
 
     def setRandInitKey(self):
         keys = [key for key in self.dic.idx2word if "K:" in key]
@@ -210,15 +212,14 @@ class Generation:
         self.iSeq = [notes[randint(0, len(notes) - 1)] for i in range(self.rSeqLen)]
         self.iSeq = ['C']
 
-    '''TODO: parse through V: headers and look for name= value and take those clefs.'''
     def checkInitClef(self):
-        return True
-        try:
-            self.dic.word2idx[self.iClef]
-        except KeyError:
+        clefProg = re.compile(r"clef=[a-zA-Z0-9-?]+")
+        clefs = []
+        for clef in self.dic.idx2word:
+            m = clefProg.search(clef)
+            if m: clefs.append(m.group(0).split("=")[1])
+        if self.iClef not in clefs:
             raise ClefNotFoundInDictionary(self.iClef)
-        except:
-            exit(1)
 
     def checkInitKey(self):
         try:
@@ -290,7 +291,7 @@ class Generation:
     output is a True or False boolean. If the token has a ABC notation header key, then return True. else return False.
     '''
     def isHeader(self, abcToken):
-        head = ["L:", "M:", "K:", "P:"]
+        head = ["L:", "M:", "K:", "P:", "V:"]
         for h in head:
             if h in abcToken:
                 return True
@@ -310,7 +311,6 @@ class Generation:
     ['M:3/4', 'L:1/16', 'K:Dm', 'D3', 'E', 'F', 'E', 'F', 'G', 'A2', 'd2', '|', 'd', '^c', 'e', 'c'...
     returns an string in ABC notation
     ex.
-    
     '''
     def encode(self, generatedSong):
         song = ""
@@ -382,18 +382,22 @@ class Generation:
 
     def parseAbcToken(self, t):
         if "V:" in t:
-            # get the clef
-            if "name=" in t or "clef=" in t:
-                try:
-                    clef = t.split("clef=")[1]
-                except:
-                    clef = "treble"
-                if clef == "?":
-                    self.setRandInitClef()
-                    clef = self.iClef.split(" ")[1]
-                return "V:1 clef={}\n".format(clef)
+            voiceProg = re.compile(r"V: *[0-9]*")
+            m = voiceProg.search(t)
+            if m:
+                voiceNumber = m.group(0).replace(" ", "")[2:]
             else:
-                return "V:1 clef=treble\n"
+                voiceNumber = str(1)
+
+            clefProg = re.compile(r"clef=[a-zA-Z0-9-?]+")
+            m = clefProg.search(t)
+            if m:
+                clef = m.group(0).split("=")[1]
+                if clef == "?": self.setRandInitClef()
+                else: self.iClef = clef
+            else:
+                self.iClef = "treble"
+            return "V:{} clef={}\n".format(voiceNumber, self.iClef)
         elif "M:" in t:
             if self.isRandomProp(t): self.setRandInitTime()
             else: self.iTime = t
@@ -420,5 +424,4 @@ class Generation:
 
         parsed = parseAbcString(abc_new)
 
-        self.iClef = "treble"
         self.iSeq = parsed+self.iSeq
