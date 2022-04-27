@@ -55,7 +55,7 @@ def mgen():
             return jsonify({'error': str(dnf)})
         g.loadModel()
         g.loadDictionary()
-        abc = unescape(content['abc']).replace("/", "\"")
+        abc = unescape(content['abc']).replace("\\\"", "\"")
 
         g.loadDataFromAbc(abc)
 
