@@ -4,6 +4,7 @@ from Generation import *
 from music21 import *
 from exceptions import *
 from Dictionary import *
+from html import unescape
 
 app = Flask(__name__)
 
@@ -54,7 +55,7 @@ def mgen():
             return jsonify({'error': str(dnf)})
         g.loadModel()
         g.loadDictionary()
-        abc = content['abc']
+        abc = unescape(content['abc'])
 
         g.loadDataFromAbc(abc)
 
