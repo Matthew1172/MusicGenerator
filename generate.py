@@ -68,6 +68,20 @@ if args.length < 1 or args.length > 1000:
 if args.random_seq and (args.random_seq_length < 1 or args.random_seq_length > 1000 or args.random_seq_length > args.length):
     parser.error("if --random-seq is true then --random-seq-length must be less than --length, and has to be greater than 0 and less than 1000.")
 
+g = Generation(dataset=os.path.join(DATASETS, args.dataset),
+               input_clef=args.input_clef,
+               input_key=args.input_key,
+               input_seq=args.input_seq,
+               input_time=args.input_time,
+               length=args.length,
+               random_clef=args.random_clef,
+               random_key=args.random_key,
+               random_seq=args.random_seq,
+               random_seq_length=args.random_seq_length,
+               random_time=args.random_time,
+               songs=args.songs,
+               temperature=args.temperature)
+
 test_abc = """X:153
 T:Polska fr{\aa}n R\"on\"o
 R:sl\"angpolska
@@ -81,5 +95,7 @@ D3E FEFG A2d2 | d^cec c2A2 A2G2 | F2FG E2EF D3F | FED^C C2D2 D4 :|
 |: F2F2 A2F2 A2F2 | A2c2 cdcB G4 | ECEG ECEG ECEG | ECEG G2A2 A2F2 |
 D3E FEFG A2d2 | d^cec c2A2 A2G2 | F2FG E2EF D3F | FED^C C2D2 D4 :|"""
 
-out = parseAbcString(test_abc)
-print(out)
+g.loadDataFromAbc(test_abc)
+
+g.generate()
+g.save()

@@ -1,7 +1,4 @@
-import os
 import time
-
-import music21.musicxml.xmlObjects
 import torch
 import data
 from random import randint
@@ -16,35 +13,94 @@ class Generation:
     def __init__(self, **kwargs):
         self.args = {**kwargs}
 
+        if (torch.cuda.is_available()):
+            print("GPU: ", torch.cuda.get_device_name(1), " is available, Switching now.")
+        else:
+            print("GPU is not available, using CPU.")
+
+        self.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+        print("Device is now: ", self.device)
+
         self.DATASET = self.args['dataset']
+        self.OUTPUTS_DIRECTORY = os.path.join(os.getcwd(), "outputs")
+        self.OUTPUT = os.path.join(self.OUTPUTS_DIRECTORY, "output@" + time.asctime().replace(' ', '').replace(':', ''))
+        GENERATION_PREFIX = "generated"
+        self.GENERATION_PREFIX = os.path.join(self.OUTPUT, GENERATION_PREFIX)
+        # Checkpoint location:
+        CHECKPOINT_DIR = 'training_checkpoints_pytorch'
+        CHECKPOINT_DIR = os.path.join(self.DATASET, CHECKPOINT_DIR)
+        CHECKPOINT_PREFIX = 'my_ckpt.pth'
+        self.CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
+
+        self.dic = data.Dictionary()
+
+        self.loadModel()
+        self.loadDictionary()
+
+        try:
+            self.iClef = self.args['input_clef']
+            self.checkInitClef()
+        except:
+            self.iClef = "treble"
+
+        try:
+            self.iKey = self.args['input_key']
+            self.checkInitKey()
+        except:
+            self.iKey = "K:D"
+
+        try:
+            self.iTime = self.args['input_time']
+            self.checkInitTime()
+        except:
+            self.iTime = "M:4/4"
+
+        try:
+            self.iLength = self.args['input_length']
+            '''TODO: create checkInitLength()'''
+        except:
+            self.iLength = "L:1/8"
+
+        try:
+            self.iSeq = self.args['input_seq'].split('$')
+            '''User input for notes is in ABC notation. parse it and then decode the notes into out notation'''
+            #self.iSeq = converter.parse(self.args['input_seq'])
+        except:
+            self.iSeq = ["C"]
+
 
         try:
             self.rClef = eval(self.args['random_clef'])
         except KeyError:
             self.rClef = False
+        except TypeError:
+            self.rClef = self.args['random_clef']
         except:
             self.rClef = False
+        finally:
+            if self.rClef: self.setRandInitClef()
 
         try:
             self.rKey = eval(self.args['random_key'])
         except KeyError:
             self.rKey = False
+        except TypeError:
+            self.rKey = self.args['random_key']
         except:
             self.rKey = False
+        finally:
+            if self.rKey: self.setRandInitKey()
 
         try:
             self.rTime = eval(self.args['random_time'])
         except KeyError:
             self.rTime = False
+        except TypeError:
+            self.rTime = self.args['random_time']
         except:
             self.rTime = False
-
-        try:
-            self.rSeq = eval(self.args['random_seq'])
-        except KeyError:
-            self.rSeq = False
-        except:
-            self.rSeq = False
+        finally:
+            if self.rTime: self.setRandInitTime()
 
         try:
             self.rSeqLen = int(self.args['random_seq_length'])
@@ -52,6 +108,28 @@ class Generation:
             self.rSeqLen = 1
         except:
             self.rSeqLen = 1
+
+        try:
+            self.rSeq = eval(self.args['random_seq'])
+        except KeyError:
+            self.rSeq = False
+        except TypeError:
+            self.rSeq = self.args['random_seq']
+        except:
+            self.rSeq = False
+        finally:
+            if self.rSeq: self.setRandInitSeq()
+
+        try:
+            self.rLength = eval(self.args['random_length'])
+        except KeyError:
+            self.rLength = False
+        except TypeError:
+            self.rLength = self.args['random_length']
+        except:
+            self.rLength = False
+        finally:
+            if self.rLength: self.setRandInitLength()
 
         try:
             self.temp = float(self.args['temperature'])
@@ -76,56 +154,7 @@ class Generation:
         except:
             self.numberOfSongs = 1
 
-        if (torch.cuda.is_available()):
-            print("GPU: ", torch.cuda.get_device_name(1), " is available, Switching now.")
-        else:
-            print("GPU is not available, using CPU.")
-
-        self.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
-        print("Device is now: ", self.device)
-
-        self.dic = data.Dictionary()
-        try:
-            self.iClef = self.args['input_clef']
-        except KeyError:
-            self.iClef = "Clef G"
-
-        try:
-            self.iKey = self.args['input_key']
-        except KeyError:
-            self.iKey = "Key 2"
-
-        try:
-            self.iTime = self.args['input_time']
-        except KeyError:
-            self.iTime = "Time 4 4"
-
-        try:
-            self.iSeq = self.args['input_seq'].split('$')
-            '''User input for notes is in ABC notation. parse it and then decode the notes into out notation'''
-            #self.iSeq = converter.parse(self.args['input_seq'])
-        except KeyError:
-            #p = stream.Part()
-            #m = stream.Measure()
-            #m.append(note.Note(nameWithOctave="C5", duration=1.0))
-            #p.append(m)
-            #self.iSeq = p[1]
-            self.iSeq = ["Note C 1.0"]
-
         self.export = []
-
-        CWD = os.getcwd()
-        self.OUTPUTS_DIRECTORY = os.path.join(CWD, "outputs")
-        self.OUTPUT = os.path.join(self.OUTPUTS_DIRECTORY, "output@" + time.asctime().replace(' ', '').replace(':', ''))
-
-        GENERATION_PREFIX = "generated"
-        self.GENERATION_PREFIX = os.path.join(self.OUTPUT, GENERATION_PREFIX)
-
-        # Checkpoint location:
-        CHECKPOINT_DIR = 'training_checkpoints_pytorch'
-        CHECKPOINT_DIR = os.path.join(self.DATASET, CHECKPOINT_DIR)
-        CHECKPOINT_PREFIX = 'my_ckpt.pth'
-        self.CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
 
         '''PERFORM CHECKING'''
         assert self.temp >= 1e-3
@@ -152,45 +181,33 @@ class Generation:
                 "No dictionary file available for loading. Please run the Extraction.py script before generation or training.")
             exit(-998)
 
-    def setInitClef(self):
-        if self.rClef:
-            clefs = [clef for clef in self.dic.idx2word if "Clef" in clef]
-            self.iClef = clefs[randint(0, len(clefs) - 1)]
-
-    def setInitKey(self):
-        if self.rKey:
-            keys = [key for key in self.dic.idx2word if "Key" in key]
-            self.iKey = keys[randint(0, len(keys) - 1)]
-
-    def setInitTime(self):
-        if self.rTime:
-            times = [time for time in self.dic.idx2word if "Time" in time]
-            self.iTime = times[randint(0, len(times) - 1)]
-
-    def setInitSeq(self):
-        if self.rSeq:
-            notes = [note for note in self.dic.idx2word if "Note" in note]
-            self.iSeq = [notes[randint(0, len(notes) - 1)] for i in range(self.rSeqLen)]
-
+    '''TODO: Get a random clef'''
     def setRandInitClef(self):
-        clefs = [clef for clef in self.dic.idx2word if "Clef" in clef]
+        clefs = [clef for clef in self.dic.idx2word if "V:" in clef]
         self.iClef = clefs[randint(0, len(clefs) - 1)]
+        self.iClef = "treble"
 
     def setRandInitKey(self):
-        keys = [key for key in self.dic.idx2word if "Key" in key]
+        keys = [key for key in self.dic.idx2word if "K:" in key]
         self.iKey = keys[randint(0, len(keys) - 1)]
 
     def setRandInitTime(self):
-        times = [time for time in self.dic.idx2word if "Time" in time]
+        times = [time for time in self.dic.idx2word if "M:" in time]
         self.iTime = times[randint(0, len(times) - 1)]
 
+    def setRandInitLength(self):
+        lengths = [length for length in self.dic.idx2word if "L:" in length]
+        self.iLength = lengths[randint(0, len(lengths) - 1)]
+
+    '''TODO: Get a random list of abc notes'''
     def setRandInitSeq(self):
         notes = [note for note in self.dic.idx2word if "Note" in note]
         self.iSeq = [notes[randint(0, len(notes) - 1)] for i in range(self.rSeqLen)]
+        self.iSeq = ['C']
 
-    '''TODO: raise proper custom exceptions for flask server'''
-
+    '''TODO: parse through V: headers and look for name= value and take those clefs.'''
     def checkInitClef(self):
+        return True
         try:
             self.dic.word2idx[self.iClef]
         except KeyError:
@@ -229,6 +246,11 @@ class Generation:
         if flag:
             raise NoteNotFoundInDictionary(b)
 
+    '''
+    Generation function. this method inferences the model. Once it is completed, it sets self.export.
+    self.export is set to be a list of tuples, where the first element of the tuple is the file name prefix
+    the song is supposed to be saved to. THe second element is a string of the ABC song to saved.
+    '''
     def generate(self):
         # Set the random seed manually for reproducibility.
         torch.manual_seed(self.dic.word2idx[self.iTime])
@@ -238,15 +260,6 @@ class Generation:
         for sn in range(1, self.numberOfSongs + 1):
             print("Generating song {}/{}".format(sn, self.numberOfSongs))
             generatedSong = []
-
-            '''
-            if self.iClef != '':
-                generatedSong.append(self.dic.idx2word[self.dic.word2idx[self.iClef]])
-            if self.iKey != '':
-                generatedSong.append(self.dic.idx2word[self.dic.word2idx[self.iKey]])
-            if self.iTime != '':
-                generatedSong.append(self.dic.idx2word[self.dic.word2idx[self.iTime]])
-            '''
 
             if len(self.iSeq) > 0:
                 for n in self.iSeq: generatedSong.append(self.dic.idx2word[self.dic.word2idx[n]])
@@ -267,62 +280,40 @@ class Generation:
             out = self.GENERATION_PREFIX + "_" + str(sn)
             self.export.append((out, p))
 
+    '''
+    input is a String ABC token.
+    output is a True or False boolean. If the token has a ABC notation header key, then return True. else return False.
+    '''
+    def isHeader(self, abcToken):
+        head = ["L:", "M:", "K:", "P:"]
+        for h in head:
+            if h in abcToken:
+                return True
+        return False
+
+    '''
+    input is a String ABC token.
+    output is a True or False boolean. If the ABC token has P: or p: in it then return True, else return False.
+    '''
+    def isPart(self, abcToken):
+        if "P:" in abcToken or "p:" in abcToken: return True
+        return False
+
+    '''
+    Takes in a list of ABC tokens.
+    ex.
+    ['M:3/4', 'L:1/16', 'K:Dm', 'D3', 'E', 'F', 'E', 'F', 'G', 'A2', 'd2', '|', 'd', '^c', 'e', 'c'...
+    returns an string in ABC notation
+    ex.
+    
+    '''
     def encode(self, generatedSong):
-        p = stream.Part()
-        m = stream.Measure()
-        for i in generatedSong:
-            if i == "|":
-                p.append(m)
-                m = stream.Measure()
-            elif "Chord" in i:
-                '''Handle chord'''
-                decode = re.findall('\{(.*?)\}', i)
-                chords = decode[0].split("$")
-                chordNotes = []
-                for ch in chords:
-                    temp = ch.split(' ')
-                    if "Note" in temp:
-                        name = temp[1]
-                        try:
-                            length = float(temp[2])
-                        except(ValueError):
-                            length = Fraction(temp[2])
-                        chordNotes.append(note.Note(nameWithOctave=name, quarterLength=length))
-                m.append(chord.Chord(chordNotes))
-            else:
-                j = i.split(" ")
-                if "Note" in j:
-                    name = j[1]
-                    try:
-                        length = float(j[2])
-                    except(ValueError):
-                        length = Fraction(j[2])
-                    m.append(note.Note(nameWithOctave=name, quarterLength=length))
-                elif "Rest" in j:
-                    try:
-                        length = float(j[2])
-                    except(ValueError):
-                        length = Fraction(j[2])
-                    m.append(note.Rest(quarterLength=length))
-                elif "Bar" in j:
-                    type = j[1]
-                    # m.append(bar.Barline(type=type))
-                elif "Clef" in j:
-                    if j[1] == 'G':
-                        m.append(clef.TrebleClef())
-                    else:
-                        continue
-                elif "Key" in j:
-                    sharps = int(j[1])
-                    m.append(key.KeySignature(sharps=sharps))
-                elif "Time" in j:
-                    numerator = j[1]
-                    denominator = j[2]
-                    tsig = numerator + "/" + denominator
-                    m.append(meter.TimeSignature(tsig))
-                else:
-                    continue
-        return p
+        song = ""
+        for token in generatedSong:
+            if self.isPart(token): song += "\n"+token+"\n"
+            elif self.isHeader(token): song += token+"\n"
+            else: song += token
+        return song
 
     def save(self):
         if len(self.export) > 0:
@@ -339,9 +330,17 @@ class Generation:
                 raise CouldNotSaveInference("Trying to overwrite an existing output directory.")
 
             for e in self.export:
-                file_name = e[0] + ".txt"
+
                 try:
-                    e[1].write("text", file_name)
+                    file_name = e[0] + ".txt"
+                    song = converter.parse(e[1])
+                except KeyError:
+                    raise CouldNotSaveInference("Could get filename or song string from export tuple.")
+                except:
+                    raise CouldNotSaveInference("Could not parse ABC file.")
+
+                try:
+                    song.write("text", file_name)
                     print("Saved text file here: {}".format(file_name))
                 except e:
                     print(e)
@@ -349,7 +348,7 @@ class Generation:
 
                 file_name = e[0] + ".mxl"
                 try:
-                    e[1].write("musicxml", file_name)
+                    song.write("musicxml", file_name)
                     print("Saved mxl file here: {}".format(file_name))
                 except e:
                     print(e)
@@ -357,7 +356,7 @@ class Generation:
 
                 file_name = e[0] + ".mid"
                 try:
-                    e[1].write("midi", file_name)
+                    song.write("midi", file_name)
                     print("Saved midi file here: {}".format(file_name))
                 except repeat.ExpanderException:
                     print("Could not output MIDI file. Badly formed repeats or repeat expressions.")
@@ -375,54 +374,11 @@ class Generation:
         else:
             return False
 
-    '''
-    Receives a (String) time signature in my format (Time 4 4)
-    Returns a (String) time signature in fractional format (4/4)
-    '''
-    def splitMyTime(self, time):
-        t = time.split(" ")
-        numerator = t[1]
-        denominator = t[2]
-        return numerator + "/" + denominator
-
-    '''
-    Receives a (String) time signature in fractional format (4/4)
-    Returns a (String) time signature in my format (Time 4 4)
-    '''
-    def makeMyTime(self, time):
-        t = time.split("/")
-        numerator = t[0]
-        denominator = t[1]
-        return "Time {} {}".format(numerator, denominator)
-
-    '''
-    Receives a (String) key signature in ABC notation (Am)
-    Returns a (String) key signature in my notation (Key 3)
-    '''
-    def makeMyKey(self, abc_key):
-        return "Key {}".format(str(key.Key(abc_key).sharps))
-
-    '''
-    Receives a (String) key signature in my notation (Key 3)
-    Returns a (String) key signature ABC notation (Am)
-    '''
-    def makeAbcKey(self, my_key):
-        return key.KeySignature(int(my_key.split(" ")[1])).asKey().name
-
     def parseAbcToken(self, t):
         if "V:" in t:
             # get the clef
             if "name=" in t:
                 try:
-                    '''
-                    treble
-                    alto
-                    tenor
-                    bass
-                    G (same as treble)
-                    C (same as alto)
-                    F (same as bass)
-                    '''
                     clef = t.split("name=")[1]
                 except:
                     clef = "treble"
@@ -433,27 +389,19 @@ class Generation:
             else:
                 return "V:1 name=tenor\n"
         elif "M:" in t:
-            time = t[2:]
-            # check if it is a ?
-            if self.isRandomProp(time):
-                self.setRandInitTime()
-                tsig = self.splitMyTime(self.iTime)
-                return "M:{}\n".format(str(tsig))
-            else:
-                self.iTime = self.makeMyTime(time)
-                return "M:{}\n".format(time)
+            if self.isRandomProp(t): self.setRandInitTime()
+            else: self.iTime = t
+            return "{}\n".format(self.iTime)
         elif "K:" in t:
-            abc_key = t[2:]
-            if self.isRandomProp(abc_key):
-                self.setRandInitKey()
-                k = self.makeAbcKey(self.iKey)
-                return "K:{}\n".format(k)
-            else:
-                self.iKey = self.makeMyKey(abc_key)
-                return "K:{}\n".format(abc_key)
+            if self.isRandomProp(t): self.setRandInitKey()
+            else: self.iKey = t
+            return "{}\n".format(self.iKey)
+        elif "L:" in t:
+            if self.isRandomProp(t): self.setRandInitLength()
+            else: self.iLength = t
+            return "{}\n".format(self.iLength)
         else:
-            if self.isRandomProp(t):
-                self.setRandInitSeq()
+            if self.isRandomProp(t): self.setRandInitSeq()
             return "{}\n".format(t)
 
     def loadDataFromAbc(self, abc):
@@ -465,5 +413,6 @@ class Generation:
             abc_new += self.parseAbcToken(ele)
 
         parsed = parseAbcString(abc_new)
-        self.iClef = [ele for ele in parsed if "Clef " in ele][0]
+
+        self.iClef = "treble"
         self.iSeq = parsed+self.iSeq

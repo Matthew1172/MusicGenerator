@@ -85,40 +85,12 @@ req = {
 def mgen():
     if request.method == 'POST':
         content = request.json
-
         '''TODO: check all keys of content and do error handling.'''
-
         DATASETS = "datasets"
         content['dataset'] = os.path.join(DATASETS, content['dataset'])
-        g = Generation(**content)
 
         try:
-            g.checkDataset()
-        except DatasetNotFound as dnf:
-            return jsonify({'error': str(dnf)})
-
-        g.loadModel()
-        g.loadDictionary()
-        g.setInitClef()
-        g.setInitKey()
-        g.setInitTime()
-        g.setInitSeq()
-
-        abc = content['abc']
-
-
-        print(abc)
-
-
-        g.loadDataFromAbc(abc)
-
-        '''TODO: check for custom exceptions and return proper error codes.
-        Append all errors to one error code so the user can see everything at once.'''
-        try:
-            g.checkInitClef()
-            g.checkInitKey()
-            g.checkInitTime()
-            g.checkInitSeq()
+            g = Generation(**content)
         except NoteNotFoundInDictionary as nnf:
             print(nnf)
             return jsonify({'error': str(nnf)})
@@ -134,14 +106,22 @@ def mgen():
         except:
             print("Could not run generation with inputs.")
             return jsonify({'error': "could not run generation with inputs."})
+        try:
+            g.checkDataset()
+        except DatasetNotFound as dnf:
+            return jsonify({'error': str(dnf)})
+        g.loadModel()
+        g.loadDictionary()
+        abc = content['abc']
 
 
+        print(abc)
+        g.loadDataFromAbc(abc)
         print(g.iSeq)
 
 
 
         g.generate()
-
         try:
             g.save()
         except CouldNotSaveInference as e:
@@ -156,7 +136,6 @@ def mgen():
         except CouldNotSaveTxtFile as e:
             print(e)
             return jsonify({'error': str(e)})
-
 
         midi = g.GENERATION_PREFIX+"_1.mid"
         mxl = g.GENERATION_PREFIX+"_1.mxl"

@@ -3,7 +3,7 @@ import os
 from Dictionary import *
 
 DATASETS = "datasets"
-DATASET = "newModel1"
+DATASET = "newModelTrained"
 bin = True
 
 CWD = os.getcwd()
