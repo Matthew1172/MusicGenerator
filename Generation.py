@@ -369,7 +369,7 @@ class Generation:
                     print("Could not output MIDI file. Badly formed repeats or repeat expressions.")
                     raise CouldNotSaveMidiFile("Could not output MIDI file. Badly formed repeats or repeat expressions.")
                 except:
-                    raise CouldNotSaveMidiFile("Exception on writing to midi file.")
+                    raise Exception
         else:
             print("No songs were generated.")
             raise CouldNotSaveInference("Length of export is 0")
