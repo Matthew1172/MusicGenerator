@@ -88,13 +88,7 @@ M:4/4
 L:1/8
 K:C
 V:1
-G2
-V:2
-E2
-V:1
-E2
-V:2
-E2"""
+?"""
 
 g.loadDataFromAbc(test_abc)
 

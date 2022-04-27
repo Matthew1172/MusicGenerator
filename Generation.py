@@ -208,9 +208,12 @@ class Generation:
 
     '''TODO: Get a random list of abc notes'''
     def setRandInitSeq(self):
-        notes = [note for note in self.dic.idx2word if "Note" in note]
+        noteProg = re.compile(r"[a-zA-Z]+")
+        notes = []
+        for note in self.dic.idx2word:
+            m = noteProg.search(note)
+            if m and not self.isHeader(note) and not self.isPart(note): notes.append(note)
         self.iSeq = [notes[randint(0, len(notes) - 1)] for i in range(self.rSeqLen)]
-        self.iSeq = ['C']
 
     def checkInitClef(self):
         clefProg = re.compile(r"clef=[a-zA-Z0-9-?]+")
