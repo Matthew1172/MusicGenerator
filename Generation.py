@@ -336,6 +336,8 @@ class Generation:
 
             for e in self.export:
 
+                print(e[1])
+
                 try:
                     file_name = e[0] + ".txt"
                     song = converter.parse(e[1])
@@ -343,10 +345,6 @@ class Generation:
                     raise CouldNotSaveInference("Could get filename or song string from export tuple.")
                 except:
                     raise CouldNotSaveInference("Could not parse ABC file.")
-
-
-                print(song)
-
 
                 try:
                     song.write("text", file_name)
