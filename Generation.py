@@ -316,7 +316,7 @@ class Generation:
         song = ""
         for token in generatedSong:
             if self.isPart(token): song += "\n"+token+"\n"
-            elif self.isHeader(token): song += token+"\n"
+            elif self.isHeader(token): song += "\n"+token+"\n"
             else: song += token
         return song
 
@@ -382,17 +382,17 @@ class Generation:
     def parseAbcToken(self, t):
         if "V:" in t:
             # get the clef
-            if "name=" in t:
+            if "name=" in t or "clef=" in t:
                 try:
-                    clef = t.split("name=")[1]
+                    clef = t.split("clef=")[1]
                 except:
                     clef = "treble"
                 if clef == "?":
                     self.setRandInitClef()
                     clef = self.iClef.split(" ")[1]
-                return "V:1 name={}\n".format(clef)
+                return "V:1 clef={}\n".format(clef)
             else:
-                return "V:1 name=tenor\n"
+                return "V:1 clef=treble\n"
         elif "M:" in t:
             if self.isRandomProp(t): self.setRandInitTime()
             else: self.iTime = t

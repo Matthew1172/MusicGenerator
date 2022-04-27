@@ -82,18 +82,16 @@ g = Generation(dataset=os.path.join(DATASETS, args.dataset),
                songs=args.songs,
                temperature=args.temperature)
 
-test_abc = """X:153
-T:Polska fr{\aa}n R\"on\"o
-R:sl\"angpolska
-O:\"Osterg\"otland
-Z:id:hn-sp-153
-M:3/4
-L:1/16
-K:Dm
-D3E FEFG A2d2 | d^cec c2A2 A2G2 | F2FG E2EF D3F | FED^C D2C2 C2A,2 |
-D3E FEFG A2d2 | d^cec c2A2 A2G2 | F2FG E2EF D3F | FED^C C2D2 D4 :|
-|: F2F2 A2F2 A2F2 | A2c2 cdcB G4 | ECEG ECEG ECEG | ECEG G2A2 A2F2 |
-D3E FEFG A2d2 | d^cec c2A2 A2G2 | F2FG E2EF D3F | FED^C C2D2 D4 :|"""
+test_abc = """X:0079
+T:Allemande.
+M:2/4
+L:?
+Q:1/4=104
+P:ABA % Aird prints a da capo
+Z:Jack Campin * www.campin.me.uk * 2009
+K:?
+P:A
+A2"""
 
 g.loadDataFromAbc(test_abc)
 
