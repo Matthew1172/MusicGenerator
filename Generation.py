@@ -344,6 +344,10 @@ class Generation:
                 except:
                     raise CouldNotSaveInference("Could not parse ABC file.")
 
+
+                print(song)
+
+
                 try:
                     song.write("text", file_name)
                     print("Saved text file here: {}".format(file_name))

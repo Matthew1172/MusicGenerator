@@ -56,12 +56,7 @@ def mgen():
         g.loadDictionary()
         abc = content['abc']
 
-
-        print(abc)
         g.loadDataFromAbc(abc)
-        print(g.iSeq)
-
-
 
         g.generate()
         try:
@@ -89,7 +84,7 @@ def mgen():
                 midi_path = midi.split('/')[-2:]
 
 
-            print("mxl: {}\nmidi: {}".format(mxl_path, midi_path))
+            #print("mxl: {}\nmidi: {}".format(mxl_path, midi_path))
 
 
             return jsonify({
@@ -99,7 +94,7 @@ def mgen():
         else:
 
 
-            print("mxl or midi file does not exist.")
+            #print("mxl or midi file does not exist.")
 
 
             return jsonify({'saved': False})
