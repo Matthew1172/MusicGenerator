@@ -86,7 +86,7 @@ test_abc = """X:1
 T:America the Beautiful
 M:4/4
 L:1/8
-K:C
+K:?
 V:1
 ?"""
 

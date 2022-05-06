@@ -278,7 +278,23 @@ class Generation:
             with torch.no_grad():  # no tracking history
                 for i in tqdm(range(self.gen_length)):
                     output = self.model(inp, False)
+                    '''
+                    Output of model is 2d list where first dim represents an element in generatedsong. list size is length of generatedsong.
+                    Second dim is a list of probabilities for next note, size is length of dictionary.
+                    We only want to get the probabilities for the last note in the generated song, so we access the last element
+                    using [-1] and squeeze out the first dimension. This leaves us with a single dim list of probabilities
+                    for the next note for the last note in generatedsong. After we have this list of probabilities
+                    for the last note in generated song, we divide all probabilities by the temperature. After this,
+                    we raise e to the power of each of the probabilities. We do this to get rid of negative values for our
+                    probability distribution.
+                    let x be an element of <0.123, -0.42, ...>
+                    word_weights = <e^0.123, e^-0.42, ...>
+                    '''
                     word_weights = output[-1].squeeze().div(self.temp).exp().cpu()
+                    '''
+                    Create a multinomial probability distribution from word weights.
+                    Sample the distribution for 1 element.
+                    '''
                     word_idx = torch.multinomial(word_weights, 1)[0]
                     word_tensor = torch.Tensor([[word_idx]]).long().to(self.device)
                     inp = torch.cat([inp, word_tensor], 0)

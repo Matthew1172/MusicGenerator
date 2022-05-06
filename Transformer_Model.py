@@ -58,7 +58,10 @@ class TransformerModel(nn.Module):
             raise ImportError('TransformerEncoder module does not exist in PyTorch 1.1 or lower.')
         self.src_mask = None
         self.pos_encoder = PositionalEncoding(ninp, dropout)
+        #TransformerEncoderLayer is made up of self-attn and feedforward network.
+
         encoder_layers = TransformerEncoderLayer(ninp, nhead, nhid, dropout)
+        #TransformerEncoder is a stack of N encoder layers
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
         self.encoder = nn.Embedding(ntoken, ninp)
         self.ninp = ninp
