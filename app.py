@@ -164,3 +164,46 @@ def sheet_to_xml_response(sheet: stream.Stream):
 
     response = make_response((xml_sheet_bytes, xml_response_headers))
     return response
+
+
+
+
+@app.route('/clefs', methods=['GET'])
+def clefs():
+    if request.method == 'GET':
+        dic = Dictionary()
+        datasets = "datasets"
+        dataset = request.args.get('dataset')
+        path = os.path.join(os.getcwd(), os.path.join(datasets, dataset))
+        dic.load_list(path)
+        return jsonify({'clefs': [i for i in dic.idx2word if "Clef" in i]})
+
+@app.route('/keys', methods=['GET'])
+def keys():
+    if request.method == 'GET':
+        dic = Dictionary()
+        datasets = "datasets"
+        dataset = request.args.get('dataset')
+        path = os.path.join(os.getcwd(), os.path.join(datasets, dataset))
+        dic.load_list(path)
+        return jsonify({'keys': [i for i in dic.idx2word if "Key" in i]})
+
+@app.route('/times', methods=['GET'])
+def times():
+    if request.method == 'GET':
+        dic = Dictionary()
+        datasets = "datasets"
+        dataset = request.args.get('dataset')
+        path = os.path.join(os.getcwd(), os.path.join(datasets, dataset))
+        dic.load_list(path)
+        return jsonify({'times': [i for i in dic.idx2word if "Time" in i]})
+
+@app.route('/notes', methods=['GET'])
+def notes():
+    if request.method == 'GET':
+        dic = Dictionary()
+        datasets = "datasets"
+        dataset = request.args.get('dataset')
+        path = os.path.join(os.getcwd(), os.path.join(datasets, dataset))
+        dic.load_list(path)
+        return jsonify({'notes': [i for i in dic.idx2word if "Note" in i]})
