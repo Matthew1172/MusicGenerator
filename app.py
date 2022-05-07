@@ -31,7 +31,7 @@ except:
 '''
 
 @app.route('/datasets', methods=['GET'])
-def clefs():
+def datasets():
     if request.method == 'GET':
         dic = Dictionary()
         datasets = "datasets"
