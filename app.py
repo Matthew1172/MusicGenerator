@@ -30,6 +30,17 @@ except:
     exit(-998)
 '''
 
+@app.route('/datasets', methods=['GET'])
+def clefs():
+    if request.method == 'GET':
+        dic = Dictionary()
+        datasets = "datasets"
+
+        dataset_folder_names = [os.path.split(os.path.split(dp)[0])[1] for dp, dn, filenames in os.walk(os.path.join(os.getcwd(), datasets)) for f in filenames if
+                      os.path.splitext(f)[1] == '.pth']
+
+        return jsonify({'datasets': dataset_folder_names})
+
 @app.route('/clefs', methods=['GET'])
 def clefs():
     if request.method == 'GET':

@@ -105,11 +105,6 @@ class Generation:
             '''User input for notes is in ABC notation. parse it and then decode the notes into out notation'''
             #self.iSeq = converter.parse(self.args['input_seq'])
         except KeyError:
-            #p = stream.Part()
-            #m = stream.Measure()
-            #m.append(note.Note(nameWithOctave="C5", duration=1.0))
-            #p.append(m)
-            #self.iSeq = p[1]
             self.iSeq = ["Note C 1.0"]
 
         self.export = []
