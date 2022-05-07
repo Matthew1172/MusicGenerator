@@ -64,7 +64,7 @@ class Generation:
             self.setRandInitTime()
 
         try:
-            self.iSeq = self.args['input_seq'].split('$')
+            self.iSeq = re.split('\$\s*(?![^{}]*\})', self.args['input_seq'])
         except KeyError:
             self.setRandInitSeq()
 
