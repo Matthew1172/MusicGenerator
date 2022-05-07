@@ -15,43 +15,10 @@ from parseAbcString import *
 class Generation:
     def __init__(self, **kwargs):
         self.args = {**kwargs}
+        self.rSeqLen = 1
+        self.numberOfSongs = 1
 
         self.DATASET = self.args['dataset']
-
-        try:
-            self.rClef = eval(self.args['random_clef'])
-        except KeyError:
-            self.rClef = False
-        except:
-            self.rClef = False
-
-        try:
-            self.rKey = eval(self.args['random_key'])
-        except KeyError:
-            self.rKey = False
-        except:
-            self.rKey = False
-
-        try:
-            self.rTime = eval(self.args['random_time'])
-        except KeyError:
-            self.rTime = False
-        except:
-            self.rTime = False
-
-        try:
-            self.rSeq = eval(self.args['random_seq'])
-        except KeyError:
-            self.rSeq = False
-        except:
-            self.rSeq = False
-
-        try:
-            self.rSeqLen = int(self.args['random_seq_length'])
-        except KeyError:
-            self.rSeqLen = 1
-        except:
-            self.rSeqLen = 1
 
         try:
             self.temp = float(self.args['temperature'])
@@ -69,13 +36,6 @@ class Generation:
 
         self.log_interval = 200
 
-        try:
-            self.numberOfSongs = int(self.args['songs'])
-        except KeyError:
-            self.numberOfSongs = 1
-        except:
-            self.numberOfSongs = 1
-
         if (torch.cuda.is_available()):
             print("GPU: ", torch.cuda.get_device_name(1), " is available, Switching now.")
         else:
@@ -87,25 +47,26 @@ class Generation:
         self.dic = data.Dictionary()
         try:
             self.iClef = self.args['input_clef']
+            if self.iClef == "random": self.setRandInitClef()
         except KeyError:
-            self.iClef = "Clef G"
+            self.setRandInitClef()
 
         try:
             self.iKey = self.args['input_key']
+            if self.iKey == "random": self.setRandInitKey()
         except KeyError:
-            self.iKey = "Key 2"
+            self.setRandInitKey()
 
         try:
             self.iTime = self.args['input_time']
+            if self.iTime == "random": self.setRandInitTime()
         except KeyError:
-            self.iTime = "Time 4 4"
+            self.setRandInitTime()
 
         try:
             self.iSeq = self.args['input_seq'].split('$')
-            '''User input for notes is in ABC notation. parse it and then decode the notes into out notation'''
-            #self.iSeq = converter.parse(self.args['input_seq'])
         except KeyError:
-            self.iSeq = ["Note C 1.0"]
+            self.setRandInitSeq()
 
         self.export = []
 
@@ -146,26 +107,6 @@ class Generation:
             print(
                 "No dictionary file available for loading. Please run the Extraction.py script before generation or training.")
             exit(-998)
-
-    def setInitClef(self):
-        if self.rClef:
-            clefs = [clef for clef in self.dic.idx2word if "Clef" in clef]
-            self.iClef = clefs[randint(0, len(clefs) - 1)]
-
-    def setInitKey(self):
-        if self.rKey:
-            keys = [key for key in self.dic.idx2word if "Key" in key]
-            self.iKey = keys[randint(0, len(keys) - 1)]
-
-    def setInitTime(self):
-        if self.rTime:
-            times = [time for time in self.dic.idx2word if "Time" in time]
-            self.iTime = times[randint(0, len(times) - 1)]
-
-    def setInitSeq(self):
-        if self.rSeq:
-            notes = [note for note in self.dic.idx2word if "Note" in note]
-            self.iSeq = [notes[randint(0, len(notes) - 1)] for i in range(self.rSeqLen)]
 
     def setRandInitClef(self):
         clefs = [clef for clef in self.dic.idx2word if "Clef" in clef]

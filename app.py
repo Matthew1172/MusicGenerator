@@ -108,13 +108,7 @@ def mgen():
 
         g.loadModel()
         g.loadDictionary()
-        g.setInitClef()
-        g.setInitKey()
-        g.setInitTime()
-        g.setInitSeq()
 
-        '''TODO: check for custom exceptions and return proper error codes.
-        Append all errors to one error code so the user can see everything at once.'''
         try:
             g.checkInitClef()
             g.checkInitKey()
