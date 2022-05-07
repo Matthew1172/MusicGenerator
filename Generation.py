@@ -175,15 +175,12 @@ class Generation:
             print("Generating song {}/{}".format(sn, self.numberOfSongs))
             generatedSong = []
 
-            '''
             if self.iClef != '':
                 generatedSong.append(self.dic.idx2word[self.dic.word2idx[self.iClef]])
             if self.iKey != '':
                 generatedSong.append(self.dic.idx2word[self.dic.word2idx[self.iKey]])
             if self.iTime != '':
                 generatedSong.append(self.dic.idx2word[self.dic.word2idx[self.iTime]])
-            '''
-
             if len(self.iSeq) > 0:
                 for n in self.iSeq: generatedSong.append(self.dic.idx2word[self.dic.word2idx[n]])
 
