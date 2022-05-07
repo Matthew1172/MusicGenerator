@@ -14,10 +14,6 @@ xml_response_headers = {"Content-Type": "text/xml",
                         "charset":      "utf-8"
                         }
 
-'''TODO: remove this and extract time signature properly'''
-#use this parameter or extract it from the metadata somehow
-timesignature = meter.TimeSignature('4/4')
-
 '''TODO: add a routes to get all notes, clefs, times, and keys available in dictionary'''
 '''TODO: add route to get all available datasets'''
 '''
@@ -97,6 +93,8 @@ def mgen():
     if request.method == 'POST':
         content = request.json
 
+        print(content)
+
         '''TODO: check all keys of content and do error handling.'''
 
         DATASETS = "datasets"
@@ -114,14 +112,6 @@ def mgen():
         g.setInitKey()
         g.setInitTime()
         g.setInitSeq()
-
-        abc = content['abc']
-
-
-        print(abc)
-
-
-        g.loadDataFromAbc(abc)
 
         '''TODO: check for custom exceptions and return proper error codes.
         Append all errors to one error code so the user can see everything at once.'''
