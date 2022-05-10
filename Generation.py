@@ -200,6 +200,12 @@ class Generation:
             out = self.GENERATION_PREFIX + "_" + str(sn)
             self.export.append((out, p))
 
+    '''
+    The input is a song in our notation
+    ex.
+    ["Clef G", "Time 3 4", "Key 2", "Note C4 1.0", ...]
+    The output is a music 21 object representing this song.
+    '''
     def encode(self, generatedSong):
         p = stream.Part()
         m = stream.Measure()

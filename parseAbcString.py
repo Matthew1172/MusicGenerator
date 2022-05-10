@@ -57,6 +57,12 @@ def parseToken(t):
         da += "}"
     return da
 
+'''
+The input is a song in abc notation
+The output is a song in our notation
+ex.
+["Clef G", "Time 3 4", "Key 2", "Note C4 1.0", ...]
+'''
 def parseAbcString(abc_song):
     print(abc_song)
     pretty_song = []
