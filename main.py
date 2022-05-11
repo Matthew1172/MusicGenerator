@@ -1,354 +1,176 @@
-import numpy as np
 import torch.distributions.distribution
-from tqdm import tqdm
-from MySong import *
-from LSTM_Model import *
+from torch.optim.lr_scheduler import ExponentialLR
+
+from Transformer_Model import *
+import data
+import os
+import time
+from common import DATASETS, DATASET, CHECKPOINT_DIR, CHECKPOINT_PREFIX, bin
 
 if(torch.cuda.is_available()):
-    print("GPU: ",torch.cuda.get_device_name(0)," is available, Switching now.")
+    print("GPU: ",torch.cuda.get_device_name(0), " is available, Switching now.")
 else:
     print("GPU is not available, using CPU.")
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device2 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 print("Device is now: ", device)
 
-train = False
-inference = True
-### Hyperparameter setting and optimization ###
-
-epochs = 1
-
-# Optimization parameters:
-num_training_iterations = 15000
-batch_size = 64  # Experiment between 1 and 64
-seq_length = 500  # Experiment between 50 and 500
-learning_rate = 25e-3  # Experiment between 1e-5 and 1e-1
-
-# Model parameters:
-embedding_dim = 256
-rnn_units = 2048  # Experiment between 1 and 2048
-
-# Checkpoint location:
-checkpoint_dir = 'training_checkpoints_pytorch'
-checkpoint_prefix = 'my_ckpt.pth'
-
-checkpoint_dir = os.path.join(cwd, checkpoint_dir)
-checkpoint_prefix = os.path.join(checkpoint_dir, checkpoint_prefix)
-
-
-songs = []
-with open(os.path.join(cwd, 'dataset', 'irish.abc'), 'r') as f:
-    text = f.read()
-    songs = extract_song_snippet(text)
-
-# Print one of the songs to inspect it in greater detail!
-example_song = songs[0]
-print("\nExample song: ")
-print(example_song)
-
-# need abc2midi and timidity
-play_song(example_song)
-
-# Join our list of song strings into a single string containing all songs
-songs_joined = "\n\n".join(songs)
-
-# Find all unique characters in the joined string
-vocab = sorted(set(songs_joined))
-print("There are", len(vocab), "unique characters in the dataset")
-
-vocab_size = len(vocab)
-
-### Define numerical representation of text ###
-
-# Create a mapping from character to unique index.
-# For example, to get the index of the character "d",
-#   we can evaluate `char2idx["d"]`.
-char2idx = {u: i for i, u in enumerate(vocab)}
-
-# Create a mapping from indices to characters. This is
-#   the inverse of char2idx and allows us to convert back
-#   from unique index to the character in our vocabulary.
-idx2char = np.array(vocab)  ### Define numerical representation of text ###
-
-# Create a mapping from character to unique index.
-# For example, to get the index of the character "d",
-#   we can evaluate `char2idx["d"]`.
-char2idx = {u: i for i, u in enumerate(vocab)}
-
-# Create a mapping from indices to characters. This is
-#   the inverse of char2idx and allows us to convert back
-#   from unique index to the character in our vocabulary.
-idx2char = np.array(vocab)
-
-print('{')
-for char, _ in zip(char2idx, range(20)):
-    print('  {:4s}: {:3d},'.format(repr(char), char2idx[char]))
-print('  ...\n}')
-
-### Vectorize the songs string ###
-
-'''
-  NOTE: the output of the `vectorize_string` function 
-  should be a np.array with `N` elements, where `N` is
-  the number of characters in the input string
-'''
-
-
-def vectorize_string(string):
-    vectorized_list = np.array([char2idx[s] for s in string])
-    return vectorized_list
-
-
-vectorized_songs = vectorize_string(songs_joined)
-
-print('{} ---- characters mapped to int ----> {}'.format(repr(songs_joined[:10]), vectorized_songs[:10]))
-# check that vectorized_songs is a numpy array
-assert isinstance(vectorized_songs, np.ndarray), "returned result should be a numpy array"
-
-
-def test_batch_func_types(func, args):
-    ret = func(*args)
-    assert len(ret) == 2, "[FAIL] get_batch must return two arguments (input and label)"
-    assert type(ret[0]) == np.ndarray, "[FAIL] test_batch_func_types: x is not np.array"
-    assert type(ret[1]) == np.ndarray, "[FAIL] test_batch_func_types: y is not np.array"
-    print("[PASS] test_batch_func_types")
-    return True
-
-
-def test_batch_func_shapes(func, args):
-    dataset, seq_length, batch_size = args
-    x, y = func(*args)
-    correct = (batch_size, seq_length)
-    assert x.shape == correct, "[FAIL] test_batch_func_shapes: x {} is not correct shape {}".format(x.shape, correct)
-    assert y.shape == correct, "[FAIL] test_batch_func_shapes: y {} is not correct shape {}".format(y.shape, correct)
-    print("[PASS] test_batch_func_shapes")
-    return True
-
-
-def test_batch_func_next_step(func, args):
-    x, y = func(*args)
-    assert (x[:, 1:] == y[:, :-1]).all(), "[FAIL] test_batch_func_next_step: x_{t} must equal y_{t-1} for all t"
-    print("[PASS] test_batch_func_next_step")
-    return True
-
-
-### Batch definition to create training examples ###
-
-def get_batch(vectorized_songs, seq_length, batch_size):
-    # the length of the vectorized songs string
-    n = vectorized_songs.shape[0] - 1
-    # randomly choose the starting indices for the examples in the training batch
-    idx = np.random.choice(n - seq_length, batch_size)
-
-    input_batch = [vectorized_songs[i:i + seq_length] for i in idx]
-    output_batch = [vectorized_songs[i + 1: i + 1 + seq_length] for i in idx]
-
-    # x_batch, y_batch provide the true inputs and targets for network training
-    x_batch = np.reshape(input_batch, [batch_size, seq_length])
-    y_batch = np.reshape(output_batch, [batch_size, seq_length])
-    return x_batch, y_batch
-
-
-# Perform some simple tests to make sure your batch function is working properly!
-test_args = (vectorized_songs, 10, 2)
-if not test_batch_func_types(get_batch, test_args) or \
-        not test_batch_func_shapes(get_batch, test_args) or \
-        not test_batch_func_next_step(get_batch, test_args):
-    print("======\n[FAIL] could not pass tests")
-else:
-    print("======\n[PASS] passed all tests!")
-
-x_batch, y_batch = get_batch(vectorized_songs, seq_length=5, batch_size=1)
-
-for i, (input_idx, target_idx) in enumerate(zip(np.squeeze(x_batch), np.squeeze(y_batch))):
-    print("Step {:3d}".format(i))
-    print("  input: {} ({:s})".format(input_idx, repr(idx2char[input_idx])))
-    print("  expected output: {} ({:s})".format(target_idx, repr(idx2char[target_idx])))
-
-
-# Build a simple model with default hyperparameters. You will get the
-#   chance to change these later.
-#model = MusicGenerator(len(vocab), embedding_dim=embedding_dim, rnn_units=rnn_units, batch_size=batch_size, seq_length=seq_length)
-
-model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
-model.to(device)
-print(model)
-
-x, y = get_batch(vectorized_songs, seq_length=100, batch_size=4)
-
-hn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-cn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-x = torch.tensor(x).to(device)
-pred, (hn, cn) = model(x, hn, cn)
-#pred = model(x)
-
-print("Input shape:      ", x.shape, " # (batch_size, sequence_length)")
-print("Prediction shape: ", pred.shape, "# (batch_size, sequence_length, vocab_size)")
-
-sampled_indices = torch.distributions.categorical.Categorical(logits=pred[0]).sample()
-sampled_indices = torch.squeeze(sampled_indices, dim=-1).cpu().numpy()
-
-print("Input: \n", repr("".join(idx2char[x.cpu()[0]])))
-# print()
-print("Next Char Predictions: \n", repr("".join(idx2char[sampled_indices])))
-
-### Defining the loss function ###
-
-def compute_loss(labels, logits):
-    x = logits.permute((0, 2, 1))  # shape of preds must be (N, C, H, W) instead of (N, H, W, C)
-    x.to(device)
-    y = torch.tensor(labels, device=device).long()  # shape of labels must be (N, H, W) and type must be long integer
-    F = torch.nn.CrossEntropyLoss()
-    loss = F(x, y)
-    loss.to(device)
-    return loss
-
-example_batch_loss = compute_loss(y, pred)
-
-print("Prediction shape: ", pred.shape, " # (batch_size, sequence_length, vocab_size)")
-'''
-example_batch_loss.numpy().mean() = 4.417909
-'''
-print("scalar_loss:      ", example_batch_loss.cpu().detach().numpy().mean())
-print(example_batch_loss)
-
-
-
-
-### Define optimizer and training operation ###
-
-model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
-model.to(device)
-
-#optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
-
-def torch_train(x, y, hn, cn):
-    x = torch.tensor(x).to(device)
-    optimizer.zero_grad()
-    # forward pass and loss calculation
-    # implicit tape-based AD
-    y_hat, (hn, cn) = model(x, hn, cn)
-    y_hat.to(device)
-    hn.to(device)
-    cn.to(device)
-    loss = compute_loss(y, y_hat)
-
-    # compute gradients (grad)
-    loss.backward()
-    optimizer.step()
-    return loss, (hn, cn)
-
-if train:
-
-    # try to create pytorch training checkpoints directory
-    try:
-        os.mkdir(checkpoint_dir)
-    except FileExistsError:
-        print("The pytorch training directory already exists...")
-
-    ##################
-    # Begin training!#
-    ##################
-    history = []
-    #plotter = PeriodicPlotter(sec=2, xlabel='Iterations', ylabel='Loss')
-    if hasattr(tqdm, '_instances'): tqdm._instances.clear()  # clear if it exists
-
-    for epoch in range(epochs):
-        hn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-        cn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-
-        for iter in tqdm(range(num_training_iterations)):
-
-            # Grab a batch and propagate it through the network
-            x_batch, y_batch = get_batch(vectorized_songs, seq_length, batch_size)
-            loss, (hn, cn) = torch_train(x_batch, y_batch, hn, cn)
-
-            # Update the progress bar
-            history.append(loss.cpu().detach().numpy().mean())
-            #plotter.plot(history)
-
-            # Update the model with the changed weights!
-            if iter % 100 == 0:
-                torch.save(model.state_dict(), checkpoint_prefix)
-
-    # Save the trained model and the weights
-    torch.save(model.state_dict(), checkpoint_prefix)
-
-
-if(inference):
-
-    ### Prediction of a generated song ###
-
-    def generate_text(model, start_string, generation_length=1000):
-        # Evaluation step (generating ABC text using the learned RNN model)
-
-        input_eval = [char2idx[s] for s in start_string]
-        input_eval = np.expand_dims(input_eval, axis=0)
-
-        # Empty string to store our results
-        text_generated = []
-
-        # Here batch size == 1
-        '''
-        for layer in model.children():
-            if hasattr(layer, 'reset_parameters'):
-                layer.reset_parameters()
-        '''
-        hn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-        cn = torch.zeros(1, 1, rnn_units).to(device)  # [num_layers*num_directions,batch,hidden_size]
-
-        tqdm._instances.clear()
-
-        for i in tqdm(range(generation_length)):
-            input_eval = torch.tensor(input_eval).to(device)
-            predictions, (hn, cn) = model(input_eval, hn, cn)
-            predictions.to(device)
-
-            # Remove the batch dimension
-            # predictions = tf.squeeze(predictions, 0)
-            predictions = torch.squeeze(predictions, dim=0)
-
-            # predicted_id = tf.random.categorical(predictions, num_samples=1)[-1, 0].numpy()
-            predicted_id = torch.distributions.categorical.Categorical(logits=predictions).sample()[0].cpu().numpy()
-            # predicted_id = torch.distributions.categorical.Categorical(logits=predictions)
-
-            # Pass the prediction along with the previous hidden state
-            #   as the next inputs to the model
-            input_eval = np.expand_dims(np.array([predicted_id]), axis=0)
-
-            '''add the predicted character to the generated text!'''
-            # Hint: consider what format the prediction is in vs. the output
-            text_generated.append(idx2char[predicted_id])
-
-        return (start_string + ''.join(text_generated))
-
-    # Restore the model weights for the last checkpoint after training
-    model = MyLSTM(vocab_size, embedding_dim, rnn_units, batch_size, seq_length)
-    model.to(device)
-    model.load_state_dict(torch.load(checkpoint_prefix, map_location=device))
+#size of word embeddings
+emsize = 512
+#number of hidden units per layer
+hidden_units = 2048
+#number of layers
+nlayers = 2
+#initial learning rate
+learning_rate = 1e-1
+#momentum for SGD
+momentum = 0.9
+#upper epoch limit
+epochs = 200
+#batch size
+batch_size = 10
+#sequence length
+bptt = 150
+#dropout applied to layers (0 = no dropout)
+dropout = 0.65
+#report interval
+log_interval = 200
+#the number of heads in the encoder/decoder of the transformer model
+num_heads = 8
+#model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
+loss_fn = "NLL"
+opt = "SGD"
+
+assert os.path.exists(DATASETS)
+assert os.path.exists(DATASET)
+assert os.path.exists(CHECKPOINT_DIR)
+
+myCorpus = data.Corpus(DATASET, from_bin=bin)
+print("Found {} bad songs out of {}.".format(myCorpus.bad, myCorpus.total))
+
+def batchify(data, bsz):
+    # Work out how cleanly we can divide the dataset into bsz parts.
+    nbatch = data.size(0) // bsz
+    # Trim off any extra elements that wouldn't cleanly fit (remainders).
+    data = data.narrow(0, 0, nbatch * bsz)
+    # Evenly divide the data across the bsz batches.
+    data = data.view(bsz, -1).t().contiguous()
+    return data.to(device)
+
+eval_batch_size = 10
+train_data = batchify(myCorpus.train, batch_size)
+val_data = batchify(myCorpus.valid, eval_batch_size)
+test_data = batchify(myCorpus.test, eval_batch_size)
+
+###############################################################################
+# Build the model
+###############################################################################
+
+ntokens = len(myCorpus.dictionary)
+model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
+
+criterion = nn.NLLLoss()
+#criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+#optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, amsgrad=True)
+#optimizer = torch.optim.AdamW(model.parameters())
+scheduler = ExponentialLR(optimizer, gamma=0.9)
+
+###############################################################################
+# Training code
+###############################################################################
+
+def repackage_hidden(h):
+    """Wraps hidden states in new Tensors, to detach them from their history."""
+
+    if isinstance(h, torch.Tensor):
+        return h.detach()
+    else:
+        return tuple(repackage_hidden(v) for v in h)
+
+def get_batch(source, i):
+    seq_len = min(bptt, len(source) - 1 - i)
+    data = source[i:i+seq_len]
+    target = source[i+1:i+1+seq_len].view(-1)
+    return data, target
+
+def evaluate(data_source):
+    # Turn on evaluation mode which disables dropout.
     model.eval()
-    print(model)
+    total_loss = 0.
+    ntokens = len(myCorpus.dictionary)
+    with torch.no_grad():
+        for i in range(0, data_source.size(0) - 1, bptt):
+            data, targets = get_batch(data_source, i)
+            output = model(data)
+            output = output.view(-1, ntokens)
+            total_loss += len(data) * criterion(output, targets).item()
+    return total_loss / (len(data_source) - 1)
 
-    '''Use the model and the function defined above to generate ABC format text of length 1000!
-        As you may notice, ABC files start with "X" - this may be a good start string.'''
-    generated_text = generate_text(model, start_string="X", generation_length=1000)
+def train():
+    # Turn on training mode which enables dropout.
+    model.train()
+    total_loss = 0.
+    start_time = time.time()
+    ntokens = len(myCorpus.dictionary)
+    for batch, i in enumerate(range(0, train_data.size(0) - 1, bptt)):
+        data, targets = get_batch(train_data, i)
+        # Starting each batch, we detach the hidden state from how it was previously produced.
+        # If we didn't, the model would try backpropagating all the way to start of the dataset.
+        #model.zero_grad()
+        optimizer.zero_grad()
+        output = model(data)
+        output = output.view(-1, ntokens)
+        loss = criterion(output, targets)
+        loss.backward()
+        optimizer.step()
 
-    generated_songs = extract_song_snippet(generated_text)
+        total_loss += loss.item()
 
-    for i, song in enumerate(generated_songs):
-        # could be incorrect ABC notational syntax, save the ABC file anyway...
-        print("---------------------------------------------------------------")
-        print("Generated song", i)
-        song_lines = song.split("\n")
-        notAllowed = "!\"#'(),./:<=>[]^_|"
-        if any(j[0:2] == "T:" for j in song_lines):
-            for j in song_lines:
-                if j[0:2] == "T:":
-                    n = j[-(len(j) - 2): len(j)]
-                    for specialChar in notAllowed:
-                        n = n.replace(specialChar, '')
-        else:
-            n = "gan_song_{}".format(i)
-        basename = os.path.join(op, save_song_to_abc(song, filename=n))
-        abc2wav(basename + '.abc')
+        if batch % log_interval == 0 and batch > 0:
+            pass
+        cur_loss = total_loss / log_interval
+        elapsed = time.time() - start_time
+        print('| epoch {:3d} | {:5d}/{:5d} batches | lr {} | ms/batch {:5.2f} | '
+                'loss {:5.2f} | ppl {:8.2f} | meanloss: {:5.2f}'.format(
+            epoch, batch, len(train_data) // bptt, scheduler.get_lr(),
+            elapsed * 1000 / log_interval, cur_loss, math.exp(cur_loss), loss.cpu().detach().numpy().mean()))
+        total_loss = 0
+        start_time = time.time()
+
+    scheduler.step()
+
+# Loop over epochs.
+best_val_loss = None
+
+# At any point you can hit Ctrl + C to break out of training early.
+try:
+    for epoch in range(1, epochs+1):
+        epoch_start_time = time.time()
+        train()
+        val_loss = evaluate(val_data)
+        print('-' * 89)
+        print('| end of epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '
+                'valid ppl {:8.2f}'.format(epoch, (time.time() - epoch_start_time),
+                                           val_loss, math.exp(val_loss)))
+        print('-' * 89)
+        # Save the model if the validation loss is the best we've seen so far.
+        if not best_val_loss or val_loss < best_val_loss:
+            with open(CHECKPOINT_PREFIX, 'wb') as f:
+                torch.save(model, f)
+            best_val_loss = val_loss
+except KeyboardInterrupt:
+    print('-' * 89)
+    print('Exiting from training early')
+
+# Load the best saved model.
+with open(CHECKPOINT_PREFIX, 'rb') as f:
+    model = torch.load(f)
+
+# Run on test data.
+test_loss = evaluate(test_data)
+print('=' * 89)
+print('| End of training | test loss {:5.2f} | test ppl {:8.2f}'.format(
+    test_loss, math.exp(test_loss)))
+print('=' * 89)
