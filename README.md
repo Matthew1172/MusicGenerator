@@ -6,6 +6,9 @@ A deep-learning Music generator based on GoodBoyChan for [Professor J. Zhang's](
   - [Table of Contents](#table-of-contents)
   - [Contributors](#contributors)
   - [Introduction](#introduction)
+  - [Getting Started](#getting-started)
+    - [Running Online](#running-online)
+    - [Running Locally](#running-locally)
   - [Background/Motivation/Targeted Application](#backgroundmotivationtargeted-application)
   - [Architecture/Framework](#architectureframework)
   - [Progresses on Components/Steps](#progresses-on-componentssteps)
@@ -22,6 +25,12 @@ A deep-learning Music generator based on GoodBoyChan for [Professor J. Zhang's](
 
 ## Introduction
 Music composition has long been a part of the video game experience with game developers spending as much as 15% of their production budget on custom soundtracks (Sweet). Game directors want tailored music that will immerse the player in virtual worlds and enhance their gameplay. We are proposing the development of a music generator that uses the transformer machine learning model to create new music. Previous attempts from our group have used 1. An Optical Music Recognition (OMR) System to classify notes on prepared sheet music 2. Long short-term memory (LSTM) model to generate new sheet music based on output from the OMR system. After obtaining low accuracy on the OMR system, we plan to pivot our project and develop the transformer model, which would generate new music based on prepared sheet music directly. As the need for personalized user experience grows in the gaming industry with investments in the metaverse, we are developing a music generator for the next generation of games. 
+
+## Getting Started
+### Running Online
+The project is currently hosted [online](http://geoteci.engr.ccny.cuny.edu/~pec21/). We'd love for you to try it out and give [feedback](https://github.com/Matthew1172/MusicGenerator/issues)! Running the project is as simple as selecting the paremeters you want and pressing generate.
+### Running Locally
+This section will be updated with more information in the future.
 
 ## Background/Motivation/Targeted Application
 Why a music generator? As it stands, most video games have soundtracks that play as you progress through the game. After spending enough time playing, however, one starts to notice that there are a limited amount of songs that play cyclically, making the game feel limited and repetitive. Imagine, for contrast, a video game that plays a new song every time you play where each song is still thematically linked. Using our music generator, we can feed the model with songs written for a specific game and have the generator create a new song every time you play with a similar feel to the overall soundtrack. Moreover, many games currently have discrete songs for different situations. You can have peaceful music playing as you travel through the world only to have the song suddenly stop for more aggressive music to start playing as you start to fight a boss. Our music generator could be extended to allow game signals to tell the generator to make the song change its theme without stopping it. This will give the game a much greater sense of continuity as the song can change along with your progress instead of having to stop for a new one to start.
