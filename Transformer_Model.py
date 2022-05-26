@@ -52,11 +52,9 @@ class TransformerModel(nn.Module):
 
     def __init__(self, ntoken, ninp=512, nhead=8, nhid=2048, nlayers=6, dropout=0.5):
         super(TransformerModel, self).__init__()
+        self.ninp = ninp
         self.src_mask = None
         self.pos_encoder = PositionalEncoding(ninp, dropout)
-
-        #model(nn.Embedding(ntokens, 512)(data), nn.Embedding(ntokens, 512)(targets))
-
         self.my_encode = nn.Embedding(ntoken, ninp)
         self.my_decode = nn.Linear(ninp, ntoken)
         self.transformer = Transformer(d_model=ninp, nhead=nhead,
@@ -66,8 +64,10 @@ class TransformerModel(nn.Module):
                                        dropout=dropout)
 
     def forward(self, src, tgt, has_mask=True):
-        src = self.my_encode(src)
-        tgt = self.my_encode(tgt)
+        src = self.my_encode(src) * math.sqrt(self.ninp)
+        src = self.pos_encoder(src)
+        tgt = self.my_encode(tgt) * math.sqrt(self.ninp)
+        tgt = self.pos_encoder(tgt)
         output = self.transformer(src, tgt)
         output = self.my_decode(output)
         return F.log_softmax(output, dim=-1)
