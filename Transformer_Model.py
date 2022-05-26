@@ -2,7 +2,7 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn import TransformerEncoder, TransformerEncoderLayer
+from torch.nn import Transformer
 
 # Temporarily leave PositionalEncoding module here. Will be moved somewhere else.
 class PositionalEncoding(nn.Module):
@@ -50,54 +50,24 @@ class PositionalEncoding(nn.Module):
 class TransformerModel(nn.Module):
     """Container module with an encoder, a transformer module, and a decoder."""
 
-    def __init__(self, ntoken, ninp, nhead, nhid, nlayers, d0, d1, dropout=0.5):
+    def __init__(self, ntoken, ninp=512, nhead=8, nhid=2048, nlayers=6, dropout=0.5):
         super(TransformerModel, self).__init__()
-        try:
-            from torch.nn import TransformerEncoder, TransformerEncoderLayer
-        except:
-            raise ImportError('TransformerEncoder module does not exist in PyTorch 1.1 or lower.')
         self.src_mask = None
         self.pos_encoder = PositionalEncoding(ninp, dropout)
-        encoder_layers = TransformerEncoderLayer(ninp, nhead, nhid, dropout)
-        self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
-        self.encoder = nn.Embedding(ntoken, ninp)
-        self.ninp = ninp
-        self.decoder = nn.Linear(ninp, ntoken)
 
-        self.init_weights()
+        #model(nn.Embedding(ntokens, 512)(data), nn.Embedding(ntokens, 512)(targets))
 
-    def _generate_square_subsequent_mask(self, sz):
-        mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
-        mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
-        return mask
+        self.my_encode = nn.Embedding(ntoken, ninp)
+        self.my_decode = nn.Linear(ninp, ntoken)
+        self.transformer = Transformer(d_model=ninp, nhead=nhead,
+                                       num_encoder_layers=nlayers,
+                                       num_decoder_layers=nlayers,
+                                       dim_feedforward=nhid,
+                                       dropout=dropout)
 
-    def init_weights(self):
-        initrange = 0.1
-        nn.init.uniform_(self.encoder.weight, -initrange, initrange)
-        nn.init.zeros_(self.decoder.bias)
-        nn.init.uniform_(self.decoder.weight, -initrange, initrange)
-
-    def forward(self, src, has_mask=True):
-        if has_mask:
-            device = src.device
-            if self.src_mask is None or self.src_mask.size(0) != len(src):
-                mask = self._generate_square_subsequent_mask(len(src)).to(device)
-                self.src_mask = mask
-        else:
-            self.src_mask = None
-        #src is of shape (485, 1) which means <length-of-song>, <batch-size> and each element is an index
-        #for a word in the dictionary, so it must be 0<ele<9248
-        #ninp is the embedding size, which is 512.
-
-        #output of encoder is of shape (485, 1, 512) which means <length-of-song>, <batch-size>, <embedding-size>
-        src = self.encoder(src) * math.sqrt(self.ninp)
-        #output of positional encoder is of shape (485, 1, 512) which means <length-of-song>, <batch-size>, <embedding-size>
-        src = self.pos_encoder(src)
-        #output of the transformer encoder is of shape (485, 1, 512) which means <length-of-song>, <batch-size>, <embedding-size>
-        output = self.transformer_encoder(src, self.src_mask)
-        #output of decoder is of shape (485, 1, 9248) which means <length-of-song>, <batch-size>, <size-of-dic>
-        #for each note in the song, we have a singular list of probabilities for the next note of the sequence.
-        #Essentially, we want the probability from the last element of the first dim. This represents
-        #the transformers prediction of the next note "outside" of the song.
-        output = self.decoder(output)
+    def forward(self, src, tgt, has_mask=True):
+        src = self.my_encode(src)
+        tgt = self.my_encode(tgt)
+        output = self.transformer(src, tgt)
+        output = self.my_decode(output)
         return F.log_softmax(output, dim=-1)

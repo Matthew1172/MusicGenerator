@@ -5,6 +5,7 @@ from music21 import *
 from common import createDictionary
 from Dictionary import *
 from parseAbcString import *
+from sys import exit
 
 class Corpus(object):
     def __init__(self, path, from_bin=False):
