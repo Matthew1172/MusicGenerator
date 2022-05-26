@@ -98,9 +98,9 @@ def evaluate(data_source):
     with torch.no_grad():
         for i in range(0, data_source.size(0) - 1, bptt):
             data, targets = get_batch(data_source, i)
-            output = model(data)
+            output = model(data, targets)
             output = output.view(-1, ntokens)
-            total_loss += len(data) * criterion(output, targets).item()
+            total_loss += len(data) * criterion(output, torch.flatten(targets)).item()
     return total_loss / (len(data_source) - 1)
 
 def train():
