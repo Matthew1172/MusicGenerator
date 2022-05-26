@@ -4,6 +4,7 @@ import os
 from common import DATASETS, DATASET, CHECKPOINT_DIR, CHECKPOINT_PREFIX, bin
 from Transformer_Model import *
 from torch.optim.lr_scheduler import ExponentialLR
+import time
 
 if(torch.cuda.is_available()):
     print("GPU: ",torch.cuda.get_device_name(0), " is available, Switching now.")
