@@ -1,6 +1,8 @@
 # MusicGenerator
 A deep-learning Music generator for [Professor J. Zhang's](https://www.ccny.cuny.edu/profiles/jianting-zhang) Senior Design course at [The City College of New York (CCNY)](https://www.ccny.cuny.edu/engineering) for the Spring '22 semester.
 
+Try the demo here http://geoteci.engr.ccny.cuny.edu/~pec21/
+
 ## Table of Contents
 - [MusicGenerator](#musicgenerator)
   - [Table of Contents](#table-of-contents)
