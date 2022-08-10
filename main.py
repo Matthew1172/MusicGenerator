@@ -1,6 +1,9 @@
 import torch.distributions.distribution
 from torch.optim.lr_scheduler import ExponentialLR
-
+import torch.distributed as dist
+import torch.multiprocessing as mp
+import torch.optim as optim
+from torch.nn.parallel import DistributedDataParallel as DDP
 from Transformer_Model import *
 import data
 import os
@@ -41,6 +44,7 @@ num_heads = 8
 #model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
 loss_fn = "NLL"
 opt = "SGD"
+eval_batch_size = 10
 
 assert os.path.exists(DATASETS)
 assert os.path.exists(DATASET)
@@ -58,7 +62,6 @@ def batchify(data, bsz):
     data = data.view(bsz, -1).t().contiguous()
     return data.to(device)
 
-eval_batch_size = 10
 train_data = batchify(myCorpus.train, batch_size)
 val_data = batchify(myCorpus.valid, eval_batch_size)
 test_data = batchify(myCorpus.test, eval_batch_size)
@@ -68,14 +71,6 @@ test_data = batchify(myCorpus.test, eval_batch_size)
 ###############################################################################
 
 ntokens = len(myCorpus.dictionary)
-model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
-
-criterion = nn.NLLLoss()
-#criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
-#optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, amsgrad=True)
-#optimizer = torch.optim.AdamW(model.parameters())
-scheduler = ExponentialLR(optimizer, gamma=0.9)
 
 ###############################################################################
 # Training code
@@ -96,6 +91,10 @@ def get_batch(source, i):
     return data, target
 
 def evaluate(data_source):
+    ntokens = len(myCorpus.dictionary)
+
+    model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
+    loss_fn = nn.CrossEntropyLoss()
     # Turn on evaluation mode which disables dropout.
     model.eval()
     total_loss = 0.
@@ -105,64 +104,87 @@ def evaluate(data_source):
             data, targets = get_batch(data_source, i)
             output = model(data)
             output = output.view(-1, ntokens)
-            total_loss += len(data) * criterion(output, targets).item()
+            total_loss += len(data) * loss_fn(output, targets).item()
     return total_loss / (len(data_source) - 1)
 
-def train():
-    # Turn on training mode which enables dropout.
-    model.train()
-    total_loss = 0.
-    start_time = time.time()
-    ntokens = len(myCorpus.dictionary)
-    for batch, i in enumerate(range(0, train_data.size(0) - 1, bptt)):
-        data, targets = get_batch(train_data, i)
-        # Starting each batch, we detach the hidden state from how it was previously produced.
-        # If we didn't, the model would try backpropagating all the way to start of the dataset.
-        #model.zero_grad()
-        optimizer.zero_grad()
-        output = model(data)
-        output = output.view(-1, ntokens)
-        loss = criterion(output, targets)
-        loss.backward()
-        optimizer.step()
+def example(rank, world_size):
+    pass
 
-        total_loss += loss.item()
+def main():
+    world_size = 2
+    mp.spawn(demo_checkpoint,
+        args=(world_size,),
+        nprocs=world_size,
+        join=True)
 
-        if batch % log_interval == 0 and batch > 0:
-            pass
-        cur_loss = total_loss / log_interval
-        elapsed = time.time() - start_time
-        print('| epoch {:3d} | {:5d}/{:5d} batches | lr {} | ms/batch {:5.2f} | '
-                'loss {:5.2f} | ppl {:8.2f} | meanloss: {:5.2f}'.format(
-            epoch, batch, len(train_data) // bptt, scheduler.get_lr(),
-            elapsed * 1000 / log_interval, cur_loss, math.exp(cur_loss), loss.cpu().detach().numpy().mean()))
-        total_loss = 0
-        start_time = time.time()
+def demo_checkpoint(rank, world_size):
+    # Loop over epochs.
+    best_val_loss = None
 
-    scheduler.step()
+    # At any point you can hit Ctrl + C to break out of training early.
+    try:
+        for epoch in range(1, epochs + 1):
+            epoch_start_time = time.time()
+            # create default process group
+            dist.init_process_group("gloo", rank=rank, world_size=world_size)
+            # create local model
+            model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(
+                rank)
 
-# Loop over epochs.
-best_val_loss = None
+            # construct DDP model
+            ddp_model = DDP(model, device_ids=[rank])
+            # define loss function and optimizer
+            loss_fn = nn.CrossEntropyLoss()
+            optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+            scheduler = ExponentialLR(optimizer, gamma=0.9)
 
-# At any point you can hit Ctrl + C to break out of training early.
-try:
-    for epoch in range(1, epochs+1):
-        epoch_start_time = time.time()
-        train()
-        val_loss = evaluate(val_data)
+            # forward pass
+            total_loss = 0.
+            start_time = time.time()
+            for batch, i in enumerate(range(0, train_data.size(0) - 1, bptt)):
+                data, targets = get_batch(train_data, i)
+                optimizer.zero_grad()
+                output = ddp_model(data.to(rank))
+                output = output.view(-1, ntokens)
+                # backward pass
+                loss = loss_fn(output, targets).backward()
+                # update parameters
+                optimizer.step()
+
+                total_loss += loss.item()
+
+                if batch % log_interval == 0 and batch > 0:
+                    pass
+                cur_loss = total_loss / log_interval
+                elapsed = time.time() - start_time
+                print('| epoch {:3d} | {:5d}/{:5d} batches | lr {} | ms/batch {:5.2f} | '
+                      'loss {:5.2f} | ppl {:8.2f} | meanloss: {:5.2f}'.format(
+                    epoch, batch, len(train_data) // bptt, scheduler.get_lr(),
+                                  elapsed * 1000 / log_interval, cur_loss, math.exp(cur_loss),
+                    loss.cpu().detach().numpy().mean()))
+                total_loss = 0
+                start_time = time.time()
+
+            scheduler.step()
+            val_loss = evaluate(val_data)
+            print('-' * 89)
+            print('| end of epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '
+                  'valid ppl {:8.2f}'.format(epoch, (time.time() - epoch_start_time),
+                                             val_loss, math.exp(val_loss)))
+            print('-' * 89)
+            # Save the model if the validation loss is the best we've seen so far.
+            if rank == 0:
+                # All processes should see same parameters as they all start from same
+                # random parameters and gradients are synchronized in backward passes.
+                # Therefore, saving it in one process is sufficient.
+                if not best_val_loss or val_loss < best_val_loss:
+                    with open(CHECKPOINT_PREFIX, 'wb') as f:
+                        torch.save(ddp_model.state_dict(), f)
+                    best_val_loss = val_loss
+    except KeyboardInterrupt:
         print('-' * 89)
-        print('| end of epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '
-                'valid ppl {:8.2f}'.format(epoch, (time.time() - epoch_start_time),
-                                           val_loss, math.exp(val_loss)))
-        print('-' * 89)
-        # Save the model if the validation loss is the best we've seen so far.
-        if not best_val_loss or val_loss < best_val_loss:
-            with open(CHECKPOINT_PREFIX, 'wb') as f:
-                torch.save(model, f)
-            best_val_loss = val_loss
-except KeyboardInterrupt:
-    print('-' * 89)
-    print('Exiting from training early')
+        print('Exiting from training early')
+
 
 # Load the best saved model.
 with open(CHECKPOINT_PREFIX, 'rb') as f:
