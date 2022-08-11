@@ -71,6 +71,7 @@ test_data = batchify(myCorpus.test, eval_batch_size)
 ###############################################################################
 
 ntokens = len(myCorpus.dictionary)
+loss_fn = nn.CrossEntropyLoss()
 
 ###############################################################################
 # Training code
@@ -90,33 +91,6 @@ def get_batch(source, i):
     target = source[i+1:i+1+seq_len].view(-1)
     return data, target
 
-def evaluate(data_source):
-    ntokens = len(myCorpus.dictionary)
-
-    model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
-    loss_fn = nn.CrossEntropyLoss()
-    # Turn on evaluation mode which disables dropout.
-    model.eval()
-    total_loss = 0.
-    ntokens = len(myCorpus.dictionary)
-    with torch.no_grad():
-        for i in range(0, data_source.size(0) - 1, bptt):
-            data, targets = get_batch(data_source, i)
-            output = model(data)
-            output = output.view(-1, ntokens)
-            total_loss += len(data) * loss_fn(output, targets).item()
-    return total_loss / (len(data_source) - 1)
-
-def example(rank, world_size):
-    pass
-
-def main():
-    world_size = 2
-    mp.spawn(demo_checkpoint,
-        args=(world_size,),
-        nprocs=world_size,
-        join=True)
-
 def demo_checkpoint(rank, world_size):
     # Loop over epochs.
     best_val_loss = None
@@ -134,7 +108,6 @@ def demo_checkpoint(rank, world_size):
             # construct DDP model
             ddp_model = DDP(model, device_ids=[rank])
             # define loss function and optimizer
-            loss_fn = nn.CrossEntropyLoss()
             optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
             scheduler = ExponentialLR(optimizer, gamma=0.9)
 
@@ -166,7 +139,16 @@ def demo_checkpoint(rank, world_size):
                 start_time = time.time()
 
             scheduler.step()
-            val_loss = evaluate(val_data)
+            model.eval()
+            total_loss = 0.
+            with torch.no_grad():
+                for i in range(0, val_data.size(0) - 1, bptt):
+                    data, targets = get_batch(val_data, i)
+                    output = model(data)
+                    output = output.view(-1, ntokens)
+                    total_loss += len(data) * loss_fn(output, targets).item()
+            val_loss = total_loss / (len(val_data) - 1)
+
             print('-' * 89)
             print('| end of epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '
                   'valid ppl {:8.2f}'.format(epoch, (time.time() - epoch_start_time),
@@ -186,13 +168,32 @@ def demo_checkpoint(rank, world_size):
         print('Exiting from training early')
 
 
-# Load the best saved model.
-with open(CHECKPOINT_PREFIX, 'rb') as f:
-    model = torch.load(f)
+def main():
+    world_size = 2
+    mp.spawn(demo_checkpoint,
+        args=(world_size,),
+        nprocs=world_size,
+        join=True)
 
-# Run on test data.
-test_loss = evaluate(test_data)
-print('=' * 89)
-print('| End of training | test loss {:5.2f} | test ppl {:8.2f}'.format(
-    test_loss, math.exp(test_loss)))
-print('=' * 89)
+    # Load the best saved model.
+    with open(CHECKPOINT_PREFIX, 'rb') as f:
+        model = torch.load(f)
+
+    # Run on test data.
+    # Turn on evaluation mode which disables dropout.
+    model.eval()
+    total_loss = 0.
+    with torch.no_grad():
+        for i in range(0, test_data.size(0) - 1, bptt):
+            data, targets = get_batch(test_data, i)
+            output = model(data)
+            output = output.view(-1, ntokens)
+            total_loss += len(data) * loss_fn(output, targets).item()
+    test_loss = total_loss / (len(test_data) - 1)
+
+    print('=' * 89)
+    print('| End of training | test loss {:5.2f} | test ppl {:8.2f}'.format(
+        test_loss, math.exp(test_loss)))
+    print('=' * 89)
+
+if __name__ == "__main__": main()
