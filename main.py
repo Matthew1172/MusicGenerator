@@ -8,7 +8,19 @@ from Transformer_Model import *
 import data
 import os
 import time
-from common import DATASETS, DATASET, CHECKPOINT_DIR, CHECKPOINT_PREFIX, bin
+
+
+DATASETS = "datasets"
+DATASET = "ent"
+CWD = os.getcwd()
+DATASETS = os.path.join(CWD, DATASETS)
+DATASET = os.path.join(DATASETS, DATASET)
+# Checkpoint location:
+CHECKPOINT_DIR = 'training_checkpoints_pytorch'
+CHECKPOINT_DIR = os.path.join(DATASET, CHECKPOINT_DIR)
+CHECKPOINT_PREFIX = 'my_ckpt.pth'
+CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
+
 
 #size of word embeddings
 emsize = 512
