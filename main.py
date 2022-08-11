@@ -1,3 +1,13 @@
+import os
+import sys
+import tempfile
+import torch
+import torch.distributed as dist
+import torch.nn as nn
+import torch.optim as optim
+import torch.multiprocessing as mp
+
+'''
 import torch.distributions.distribution
 from torch.optim.lr_scheduler import ExponentialLR
 import torch.distributed as dist
@@ -61,6 +71,7 @@ test_data = batchify(myCorpus.test, eval_batch_size)
 ntokens = len(myCorpus.dictionary)
 loss_fn = nn.CrossEntropyLoss()
 
+'''
 class ToyModel(nn.Module):
     def __init__(self):
         super(ToyModel, self).__init__()
