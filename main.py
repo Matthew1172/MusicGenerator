@@ -61,9 +61,26 @@ test_data = batchify(myCorpus.test, eval_batch_size)
 ntokens = len(myCorpus.dictionary)
 loss_fn = nn.CrossEntropyLoss()
 
+class ToyModel(nn.Module):
+    def __init__(self):
+        super(ToyModel, self).__init__()
+        self.net1 = nn.Linear(10, 10)
+        self.relu = nn.ReLU()
+        self.net2 = nn.Linear(10, 5)
+
+    def forward(self, x):
+        return self.net2(self.relu(self.net1(x)))
+
 ###############################################################################
 # Training code
 ###############################################################################
+
+def setup(rank, world_size):
+    # initialize the process group
+    dist.init_process_group("gloo", rank=rank, world_size=world_size)
+
+def cleanup():
+    dist.destroy_process_group()
 
 def get_batch(source, i):
     seq_len = min(bptt, len(source) - 1 - i)
@@ -72,7 +89,27 @@ def get_batch(source, i):
     return data, target
 
 def demo_checkpoint(rank, world_size):
-    # Loop over epochs.
+
+    print(f"Running basic DDP example on rank {rank}.")
+    setup(rank, world_size)
+
+    # create model and move it to GPU with id rank
+    model = ToyModel().to(rank)
+    ddp_model = DDP(model, device_ids=[rank])
+
+    loss_fn = nn.MSELoss()
+    optimizer = optim.SGD(ddp_model.parameters(), lr=0.001)
+
+    optimizer.zero_grad()
+    outputs = ddp_model(torch.randn(20, 10))
+    labels = torch.randn(20, 5).to(rank)
+    loss_fn(outputs, labels).backward()
+    optimizer.step()
+
+    cleanup()
+
+    '''
+        # Loop over epochs.
     best_val_loss = None
 
     # At any point you can hit Ctrl + C to break out of training early.
@@ -146,6 +183,7 @@ def demo_checkpoint(rank, world_size):
     except KeyboardInterrupt:
         print('-' * 89)
         print('Exiting from training early')
+    '''
 
 
 def main():
@@ -154,6 +192,27 @@ def main():
         args=(world_size,),
         nprocs=world_size,
         join=True)
+    '''
+    # Load the best saved model.
+    with open(CHECKPOINT_PREFIX, 'rb') as f:
+        model = torch.load(f)
 
+    # Run on test data.
+    # Turn on evaluation mode which disables dropout.
+    model.eval()
+    total_loss = 0.
+    with torch.no_grad():
+        for i in range(0, test_data.size(0) - 1, bptt):
+            data, targets = get_batch(test_data, i)
+            output = model(data)
+            output = output.view(-1, ntokens)
+            total_loss += len(data) * loss_fn(output, targets).item()
+    test_loss = total_loss / (len(test_data) - 1)
+
+    print('=' * 89)
+    print('| End of training | test loss {:5.2f} | test ppl {:8.2f}'.format(
+        test_loss, math.exp(test_loss)))
+    print('=' * 89)
+    '''
 
 if __name__ == "__main__": main()
