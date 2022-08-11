@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.multiprocessing as mp
 
+from torch.nn.parallel import DistributedDataParallel as DDP
 '''
 import torch.distributions.distribution
 from torch.optim.lr_scheduler import ExponentialLR
