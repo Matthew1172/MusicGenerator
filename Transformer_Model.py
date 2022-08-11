@@ -93,7 +93,7 @@ class TransformerModel(nn.Module):
         #output of positional encoder is of shape (485, 1, 512) which means <length-of-song>, <batch-size>, <embedding-size>
         src = self.pos_encoder(src)
         #output of the transformer encoder is of shape (485, 1, 512) which means <length-of-song>, <batch-size>, <embedding-size>
-        output = self.transformer_encoder(src, self.src_mask)
+        output = self.transformer_encoder(src, None)
         #output of decoder is of shape (485, 1, 9248) which means <length-of-song>, <batch-size>, <size-of-dic>
         #for each note in the song, we have a singular list of probabilities for the next note of the sequence.
         #Essentially, we want the probability from the last element of the first dim. This represents
