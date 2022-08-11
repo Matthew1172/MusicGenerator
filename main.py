@@ -65,14 +65,6 @@ loss_fn = nn.CrossEntropyLoss()
 # Training code
 ###############################################################################
 
-def repackage_hidden(h):
-    """Wraps hidden states in new Tensors, to detach them from their history."""
-
-    if isinstance(h, torch.Tensor):
-        return h.detach()
-    else:
-        return tuple(repackage_hidden(v) for v in h)
-
 def get_batch(source, i):
     seq_len = min(bptt, len(source) - 1 - i)
     data = source[i:i+seq_len]
@@ -163,25 +155,5 @@ def main():
         nprocs=world_size,
         join=True)
 
-    # Load the best saved model.
-    with open(CHECKPOINT_PREFIX, 'rb') as f:
-        model = torch.load(f)
-
-    # Run on test data.
-    # Turn on evaluation mode which disables dropout.
-    model.eval()
-    total_loss = 0.
-    with torch.no_grad():
-        for i in range(0, test_data.size(0) - 1, bptt):
-            data, targets = get_batch(test_data, i)
-            output = model(data)
-            output = output.view(-1, ntokens)
-            total_loss += len(data) * loss_fn(output, targets).item()
-    test_loss = total_loss / (len(test_data) - 1)
-
-    print('=' * 89)
-    print('| End of training | test loss {:5.2f} | test ppl {:8.2f}'.format(
-        test_loss, math.exp(test_loss)))
-    print('=' * 89)
 
 if __name__ == "__main__": main()
