@@ -10,15 +10,6 @@ import os
 import time
 from common import DATASETS, DATASET, CHECKPOINT_DIR, CHECKPOINT_PREFIX, bin
 
-if(torch.cuda.is_available()):
-    print("GPU: ",torch.cuda.get_device_name(0), " is available, Switching now.")
-else:
-    print("GPU is not available, using CPU.")
-
-device2 = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
-print("Device is now: ", device)
-
 #size of word embeddings
 emsize = 512
 #number of hidden units per layer
@@ -41,9 +32,6 @@ dropout = 0.65
 log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
 num_heads = 8
-#model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(device)
-loss_fn = "NLL"
-opt = "SGD"
 eval_batch_size = 10
 
 assert os.path.exists(DATASETS)
@@ -60,7 +48,7 @@ def batchify(data, bsz):
     data = data.narrow(0, 0, nbatch * bsz)
     # Evenly divide the data across the bsz batches.
     data = data.view(bsz, -1).t().contiguous()
-    return data.to(device)
+    return data
 
 train_data = batchify(myCorpus.train, batch_size)
 val_data = batchify(myCorpus.valid, eval_batch_size)
@@ -102,7 +90,7 @@ def demo_checkpoint(rank, world_size):
             # create default process group
             dist.init_process_group("gloo", rank=rank, world_size=world_size)
             # create local model
-            model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, device, device, dropout).to(
+            model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, dropout).to(
                 rank)
 
             # construct DDP model
