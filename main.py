@@ -3,23 +3,13 @@ import sys
 import tempfile
 import torch
 import torch.distributed as dist
-import torch.nn as nn
 import torch.optim as optim
 import torch.multiprocessing as mp
+from torch.nn.parallel import DistributedDataParallel as DDP
 
-from torch.nn.parallel import DistributedDataParallel as DDP
-'''
-import torch.distributions.distribution
-from torch.optim.lr_scheduler import ExponentialLR
-import torch.distributed as dist
-import torch.multiprocessing as mp
-import torch.optim as optim
-from torch.nn.parallel import DistributedDataParallel as DDP
 from Transformer_Model import *
-import data
-import os
-import time
 from common import DATASETS, DATASET, CHECKPOINT_DIR, CHECKPOINT_PREFIX
+import data
 
 #size of word embeddings
 emsize = 512
@@ -48,8 +38,18 @@ eval_batch_size = 10
 assert os.path.exists(DATASETS)
 assert os.path.exists(DATASET)
 assert os.path.exists(CHECKPOINT_DIR)
+'''
+import torch.distributions.distribution
+from torch.optim.lr_scheduler import ExponentialLR
+import torch.distributed as dist
+import torch.multiprocessing as mp
+import torch.optim as optim
+from torch.nn.parallel import DistributedDataParallel as DDP
 
-myCorpus = data.Corpus(DATASET, from_bin=bin)
+import os
+import time
+
+
 print("Found {} bad songs out of {}.".format(myCorpus.bad, myCorpus.total))
 
 def batchify(data, bsz):
@@ -69,19 +69,12 @@ test_data = batchify(myCorpus.test, eval_batch_size)
 # Build the model
 ###############################################################################
 
-ntokens = len(myCorpus.dictionary)
 loss_fn = nn.CrossEntropyLoss()
 
 '''
-class ToyModel(nn.Module):
-    def __init__(self):
-        super(ToyModel, self).__init__()
-        self.net1 = nn.Linear(10, 10)
-        self.relu = nn.ReLU()
-        self.net2 = nn.Linear(10, 5)
 
-    def forward(self, x):
-        return self.net2(self.relu(self.net1(x)))
+myCorpus = data.Corpus(DATASET, from_bin=bin)
+ntokens = len(myCorpus.dictionary)
 
 ###############################################################################
 # Training code
@@ -111,7 +104,7 @@ def demo_checkpoint(rank, world_size):
     setup(rank, world_size)
 
     # create model and move it to GPU with id rank
-    model = ToyModel().to(rank)
+    model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, dropout).to(rank)
     ddp_model = DDP(model, device_ids=[rank])
 
     loss_fn = nn.MSELoss()
