@@ -48,16 +48,10 @@ def main(rank, world_size):
     # prepare the dataloader
     dataset = ABCMusicDataset(DATASET_PREFIX_PRETTY)
     sampler = DistributedSampler(dataset, num_replicas=world_size, rank=rank, shuffle=False, drop_last=False)
-
-    dataloader = DataLoader(dataset, batch_size=batch_size, pin_memory=pin_memory, num_workers=num_workers,
-                            drop_last=False, shuffle=False, sampler=sampler)
-
+    dataloader = get_valid_loader(dataset, 32, sampler, pin_memory=pin_memory, num_workers=num_workers, shuffle=False)
     ntokens = len(dataset.dic.idx2word)
-
-
     # instantiate the model(it's your own model) and move it to the right device
     model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, dropout).to(rank)
-
     # wrap the model with DDP
     # device_ids tell DDP where is your model
     # output_device tells DDP where to output, in our case, it is rank
@@ -84,8 +78,6 @@ def main(rank, world_size):
     cleanup()
 
 if __name__ == '__main__':
-
-    # suppose we have 3 gpus
     world_size = 2
     mp.spawn(
         main,

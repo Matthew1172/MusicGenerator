@@ -5,11 +5,11 @@ import pickle
 from Dictionary import *
 from torch.utils.data import Dataset, DataLoader
 
-def get_valid_loader(dataset, batch_size, num_workers=0, shuffle=True, pin_memory=True):
+def get_valid_loader(dataset, batch_size, sampler, num_workers=0, shuffle=True, pin_memory=True):
     pad_idx = 0
     loader = DataLoader(dataset, batch_size = batch_size, num_workers = num_workers,
                         shuffle=shuffle,
-                       pin_memory=pin_memory, collate_fn = MyCollate(pad_idx=pad_idx))
+                       pin_memory=pin_memory, collate_fn = MyCollate(pad_idx=pad_idx), sampler=sampler)
     return loader
 
 class MyCollate:
