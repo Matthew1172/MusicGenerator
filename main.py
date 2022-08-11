@@ -52,15 +52,6 @@ import time
 
 print("Found {} bad songs out of {}.".format(myCorpus.bad, myCorpus.total))
 
-def batchify(data, bsz):
-    # Work out how cleanly we can divide the dataset into bsz parts.
-    nbatch = data.size(0) // bsz
-    # Trim off any extra elements that wouldn't cleanly fit (remainders).
-    data = data.narrow(0, 0, nbatch * bsz)
-    # Evenly divide the data across the bsz batches.
-    data = data.view(bsz, -1).t().contiguous()
-    return data
-
 train_data = batchify(myCorpus.train, batch_size)
 val_data = batchify(myCorpus.valid, eval_batch_size)
 test_data = batchify(myCorpus.test, eval_batch_size)
@@ -73,8 +64,20 @@ loss_fn = nn.CrossEntropyLoss()
 
 '''
 
+def batchify(data, bsz):
+    # Work out how cleanly we can divide the dataset into bsz parts.
+    nbatch = data.size(0) // bsz
+    # Trim off any extra elements that wouldn't cleanly fit (remainders).
+    data = data.narrow(0, 0, nbatch * bsz)
+    # Evenly divide the data across the bsz batches.
+    data = data.view(bsz, -1).t().contiguous()
+    return data
+
+
 myCorpus = data.Corpus(DATASET, from_bin=bin)
 ntokens = len(myCorpus.dictionary)
+
+train_data = batchify(myCorpus.train, batch_size)
 
 ###############################################################################
 # Training code
@@ -89,14 +92,11 @@ def setup(rank, world_size):
 def cleanup():
     dist.destroy_process_group()
 
-'''
-
 def get_batch(source, i):
     seq_len = min(bptt, len(source) - 1 - i)
     data = source[i:i+seq_len]
     target = source[i+1:i+1+seq_len].view(-1)
     return data, target
-'''
 
 def demo_checkpoint(rank, world_size):
 
@@ -110,11 +110,14 @@ def demo_checkpoint(rank, world_size):
     loss_fn = nn.MSELoss()
     optimizer = optim.SGD(ddp_model.parameters(), lr=0.001)
 
-    optimizer.zero_grad()
-    outputs = ddp_model(torch.randn(20, 10))
-    labels = torch.randn(20, 5).to(rank)
-    loss_fn(outputs, labels).backward()
-    optimizer.step()
+    for batch, i in enumerate(range(0, train_data.size(0) - 1, bptt)):
+        data, targets = get_batch(train_data, i)
+        optimizer.zero_grad()
+
+        output = ddp_model(data.to(rank))
+
+        loss = loss_fn(output, targets).backward()
+        optimizer.step()
 
     cleanup()
 
