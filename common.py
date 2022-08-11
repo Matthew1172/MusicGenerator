@@ -16,20 +16,22 @@ CHECKPOINT_DIR = os.path.join(DATASET, CHECKPOINT_DIR)
 CHECKPOINT_PREFIX = 'my_ckpt.pth'
 CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
 
-try:
-    os.mkdir(DATASETS)
-except:
-    print("The datasets directory {} already exists.".format(DATASETS))
+def checkDirs():
+    try:
+        os.mkdir(DATASETS)
+    except:
+        print("The datasets directory {} already exists.".format(DATASETS))
 
-try:
-    os.mkdir(DATASET)
-except:
-    print("The new dataset directory {} already exists.".format(DATASET))
+    try:
+        os.mkdir(DATASET)
+    except:
+        print("The new dataset directory {} already exists.".format(DATASET))
 
-try:
-    os.mkdir(CHECKPOINT_DIR)
-except FileExistsError:
-    print("The directory checkpoint {} already exists.".format(CHECKPOINT_DIR))
+    try:
+        os.mkdir(CHECKPOINT_DIR)
+    except FileExistsError:
+        print("The directory checkpoint {} already exists.".format(CHECKPOINT_DIR))
+
 
 def createDictionary(mySongFormatCombined):
     dic = Dictionary()
