@@ -1,6 +1,4 @@
 from music21 import *
-from Dictionary import *
-from random import randint
 
 def logProcessSlow(position, length, output, fn):
     print("{}/{}\n\n{}\n\n".format(position, length, fn))
@@ -64,6 +62,7 @@ ex.
 ["Clef G", "Time 3 4", "Key 2", "Note C4 1.0", ...]
 '''
 def parseAbcString(abc_song):
+    print("-"*10)
     print(abc_song)
     pretty_song = []
     first = True

@@ -1,15 +1,15 @@
-import os
-import sys
-import tempfile
-import torch
-import torch.distributed as dist
-import torch.optim as optim
-import torch.multiprocessing as mp
-from torch.nn.parallel import DistributedDataParallel as DDP
+from torch import nn
 
+from MusicData import *
+from common import DATASET_PREFIX_PRETTY
+import torch.distributed as dist
+from torch.utils.data.distributed import DistributedSampler
+from torch.nn.parallel import DistributedDataParallel as DDP
+import torch.multiprocessing as mp
 from Transformer_Model import *
-from common import DATASETS, DATASET, CHECKPOINT_DIR, CHECKPOINT_PREFIX
-import data
+
+pin_memory=False
+num_workers=0
 
 #size of word embeddings
 emsize = 512
@@ -22,7 +22,7 @@ learning_rate = 1e-1
 #momentum for SGD
 momentum = 0.9
 #upper epoch limit
-epochs = 200
+epochs = 20
 #batch size
 batch_size = 10
 #sequence length
@@ -33,199 +33,78 @@ dropout = 0.65
 log_interval = 200
 #the number of heads in the encoder/decoder of the transformer model
 num_heads = 8
-eval_batch_size = 10
-
-assert os.path.exists(DATASETS)
-assert os.path.exists(DATASET)
-assert os.path.exists(CHECKPOINT_DIR)
-'''
-import torch.distributions.distribution
-from torch.optim.lr_scheduler import ExponentialLR
-import torch.distributed as dist
-import torch.multiprocessing as mp
-import torch.optim as optim
-from torch.nn.parallel import DistributedDataParallel as DDP
-
-import os
-import time
-
-
-print("Found {} bad songs out of {}.".format(myCorpus.bad, myCorpus.total))
-
-train_data = batchify(myCorpus.train, batch_size)
-val_data = batchify(myCorpus.valid, eval_batch_size)
-test_data = batchify(myCorpus.test, eval_batch_size)
-
-###############################################################################
-# Build the model
-###############################################################################
-
-loss_fn = nn.CrossEntropyLoss()
-
-'''
-
-def batchify(data, bsz):
-    # Work out how cleanly we can divide the dataset into bsz parts.
-    nbatch = data.size(0) // bsz
-    # Trim off any extra elements that wouldn't cleanly fit (remainders).
-    data = data.narrow(0, 0, nbatch * bsz)
-    # Evenly divide the data across the bsz batches.
-    data = data.view(bsz, -1).t().contiguous()
-    return data
-
-
-myCorpus = data.Corpus(DATASET, from_bin=bin)
-ntokens = len(myCorpus.dictionary)
-
-train_data = batchify(myCorpus.train, batch_size)
-
-###############################################################################
-# Training code
-###############################################################################
-
-def setup(rank, world_size):
-    os.environ['MASTER_ADDR'] = 'localhost'
-    os.environ['MASTER_PORT'] = '12355'
-    # initialize the process group
-    dist.init_process_group("gloo", rank=rank, world_size=world_size)
 
 def cleanup():
     dist.destroy_process_group()
 
-def get_batch(source, i):
-    seq_len = min(bptt, len(source) - 1 - i)
-    data = source[i:i+seq_len]
-    target = source[i+1:i+1+seq_len].view(-1)
-    return data, target
+def setup(rank, world_size):
+    os.environ['MASTER_ADDR'] = 'localhost'
+    os.environ['MASTER_PORT'] = '12355'
+    dist.init_process_group("gloo", rank=rank, world_size=world_size)
 
-def demo_checkpoint(rank, world_size):
-
-    print(f"Running basic DDP example on rank {rank}.")
+def main(rank, world_size):
+    # setup the process groups
     setup(rank, world_size)
+    # prepare the dataloader
+    dataset = ABCMusicDataset(DATASET_PREFIX_PRETTY)
+    sampler = DistributedSampler(dataset, num_replicas=world_size, rank=rank, shuffle=False, drop_last=False)
 
-    # create model and move it to GPU with id rank
+    dataloader = DataLoader(dataset, batch_size=batch_size, pin_memory=pin_memory, num_workers=num_workers,
+                            drop_last=False, shuffle=False, sampler=sampler)
+
+    ntokens = len(dataset.dic.idx2word)
+
+
+    # instantiate the model(it's your own model) and move it to the right device
     model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, dropout).to(rank)
-    ddp_model = DDP(model, device_ids=[rank])
 
-    loss_fn = nn.MSELoss()
-    optimizer = optim.SGD(ddp_model.parameters(), lr=0.001)
+    # wrap the model with DDP
+    # device_ids tell DDP where is your model
+    # output_device tells DDP where to output, in our case, it is rank
+    # find_unused_parameters=True instructs DDP to find unused output of the forward() function of any module in the model
+    model = DDP(model, device_ids=[rank], output_device=rank, find_unused_parameters=True)
+    #################### The above is defined previously
 
-    for batch, i in enumerate(range(0, train_data.size(0) - 1, bptt)):
-        data, targets = get_batch(train_data, i)
-        optimizer.zero_grad()
+    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+    loss_fn = nn.CrossEntropyLoss()
+    for epoch in range(epochs):
+        # if we are using DistributedSampler, we have to tell it which epoch this is
+        #dataloader.sampler.set_epoch(epoch)
+        sampler.set_epoch(epoch)
 
-        output = ddp_model(data.to(rank))
+        for step, x in enumerate(dataloader):
+            optimizer.zero_grad(set_to_none=True)
 
-        loss = loss_fn(output, targets).backward()
-        optimizer.step()
+            pred = model(x)
+            label = x['label']
 
+            loss = loss_fn(pred, label)
+            loss.backward()
+            optimizer.step()
     cleanup()
 
-    '''
-        # Loop over epochs.
-    best_val_loss = None
+if __name__ == '__main__':
 
-    # At any point you can hit Ctrl + C to break out of training early.
-    try:
-        for epoch in range(1, epochs + 1):
-            epoch_start_time = time.time()
-            # create default process group
-            dist.init_process_group("gloo", rank=rank, world_size=world_size)
-            # create local model
-            model = TransformerModel(ntokens, emsize, num_heads, hidden_units, nlayers, dropout).to(
-                rank)
-
-            # construct DDP model
-            ddp_model = DDP(model, device_ids=[rank])
-            # define loss function and optimizer
-            optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
-            scheduler = ExponentialLR(optimizer, gamma=0.9)
-
-            # forward pass
-            total_loss = 0.
-            start_time = time.time()
-            for batch, i in enumerate(range(0, train_data.size(0) - 1, bptt)):
-                data, targets = get_batch(train_data, i)
-                optimizer.zero_grad()
-                output = ddp_model(data.to(rank))
-                output = output.view(-1, ntokens)
-                # backward pass
-                loss = loss_fn(output, targets).backward()
-                # update parameters
-                optimizer.step()
-
-                total_loss += loss.item()
-
-                if batch % log_interval == 0 and batch > 0:
-                    pass
-                cur_loss = total_loss / log_interval
-                elapsed = time.time() - start_time
-                print('| epoch {:3d} | {:5d}/{:5d} batches | lr {} | ms/batch {:5.2f} | '
-                      'loss {:5.2f} | ppl {:8.2f} | meanloss: {:5.2f}'.format(
-                    epoch, batch, len(train_data) // bptt, scheduler.get_lr(),
-                                  elapsed * 1000 / log_interval, cur_loss, math.exp(cur_loss),
-                    loss.cpu().detach().numpy().mean()))
-                total_loss = 0
-                start_time = time.time()
-
-            scheduler.step()
-            model.eval()
-            total_loss = 0.
-            with torch.no_grad():
-                for i in range(0, val_data.size(0) - 1, bptt):
-                    data, targets = get_batch(val_data, i)
-                    output = model(data)
-                    output = output.view(-1, ntokens)
-                    total_loss += len(data) * loss_fn(output, targets).item()
-            val_loss = total_loss / (len(val_data) - 1)
-
-            print('-' * 89)
-            print('| end of epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '
-                  'valid ppl {:8.2f}'.format(epoch, (time.time() - epoch_start_time),
-                                             val_loss, math.exp(val_loss)))
-            print('-' * 89)
-            # Save the model if the validation loss is the best we've seen so far.
-            if rank == 0:
-                # All processes should see same parameters as they all start from same
-                # random parameters and gradients are synchronized in backward passes.
-                # Therefore, saving it in one process is sufficient.
-                if not best_val_loss or val_loss < best_val_loss:
-                    with open(CHECKPOINT_PREFIX, 'wb') as f:
-                        torch.save(ddp_model.state_dict(), f)
-                    best_val_loss = val_loss
-    except KeyboardInterrupt:
-        print('-' * 89)
-        print('Exiting from training early')
-    '''
-
-
-def main():
+    # suppose we have 3 gpus
     world_size = 2
-    mp.spawn(demo_checkpoint,
+    mp.spawn(
+        main,
         args=(world_size,),
-        nprocs=world_size,
-        join=True)
-    '''
-    # Load the best saved model.
-    with open(CHECKPOINT_PREFIX, 'rb') as f:
-        model = torch.load(f)
+        nprocs=world_size
+    )
 
-    # Run on test data.
-    # Turn on evaluation mode which disables dropout.
-    model.eval()
-    total_loss = 0.
-    with torch.no_grad():
-        for i in range(0, test_data.size(0) - 1, bptt):
-            data, targets = get_batch(test_data, i)
-            output = model(data)
-            output = output.view(-1, ntokens)
-            total_loss += len(data) * loss_fn(output, targets).item()
-    test_loss = total_loss / (len(test_data) - 1)
+'''
+dataset = ABCMusicDataset(DATASET_PREFIX_PRETTY)
 
-    print('=' * 89)
-    print('| End of training | test loss {:5.2f} | test ppl {:8.2f}'.format(
-        test_loss, math.exp(test_loss)))
-    print('=' * 89)
-    '''
-
-if __name__ == "__main__": main()
+train_sampler = torch.utils.data.distributed.DistributedSampler(dataset,
+                                                                num_replicas=2,
+                                                                rank=1)
+train_loader = torch.utils.data.DataLoader(dataset=train_sampler,
+                                           batch_size=32,
+                                           shuffle=False,
+                                           num_workers=0,
+                                           pin_memory=True,
+                                           sampler=train_sampler)
+train_loader = get_valid_loader(dataset, 32)
+target = next(iter(train_loader))
+'''

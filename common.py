@@ -1,10 +1,7 @@
-from music21 import *
 import os
-from Dictionary import *
 
 DATASETS = "datasets"
-DATASET = "ent"
-bin = True
+DATASET = "newDataLoader"
 
 CWD = os.getcwd()
 DATASETS = os.path.join(CWD, DATASETS)
@@ -15,6 +12,8 @@ CHECKPOINT_DIR = 'training_checkpoints_pytorch'
 CHECKPOINT_DIR = os.path.join(DATASET, CHECKPOINT_DIR)
 CHECKPOINT_PREFIX = 'my_ckpt.pth'
 CHECKPOINT_PREFIX = os.path.join(CHECKPOINT_DIR, CHECKPOINT_PREFIX)
+
+DATASET_PREFIX_PRETTY = os.path.join(DATASET, "dataset_PRETTY.pkl")
 
 def checkDirs():
     try:
@@ -32,10 +31,3 @@ def checkDirs():
     except FileExistsError:
         print("The directory checkpoint {} already exists.".format(CHECKPOINT_DIR))
 
-
-def createDictionary(mySongFormatCombined):
-    dic = Dictionary()
-    for ps in mySongFormatCombined:
-        for ele in ps:
-            dic.add_word(ele)
-    return dic

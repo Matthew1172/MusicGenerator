@@ -1,3 +1,4 @@
+'''
 import os
 from io import open
 import torch
@@ -44,7 +45,6 @@ class Corpus(object):
             songs = text.split("\n\n")
         self.total = len(songs)
         outputs = common.runParallel(songs, parseAbcString)
-        '''Create dictionary'''
         self.dictionary = createDictionary(outputs)
         return self.tokenizeFileContent(outputs)
 
@@ -65,3 +65,4 @@ class Corpus(object):
             idss.append(torch.tensor(ids, dtype=torch.int64))
         ids = torch.cat(idss)
         return ids
+'''

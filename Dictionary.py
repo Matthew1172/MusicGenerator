@@ -1,6 +1,3 @@
-import os
-import pickle
-
 class Dictionary(object):
     def __init__(self):
         self.word2idx = {}
@@ -18,6 +15,7 @@ class Dictionary(object):
         return len(self.idx2word)
 
     '''Pass the PATH to the folder e.x <set2>'''
+    '''
     def save_dictionary(self, PATH):
         assert os.path.exists(PATH)
         self.DIC_PREFIX = os.path.join(PATH, self.DIC_PREFIX)
@@ -43,3 +41,4 @@ class Dictionary(object):
         assert os.path.exists(self.LIST_PREFIX)
         with open(self.LIST_PREFIX, 'rb') as f:
             self.idx2word = pickle.load(f)
+    '''
