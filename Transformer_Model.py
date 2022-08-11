@@ -31,7 +31,7 @@ class PositionalEncoding(nn.Module):
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
         pe = pe.unsqueeze(0).transpose(0, 1)
-        self.register_buffer('pe', pe)
+        self.register_parameter('pe', nn.Parameter(pe, requires_grad=False))
 
     def forward(self, x):
         r"""Inputs of forward function
@@ -78,4 +78,25 @@ class TransformerModel(nn.Module):
         nn.init.uniform_(self.decoder.weight, -initrange, initrange)
 
     def forward(self, src, has_mask=True):
-        return src
+        if has_mask:
+            if self.src_mask is None or self.src_mask.size(0) != len(src):
+                mask = self._generate_square_subsequent_mask(len(src))
+                self.src_mask = mask
+        else:
+            self.src_mask = None
+        #src is of shape (485, 1) which means <length-of-song>, <batch-size> and each element is an index
+        #for a word in the dictionary, so it must be 0<ele<9248
+        #ninp is the embedding size, which is 512.
+
+        #output of encoder is of shape (485, 1, 512) which means <length-of-song>, <batch-size>, <embedding-size>
+        src = self.encoder(src) * math.sqrt(self.ninp)
+        #output of positional encoder is of shape (485, 1, 512) which means <length-of-song>, <batch-size>, <embedding-size>
+        src = self.pos_encoder(src)
+        #output of the transformer encoder is of shape (485, 1, 512) which means <length-of-song>, <batch-size>, <embedding-size>
+        output = self.transformer_encoder(src, self.src_mask)
+        #output of decoder is of shape (485, 1, 9248) which means <length-of-song>, <batch-size>, <size-of-dic>
+        #for each note in the song, we have a singular list of probabilities for the next note of the sequence.
+        #Essentially, we want the probability from the last element of the first dim. This represents
+        #the transformers prediction of the next note "outside" of the song.
+        output = self.decoder(output)
+        return F.log_softmax(output, dim=-1)
